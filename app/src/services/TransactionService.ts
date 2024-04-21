@@ -1,5 +1,5 @@
-import { TransactionRepository } from '@/server/domain/transaction/TransactionRepository';
-import { Transaction } from '@/server/domain/transaction/Transaction';
+import { TransactionRepository } from '@/repositories/TransactionRepository';
+import { Transaction } from '@/types/Transaction';
 
 export class TransactionService {
   private transactionRepository: TransactionRepository;

@@ -1,6 +1,6 @@
-import { Transaction } from '@/server/domain/transaction/Transaction';
 import { MongoClient } from 'mongodb';
 import clientPromise from '@/lib/mongodb';
+import { Transaction } from '@/types/Transaction';
 
 export class TransactionRepository {
   private collection: string;
