@@ -1,4 +1,4 @@
-import { TransactionRepository } from '@/repositories/TransactionRepository';
+import { TransactionRepository } from '@/repositories/transaction-repository';
 import { Transaction } from '@/types/Transaction';
 
 export class TransactionService {

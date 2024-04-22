@@ -21,4 +21,4 @@ services:
     depends_on:
       - mongodb
     environment:
-      MONGODB_URI: "mongodb://${MONGODB_USERNAME}:${MONGODB_USERNAME}@mongodb:27017"
+      MONGODB_URI: "mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@mongodb:27017"
