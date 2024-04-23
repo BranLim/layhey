@@ -5,8 +5,10 @@ import add from '@/actions/transactions';
 
 export default function Home() {
   return (
-    <Box>
-      <Button onClick={() => add()}>Add Transaction</Button>
-    </Box>
+    <main>
+      <Box>
+        <Button onClick={() => add()}>Add Transaction</Button>
+      </Box>
+    </main>
   );
 }

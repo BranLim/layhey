@@ -1,3 +1,6 @@
+#MONGO
+FROM mongo AS mongo-client
+
 # Use the official Node.js 18 image
 FROM node:18
 
@@ -12,6 +15,8 @@ RUN npm install
 
 # Copy the rest of the application code
 COPY . .
+
+COPY --from=mongo-client /usr/bin/mongo* /usr/bin/
 
 # Expose port 3000 to the outside world
 EXPOSE 3000
