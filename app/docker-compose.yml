@@ -1,5 +1,7 @@
 version: "3.9"
+
 name: layhey
+
 services:
   mongodb:
     image: mongo:latest
@@ -10,9 +12,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
-      MONGO_INITDB_DATABASE: layhey
-      LAYHEY_DB_USERNAME: ${LAYHEY_DB_USERNAME}
-      LAYHEY_DB_PASSWORD: ${LAYHEY_DB_PASSWORD}
     volumes:
       - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     env_file:
@@ -30,4 +29,8 @@ services:
     depends_on:
       - mongodb
     environment:
+      LAYHEY_DB_USERNAME: ${LAYHEY_DB_USERNAME}
+      LAYHEY_DB_PASSWORD: ${LAYHEY_DB_PASSWORD}
+      LAYHEY_DB_NAME: layhey
       MONGODB_URI: "mongodb://${LAYHEY_DB_USERNAME}:${LAYHEY_DB_PASSWORD}@mongodb:27017/layhey"
+
