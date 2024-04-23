@@ -1,8 +1,11 @@
+const username = process.env.LAYHEY_DB_USERNAME;
+const password = process.env.LAYHEY_DB_PASSWORD;
+
 db = db.getSiblingDB('layhey');
 
 db.createUser({
-  user: 'layheyapp',
-  pwd: 'l4yh3yadm1n',
+  user: username,
+  pwd: password,
   roles: [{ role: 'readWrite', db: 'layhey' }],
 });
 
