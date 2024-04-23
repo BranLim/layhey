@@ -12,11 +12,12 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: layhey
     volumes:
       - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     env_file:
       - .env
-    command: ["mongod", "--bind_ip_all", --auth]
+    command: [--auth]
 
   app:
     build: .
@@ -28,9 +29,10 @@ services:
       - "3000:3000"
     depends_on:
       - mongodb
+    env_file:
+      - .env
     environment:
       LAYHEY_DB_USERNAME: ${LAYHEY_DB_USERNAME}
       LAYHEY_DB_PASSWORD: ${LAYHEY_DB_PASSWORD}
       LAYHEY_DB_NAME: layhey
       MONGODB_URI: "mongodb://${LAYHEY_DB_USERNAME}:${LAYHEY_DB_PASSWORD}@mongodb:27017/layhey"
-
