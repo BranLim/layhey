@@ -1,13 +1,37 @@
 'use client';
 
-import { Box, Button } from '@chakra-ui/react';
-import add from '@/actions/transactions';
+import NextLink from 'next/link';
+import {
+  Box,
+  Flex,
+  IconButton,
+  LinkBox,
+  LinkOverlay,
+  Spacer,
+  Tooltip,
+} from '@chakra-ui/react';
+import { AddIcon } from '@chakra-ui/icons';
 
 export default function Home() {
   return (
     <main>
       <Box>
-        <Button onClick={() => add()}>Add Transaction</Button>
+        <Flex mt={20}>
+          <Spacer />
+          <Tooltip label='Add new Transaction'>
+            <LinkBox>
+              <LinkOverlay as={NextLink} href='/transactions/add'>
+                <IconButton
+                  background='green.400'
+                  color='white'
+                  icon={<AddIcon />}
+                  aria-label='Add Transaction'
+                ></IconButton>
+              </LinkOverlay>
+            </LinkBox>
+          </Tooltip>
+          <Spacer />
+        </Flex>
       </Box>
     </main>
   );
