@@ -1,16 +1,11 @@
 'use server';
 
 import { TransactionService } from '@/services/transaction-service';
+import { Transaction } from '@/types/Transaction';
 
-const add = async () => {
+const add = async (newTransaction: Transaction) => {
   var transactionService = new TransactionService();
-  await transactionService.addTransaction({
-    id: '1',
-    amount: 3.0,
-    category: 'test',
-    currency: 'SGD',
-    date: new Date(),
-  });
+  await transactionService.addTransaction(newTransaction);
 };
 
 export default add;
