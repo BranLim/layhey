@@ -2,10 +2,11 @@
 
 import { TransactionService } from '@/services/transaction-service';
 import { Transaction } from '@/types/Transaction';
+import { Option } from '@/types/Option';
 
-const add = async (newTransaction: Transaction) => {
+const add = async (newTransaction: Transaction, addOption?: Option) => {
   var transactionService = new TransactionService();
-  await transactionService.addTransaction(newTransaction);
+  await transactionService.addTransaction(newTransaction, addOption);
 };
 
 export default add;

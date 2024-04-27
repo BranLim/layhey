@@ -1,5 +1,6 @@
 import { TransactionRepository } from '@/repositories/transaction-repository';
 import { Transaction } from '@/types/Transaction';
+import { Option } from '@/types/Option';
 
 export class TransactionService {
   private transactionRepository: TransactionRepository;
@@ -7,7 +8,10 @@ export class TransactionService {
     this.transactionRepository = new TransactionRepository('transactions');
   }
 
-  async addTransaction(transaction: Transaction): Promise<void> {
+  async addTransaction(
+    transaction: Transaction,
+    option?: Option
+  ): Promise<void> {
     await this.transactionRepository.add(transaction);
   }
 }

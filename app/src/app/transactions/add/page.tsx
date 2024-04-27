@@ -7,9 +7,6 @@ import {
   FormControl,
   FormLabel,
   Input,
-  InputGroup,
-  NumberInput,
-  NumberInputField,
   Select,
   Spacer,
   Stack,
@@ -17,13 +14,18 @@ import {
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import add from '@/actions/transactions';
 import { Transaction } from '@/types/Transaction';
-import NumberFormat, { NumericFormat } from 'react-number-format';
+import { NumericFormat } from 'react-number-format';
 import { useState } from 'react';
+import { Option } from '@/types/Option';
+
+interface InputOption {}
 
 interface Input {
   amount: number;
   category: string;
   date: Date;
+  currency: string;
+  options: Option;
 }
 
 export default function AddTransaction() {
@@ -35,7 +37,7 @@ export default function AddTransaction() {
   } = useForm<Input>();
   const [amount, setAmount] = useState(0);
 
-  const onSubmit: SubmitHandler<Input> = async (data) => {
+  const onSubmit: SubmitHandler<Input> = async (data: Input) => {
     console.log(data);
     const newTransaction: Transaction = {
       amount: data.amount,
