@@ -3,6 +3,7 @@
 import {
   Box,
   Button,
+  Checkbox,
   Flex,
   FormControl,
   FormLabel,
@@ -16,22 +17,24 @@ import add from '@/actions/transactions';
 import { Transaction } from '@/types/Transaction';
 import { NumericFormat } from 'react-number-format';
 import { useState } from 'react';
-import { Option } from '@/types/Option';
 
-interface InputOption {}
+interface InputOption {
+  recurring: boolean;
+}
 
 interface Input {
   amount: number;
   category: string;
   date: Date;
   currency: string;
-  options: Option;
+  options: InputOption;
 }
 
 export default function AddTransaction() {
   const {
     register,
     handleSubmit,
+
     control,
     formState: { errors },
   } = useForm<Input>();
@@ -52,6 +55,17 @@ export default function AddTransaction() {
     <Box p={4} w={480}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={4}>
+          <FormControl>
+            <FormLabel htmlFor='category'>Category</FormLabel>
+            <Select
+              id='category'
+              placeholder='Transaction Category'
+              {...register('category', { required: true })}
+            >
+              <option>Income</option>
+              <option>Expense</option>
+            </Select>
+          </FormControl>
           <FormControl isRequired isInvalid={!!errors.amount}>
             <FormLabel htmlFor='amount'>Amount</FormLabel>
             <Controller
@@ -75,17 +89,6 @@ export default function AddTransaction() {
             />
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor='category'>Category</FormLabel>
-            <Select
-              id='category'
-              placeholder='Transaction Category'
-              {...register('category', { required: true })}
-            >
-              <option>Income</option>
-              <option>Expense</option>
-            </Select>
-          </FormControl>
-          <FormControl>
             <FormLabel htmlFor='date'>Date</FormLabel>
             <Input
               id='date'
@@ -93,7 +96,10 @@ export default function AddTransaction() {
               {...register('date', { required: true })}
             />
           </FormControl>
-          <Flex alignItems='right'>
+          <FormControl mt={2}>
+            <Checkbox {...register('options.recurring')}>Recurring</Checkbox>
+          </FormControl>
+          <Flex alignItems='right' mt={4}>
             <Spacer />
             <Button mt={4} mr={2} type='submit' colorScheme='green'>
               Add
