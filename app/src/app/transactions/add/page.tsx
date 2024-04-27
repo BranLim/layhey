@@ -14,9 +14,11 @@ import {
   Spacer,
   Stack,
 } from '@chakra-ui/react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import add from '@/actions/transactions';
 import { Transaction } from '@/types/Transaction';
+import NumberFormat, { NumericFormat } from 'react-number-format';
+import { useState } from 'react';
 
 interface Input {
   amount: number;
@@ -28,8 +30,10 @@ export default function AddTransaction() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<Input>();
+  const [amount, setAmount] = useState(0);
 
   const onSubmit: SubmitHandler<Input> = async (data) => {
     console.log(data);
@@ -47,22 +51,31 @@ export default function AddTransaction() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={4}>
           <FormControl isRequired isInvalid={!!errors.amount}>
-            <FormLabel htmlFor='transactionAmount'>Amount</FormLabel>
-            <NumberInput
-              id='transactionAmount'
+            <FormLabel htmlFor='amount'>Amount</FormLabel>
+            <Controller
+              control={control}
               {...register('amount', {
-                required: true,
-                maxLength: { value: 50, message: '' },
-                valueAsNumber: true,
+                required: 'Transaction amount is required',
               })}
-            >
-              <NumberInputField />
-            </NumberInput>
+              render={({ field: { onChange, name, value } }) => (
+                <Input
+                  as={NumericFormat}
+                  thousandSeparator=','
+                  decimalSeparator='.'
+                  max={50}
+                  value={value}
+                  onValueChange={(values: any) => {
+                    const { floatValue } = values;
+                    onChange(floatValue);
+                  }}
+                />
+              )}
+            />
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor='transactionCategory'>Category</FormLabel>
+            <FormLabel htmlFor='category'>Category</FormLabel>
             <Select
-              id='transactionCategory'
+              id='category'
               placeholder='Transaction Category'
               {...register('category', { required: true })}
             >
@@ -71,8 +84,12 @@ export default function AddTransaction() {
             </Select>
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor='transactionDate'>Date</FormLabel>
-            <Input id='transactionDate' type='date' />
+            <FormLabel htmlFor='date'>Date</FormLabel>
+            <Input
+              id='date'
+              type='date'
+              {...register('date', { required: true })}
+            />
           </FormControl>
           <Flex alignItems='right'>
             <Spacer />
