@@ -13,7 +13,7 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import add from '@/actions/transactions';
+import { add } from '@/actions/transactions';
 import { Transaction } from '@/types/Transaction';
 import { NumericFormat } from 'react-number-format';
 import { useState } from 'react';

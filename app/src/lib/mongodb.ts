@@ -1,36 +1,30 @@
-import { MongoClient } from 'mongodb';
+import mongoose from 'mongoose';
 
-const uri = process.env.MONGODB_URI as string;
-const options = {};
-
-console.log(uri);
-
-declare global {
-  var _mongoClientPromise: Promise<MongoClient>;
-}
-
-class Singleton {
-  private static _instance: Singleton;
-  private client: MongoClient;
-  private clientPromise: Promise<MongoClient>;
-
-  private constructor() {
-    this.client = new MongoClient(uri, options);
-    this.clientPromise = this.client.connect();
-
-    if (process.env.NODE_ENV === 'development') {
-      global._mongoClientPromise = this.clientPromise;
-    }
+const MONGO_URI = process.env.MONGODB_URI;
+const cached: {
+  connection?: typeof mongoose;
+  promise?: Promise<typeof mongoose>;
+} = {};
+export const connectMongo = async (): Promise<typeof mongoose> => {
+  if (!MONGO_URI) {
+    throw new Error(
+      'Please define the MONGO_URI environment variable inside .env.local'
+    );
   }
-
-  public static get instance() {
-    if (!this._instance) {
-      this._instance = new Singleton();
-    }
-    return this._instance.clientPromise;
+  if (cached.connection) {
+    return cached.connection;
   }
-}
-
-const clientPromise = Singleton.instance;
-
-export default clientPromise;
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+    };
+    cached.promise = mongoose.connect(MONGO_URI, opts);
+  }
+  try {
+    cached.connection = await cached.promise;
+  } catch (e) {
+    cached.promise = undefined;
+    throw e;
+  }
+  return cached.connection;
+};
