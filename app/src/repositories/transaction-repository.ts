@@ -1,6 +1,6 @@
 import { Transaction } from '@/types/Transaction';
-import { transactionSchema } from '@/models/transaction-model';
 import { connectMongo } from '@/lib/mongodb';
+import TransactionModel from '@/models/transaction-model';
 
 export class TransactionRepository {
   private collection: string;
@@ -11,11 +11,7 @@ export class TransactionRepository {
 
   async add(transaction: Transaction) {
     const client = await connectMongo();
-    const TransactionModel = client.model(
-      'Transaction',
-      transactionSchema,
-      this.collection
-    );
+
     const newTransaction = new TransactionModel({
       ...transaction,
     });
@@ -27,12 +23,9 @@ export class TransactionRepository {
     endPeriod: string
   ): Promise<Transaction[]> {
     const client = await connectMongo();
-    const TransactionModel = client.model(
-      'Transaction',
-      transactionSchema,
-      this.collection
-    );
-    const transactions = await TransactionModel.find<Transaction>({});
-    return transactions;
+
+    const foundTransactions = await TransactionModel.find({});
+    return [];
+    //return transactions;
   }
 }
