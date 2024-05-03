@@ -10,3 +10,4 @@ db.createUser({
 });
 
 db.createCollection('transactions');
+db.createCollection('budgets');

@@ -1,19 +1,19 @@
 import { Transaction } from '@/types/Transaction';
 import { connectMongo } from '@/lib/mongodb';
-import TransactionModel from '@/models/transaction-model';
+import { TransactionModel } from '@/models/transaction-model';
 
 export class TransactionRepository {
-  private collection: string;
-
-  constructor(collection: string) {
-    this.collection = collection;
-  }
+  constructor() {}
 
   async add(transaction: Transaction) {
-    const client = await connectMongo();
+    await connectMongo();
 
     const newTransaction = new TransactionModel({
-      ...transaction,
+      date: transaction.date,
+      amount: transaction.amount,
+      currency: transaction.currency,
+      category: transaction.category,
+      budget: undefined,
     });
     await newTransaction.save();
   }
@@ -22,10 +22,27 @@ export class TransactionRepository {
     startPeriod: string,
     endPeriod: string
   ): Promise<Transaction[]> {
-    const client = await connectMongo();
+    await connectMongo();
 
-    const foundTransactions = await TransactionModel.find({});
-    return [];
-    //return transactions;
+    const foundTransactions = await TransactionModel.find({
+      date: {
+        $gte: new Date(startPeriod),
+        $lte: new Date(endPeriod),
+      },
+    });
+    if (!foundTransactions) {
+      return [] as Transaction[];
+    }
+    const transactions: Transaction[] = foundTransactions.map(
+      (transaction) =>
+        ({
+          category: transaction.category,
+          amount: transaction.amount,
+          currency: transaction.currency,
+          date: transaction.date,
+          budgetId: transaction.budget?._id ?? '',
+        }) as Transaction
+    );
+    return transactions;
   }
 }

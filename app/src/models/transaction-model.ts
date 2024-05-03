@@ -1,15 +1,31 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-const transactionSchema = new mongoose.Schema(
+const budgetSchema = new Schema({
+  periodStart: String,
+  periodEnd: String,
+  description: String,
+});
+
+const transactionSchema = new Schema(
   {
     category: String,
     amount: Number,
     currency: String,
     date: Date,
+    budget: {
+      type: Schema.Types.ObjectId,
+      ref: 'Budget',
+      required: false,
+    },
   },
   { versionKey: '__v' }
 );
 
-const TransactionModel = mongoose.model('Transaction', transactionSchema);
+const TransactionModel = mongoose.model(
+  'Transaction',
+  transactionSchema,
+  'transactions'
+);
+const BudgetModel = mongoose.model('Budget', budgetSchema, 'budgets');
 
-export default TransactionModel;
+export { TransactionModel, BudgetModel };

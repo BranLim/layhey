@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { add } from '@/actions/transactions';
-import { Transaction } from '@/types/Transaction';
+import { Transaction, TransactionDto } from '@/types/Transaction';
 import { NumericFormat } from 'react-number-format';
 import { useState } from 'react';
 
@@ -42,7 +42,7 @@ export default function AddTransaction() {
 
   const onSubmit: SubmitHandler<Input> = async (data: Input) => {
     console.log(data);
-    const newTransaction: Transaction = {
+    const newTransaction: TransactionDto = {
       amount: data.amount,
       category: data.category,
       date: data.date,
