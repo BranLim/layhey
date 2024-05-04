@@ -13,8 +13,14 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { add } from '@/actions/transactions';
-import { Transaction, TransactionDto } from '@/types/Transaction';
+import {
+  categoryFromValue,
+  ExpenseType,
+  IncomeType,
+  TransactionCategory,
+  TransactionDto,
+  transactionTypeFromValue,
+} from '@/types/Transaction';
 import { NumericFormat } from 'react-number-format';
 import { useState } from 'react';
 
@@ -23,8 +29,9 @@ interface InputOption {
 }
 
 interface Input {
-  amount: number;
+  type: string;
   category: string;
+  amount: number;
   date: Date;
   currency: string;
   options: InputOption;
@@ -43,8 +50,9 @@ export default function AddTransaction() {
   const onSubmit: SubmitHandler<Input> = async (data: Input) => {
     console.log(data);
     const newTransaction: TransactionDto = {
+      category: categoryFromValue(data.category),
+      transactionType: transactionTypeFromValue(data.type),
       amount: data.amount,
-      category: data.category,
       date: data.date,
       currency: 'SGD',
     };
@@ -59,17 +67,6 @@ export default function AddTransaction() {
     <Box p={4} w={480}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={4}>
-          <FormControl>
-            <FormLabel htmlFor='category'>Category</FormLabel>
-            <Select
-              id='category'
-              placeholder='Transaction Category'
-              {...register('category', { required: true })}
-            >
-              <option>Income</option>
-              <option>Expense</option>
-            </Select>
-          </FormControl>
           <FormControl isRequired isInvalid={!!errors.amount}>
             <FormLabel htmlFor='amount'>Amount</FormLabel>
             <Controller
@@ -100,6 +97,38 @@ export default function AddTransaction() {
               {...register('date', { required: true })}
             />
           </FormControl>
+          <FormControl>
+            <FormLabel htmlFor='category'>Category</FormLabel>
+            <Select
+              id='category'
+              placeholder='Transaction Category'
+              {...register('category', { required: true })}
+            >
+              {Object.values(TransactionCategory).map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor='transactionType'>Transaction Type</FormLabel>
+            <Select
+              id='transactionType'
+              placeholder='Transaction Type'
+              {...register('type', { required: true })}
+            >
+              {[
+                ...Object.values(IncomeType),
+                ...Object.values(ExpenseType),
+              ].map((transactionType) => (
+                <option key={transactionType} value={transactionType}>
+                  {transactionType}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+
           <FormControl mt={2}>
             <Checkbox {...register('options.recurring')}>Recurring</Checkbox>
           </FormControl>

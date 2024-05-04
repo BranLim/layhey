@@ -13,6 +13,7 @@ export class TransactionRepository {
       amount: transaction.amount,
       currency: transaction.currency,
       category: transaction.category,
+      transactionType: transaction.transactionType,
       budget: undefined,
     });
     await newTransaction.save();
