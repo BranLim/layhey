@@ -48,7 +48,11 @@ export default function AddTransaction() {
       date: data.date,
       currency: 'SGD',
     };
-    await add(newTransaction);
+    await fetch('http://localhost:3000/api/transactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTransaction),
+    });
   };
 
   return (
