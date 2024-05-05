@@ -8,9 +8,7 @@ export default function Home() {
   return (
     <main>
       <Box w={580}>
-        <Flex mt={20}>
-          <ActionMenu />
-        </Flex>
+        <ActionMenu />
       </Box>
     </main>
   );
