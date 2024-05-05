@@ -25,7 +25,6 @@ import { NumericFormat } from 'react-number-format';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { closeModal } from '@/slices/modal-slice';
-import { getStaticProps } from 'next/dist/build/templates/pages';
 
 interface InputOption {
   recurring: boolean;
@@ -40,7 +39,7 @@ interface Input {
   options: InputOption;
 }
 
-export default function AddTransaction() {
+const AddTransaction = () => {
   const {
     register,
     handleSubmit,
@@ -79,10 +78,9 @@ export default function AddTransaction() {
             <FormLabel htmlFor='amount'>Amount</FormLabel>
             <Controller
               control={control}
-              {...register('amount', {
-                required: 'Transaction amount is required',
-              })}
-              render={({ field: { onChange, name, value } }) => (
+              name='amount'
+              rules={{ required: 'Transaction amount is required' }}
+              render={({ field: { onChange, value } }) => (
                 <Input
                   as={NumericFormat}
                   thousandSeparator=','
@@ -158,4 +156,6 @@ export default function AddTransaction() {
       </form>
     </Box>
   );
-}
+};
+
+export default AddTransaction;

@@ -13,8 +13,10 @@ import { useDisclosure } from '@chakra-ui/hooks';
 import { useDispatch, useSelector } from 'react-redux';
 import { closeModal, selectIsOpenModal } from '@/slices/modal-slice';
 import { useRouter } from 'next/navigation';
+import { useRef } from 'react';
 
 export default function AddTransactionModal() {
+  const ref = useRef(null);
   const isOpen = useSelector(selectIsOpenModal);
   const dispatch = useDispatch();
   const router = useRouter();

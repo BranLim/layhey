@@ -1,84 +1,66 @@
 'use client';
 
-import {
-  Box,
-  IconButton,
-  LinkBox,
-  LinkOverlay,
-  Tooltip,
-} from '@chakra-ui/react';
+import { Flex, IconButton, Slide, Tooltip } from '@chakra-ui/react';
 import * as React from 'react';
-import { useState } from 'react';
-import { AddIcon, HamburgerIcon } from '@chakra-ui/icons';
-import { useDisclosure } from '@chakra-ui/hooks';
+import { useRef, useState } from 'react';
+import { AddIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import NextLink from 'next/link';
 import { useDispatch } from 'react-redux';
 import { openModal } from '@/slices/modal-slice';
+import { useDisclosure } from '@chakra-ui/hooks';
 
 export const ActionMenu = () => {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const { isOpen, onToggle } = useDisclosure();
   const dispatch = useDispatch();
   const handleOpenModal = () => {
     dispatch(openModal());
   };
 
-  const { isOpen, onToggle } = useDisclosure();
-  const [expanded, setExpanded] = useState(false);
-
-  const handleExpand = () => {
-    setExpanded(!expanded);
-  };
-
   return (
     <>
-      <Box>
+      <Flex position='relative'>
         <IconButton
+          ref={buttonRef}
           icon={<HamburgerIcon />}
           aria-label={isOpen ? 'Close toolbar' : 'Open toolbar'}
           variant='solid'
           background='green.400'
           color='white'
-          onClick={handleExpand}
+          onClick={onToggle}
           width={12}
           height={12}
-        />
-        <Box
-          position='fixed'
-          top={6}
-          width={12}
           zIndex='999'
-          display='flex'
-          alignItems='center'
-          borderRadius='md'
-          boxShadow='md'
-          bg='gray.200'
-          cursor='pointer'
-          transition='all 0.3s'
-          transform={expanded ? 'translateY(-100)' : 'translateY(0)'}
-          opacity={expanded ? 1 : 0}
-        >
-          {expanded && (
-            <Box m={1} alignItems='center'>
-              {/* Add your icon buttons or menu items here */}
-              <Tooltip label='Add new Transaction'>
-                <LinkBox>
-                  <LinkOverlay
-                    as={NextLink}
-                    href='/transactions/add'
-                    onClick={handleOpenModal}
-                  >
-                    <IconButton
-                      background='green.400'
-                      color='white'
-                      icon={<AddIcon />}
-                      aria-label='Add Transaction'
-                    ></IconButton>
-                  </LinkOverlay>
-                </LinkBox>
-              </Tooltip>
-            </Box>
-          )}
-        </Box>
-      </Box>
+        />
+        <Slide direction='left' in={isOpen}>
+          <Flex
+            position='absolute'
+            top={`${buttonRef.current?.offsetTop}px`}
+            left={`${buttonRef.current?.offsetLeft + buttonRef.current?.offsetWidth + 4}px`}
+            flexDirection='row'
+            alignItems='center'
+            p={2}
+            color='white'
+            rounded='md'
+            shadow='md'
+            zIndex='1'
+            transition='0.3s'
+          >
+            <Tooltip label='Add new Transaction'>
+              <IconButton
+                as={NextLink}
+                color='white'
+                icon={<AddIcon />}
+                aria-label='Add Transaction'
+                onClick={handleOpenModal}
+                href='/transactions/add'
+                passHref
+              ></IconButton>
+            </Tooltip>
+            <IconButton aria-label='Edit Transaction' icon={<EditIcon />} />
+          </Flex>
+        </Slide>
+      </Flex>
     </>
   );
 };
