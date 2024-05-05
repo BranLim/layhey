@@ -25,6 +25,7 @@ import { NumericFormat } from 'react-number-format';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { closeModal } from '@/slices/modal-slice';
+import { getStaticProps } from 'next/dist/build/templates/pages';
 
 interface InputOption {
   recurring: boolean;
