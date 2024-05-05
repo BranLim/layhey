@@ -13,7 +13,11 @@ export class TransactionService {
     transaction: TransactionDto,
     option?: Option
   ): Promise<void> {
-    await this.transactionRepository.add({ ...transaction, budgetId: '' });
+    try {
+      await this.transactionRepository.add({ ...transaction, budgetId: '' });
+    } catch (error) {
+      throw error;
+    }
   }
 
   async updateTransaction(
