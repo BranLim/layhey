@@ -23,6 +23,8 @@ import {
 } from '@/types/Transaction';
 import { NumericFormat } from 'react-number-format';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { closeModal } from '@/slices/modal-slice';
 
 interface InputOption {
   recurring: boolean;
@@ -46,6 +48,11 @@ export default function AddTransaction() {
     formState: { errors },
   } = useForm<Input>();
   const [amount, setAmount] = useState(0);
+  const dispatch = useDispatch();
+
+  const handleCloseModal = () => {
+    dispatch(closeModal());
+  };
 
   const onSubmit: SubmitHandler<Input> = async (data: Input) => {
     console.log(data);
@@ -137,7 +144,12 @@ export default function AddTransaction() {
             <Button mt={4} mr={2} type='submit' colorScheme='green'>
               Add
             </Button>
-            <Button mt={4} mr={2} colorScheme='red'>
+            <Button
+              mt={4}
+              mr={2}
+              colorScheme='red'
+              onClick={() => handleCloseModal()}
+            >
               Cancel
             </Button>
           </Flex>

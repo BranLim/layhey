@@ -1,13 +1,20 @@
 'use client';
 
 import AddTransaction from '@/app/transactions/add/page';
-import { Modal, ModalBody, ModalContent, ModalOverlay } from '@chakra-ui/modal';
+import {
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+} from '@chakra-ui/modal';
 import { useDisclosure } from '@chakra-ui/hooks';
 import { useDispatch, useSelector } from 'react-redux';
-import { closeModal, selectIsOpen } from '@/slices/modal-slice';
+import { closeModal, OpenModal } from '@/slices/modal-slice';
 
 export default function AddTransactionModal() {
-  const isOpen = useSelector(selectIsOpen);
+  const isOpen = useSelector(OpenModal);
   const dispatch = useDispatch();
 
   const handleCloseModal = () => {
@@ -15,9 +22,16 @@ export default function AddTransactionModal() {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleCloseModal} size={'lg'}>
+    <Modal
+      isOpen={isOpen}
+      onClose={handleCloseModal}
+      size={'lg'}
+      closeOnOverlayClick={false}
+    >
       <ModalOverlay />
       <ModalContent>
+        <ModalHeader></ModalHeader>
+        <ModalCloseButton />
         <ModalBody>
           <AddTransaction />
         </ModalBody>
