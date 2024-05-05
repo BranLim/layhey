@@ -1,6 +1,13 @@
 'use client';
 
-import { Box, Collapse, Flex, IconButton, Tooltip } from '@chakra-ui/react';
+import {
+  Box,
+  Collapse,
+  Flex,
+  IconButton,
+  Stack,
+  Tooltip,
+} from '@chakra-ui/react';
 import * as React from 'react';
 import { useRef, useState } from 'react';
 import { AddIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
@@ -36,12 +43,13 @@ export const ActionMenu = () => {
             onClick={() => setIsExpanded(!isExpanded)}
             size='lg'
             zIndex='999'
+            borderRadius='full'
           />
           <Collapse in={isExpanded} animateOpacity>
             <Box
               position='absolute'
               bottom='100%'
-              right='0'
+              right='-0.5'
               width='calc(100% + 8px)'
               p='2'
               bg='white'
@@ -49,22 +57,24 @@ export const ActionMenu = () => {
               borderRadius='md'
               mt='0px'
               zIndex='0'
-              transition='transform 0.3s ease-in-out'
+              transition='transform 0.5s ease-in-out'
               transform={isExpanded ? 'translateY(-20%)' : 'translateY(0)'}
             >
-              <Tooltip label='Add new Transaction'>
-                <IconButton
-                  as={NextLink}
-                  color='white'
-                  icon={<AddIcon />}
-                  aria-label='Add Transaction'
-                  onClick={handleOpenModal}
-                  href='/transactions/add'
-                  passHref
-                  size='md'
-                ></IconButton>
-              </Tooltip>
-              <IconButton aria-label='Edit Transaction' icon={<EditIcon />} />
+              <Stack>
+                <Tooltip label='Add new Transaction'>
+                  <IconButton
+                    as={NextLink}
+                    color='white'
+                    icon={<AddIcon />}
+                    aria-label='Add Transaction'
+                    onClick={handleOpenModal}
+                    href='/transactions/add'
+                    passHref
+                    size='md'
+                  ></IconButton>
+                </Tooltip>
+                <IconButton aria-label='Edit Transaction' icon={<EditIcon />} />
+              </Stack>
             </Box>
           </Collapse>
         </Box>
