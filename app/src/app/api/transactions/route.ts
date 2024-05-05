@@ -17,9 +17,13 @@ export const GET = async (request: NextRequest): Promise<Response> => {
   return Response.json(transactions);
 };
 
-export const POST = async (request: Request): Promise<Response> => {
+export const POST = async (request: NextRequest): Promise<Response> => {
   const transactionRequest = await request.json();
   var transactionService = new TransactionService();
   await transactionService.addTransaction(transactionRequest, undefined);
   return new Response('Transaction created', { status: 201 });
+};
+
+export const PUT = async (requet: NextRequest): Promise<Response> => {
+  return new Response();
 };

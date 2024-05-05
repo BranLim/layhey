@@ -1,4 +1,4 @@
-import { Transaction } from '@/types/Transaction';
+import { Transaction, TransactionDto } from '@/types/Transaction';
 import { connectMongo } from '@/lib/mongodb';
 import { TransactionModel } from '@/models/transaction-model';
 
@@ -45,5 +45,21 @@ export class TransactionRepository {
         }) as Transaction
     );
     return transactions;
+  }
+
+  async update(id: string, transaction: Transaction): Promise<Transaction> {
+    const updatedTransaction = await TransactionModel.findByIdAndUpdate(
+      id,
+      {
+        date: transaction.date,
+        amount: transaction.amount,
+        currency: transaction.currency,
+        category: transaction.category,
+        transactionType: transaction.transactionType,
+        budget: undefined,
+      },
+      { new: true }
+    );
+    return updatedTransaction;
   }
 }
