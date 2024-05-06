@@ -140,13 +140,13 @@ const AddTransaction = () => {
           </FormControl>
           <Flex alignItems='right' mt={4}>
             <Spacer />
-            <Button mt={4} mr={2} type='submit' colorScheme='green'>
+            <Button mt={4} mr={2} type='submit' colorScheme='blue'>
               Add
             </Button>
             <Button
               mt={4}
               mr={2}
-              colorScheme='red'
+              colorScheme='gray'
               onClick={() => handleCloseModal()}
             >
               Cancel

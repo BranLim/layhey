@@ -10,7 +10,13 @@ import {
 } from '@chakra-ui/react';
 import * as React from 'react';
 import { useRef, useState } from 'react';
-import { AddIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
+import {
+  AddIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  EditIcon,
+  HamburgerIcon,
+} from '@chakra-ui/icons';
 import NextLink from 'next/link';
 import { useDispatch } from 'react-redux';
 import { openModal } from '@/slices/modal-slice';
@@ -35,26 +41,31 @@ export const ActionMenu = () => {
         <Box position='relative'>
           <IconButton
             ref={buttonRef}
-            icon={<HamburgerIcon />}
+            icon={isExpanded ? <ChevronDownIcon /> : <ChevronUpIcon />}
             aria-label={isExpanded ? 'Close toolbar' : 'Open toolbar'}
             variant='solid'
-            background='green.400'
-            color='white'
+            colorScheme='blue'
             onClick={() => setIsExpanded(!isExpanded)}
             size='lg'
             zIndex='999'
-            borderRadius='full'
+            isRound={true}
+            _hover={{
+              boxShadow: 'outline',
+            }}
+            _focus={{
+              boxShadow: 'outline',
+            }}
           />
           <Collapse in={isExpanded} animateOpacity>
             <Box
               position='absolute'
-              bottom='100%'
-              right='-0.5'
-              width='calc(100% + 8px)'
+              bottom='10'
+              right='-1.5'
+              width='calc(100% + 14px)'
               p='2'
-              bg='white'
-              boxShadow='md'
-              borderRadius='md'
+              bg='white.300'
+              boxShadow='lg'
+              borderRadius='lg'
               mt='0px'
               zIndex='0'
               transition='transform 0.5s ease-in-out'
@@ -64,16 +75,35 @@ export const ActionMenu = () => {
                 <Tooltip label='Add new Transaction'>
                   <IconButton
                     as={NextLink}
-                    color='white'
                     icon={<AddIcon />}
                     aria-label='Add Transaction'
                     onClick={handleOpenModal}
                     href='/transactions/add'
                     passHref
-                    size='md'
+                    size='lg'
+                    colorScheme='gray'
+                    isRound={true}
+                    _hover={{
+                      boxShadow: 'outline',
+                    }}
+                    _focus={{
+                      boxShadow: 'outline',
+                    }}
                   ></IconButton>
                 </Tooltip>
-                <IconButton aria-label='Edit Transaction' icon={<EditIcon />} />
+                <IconButton
+                  aria-label='Edit Transaction'
+                  size='lg'
+                  colorScheme='gray'
+                  icon={<EditIcon />}
+                  isRound={true}
+                  _hover={{
+                    boxShadow: 'outline',
+                  }}
+                  _focus={{
+                    boxShadow: 'outline',
+                  }}
+                />
               </Stack>
             </Box>
           </Collapse>
