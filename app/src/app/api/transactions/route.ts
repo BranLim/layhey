@@ -1,9 +1,7 @@
-import { TransactionDto } from '@/types/Transaction';
-
-export const dynamic = 'force-dynamic';
-
 import { TransactionService } from '@/services/transaction-service';
 import { NextRequest } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 
 export const GET = async (request: NextRequest): Promise<Response> => {
   const parameters = request.nextUrl.searchParams;
@@ -22,8 +20,4 @@ export const POST = async (request: NextRequest): Promise<Response> => {
   var transactionService = new TransactionService();
   await transactionService.addTransaction(transactionRequest, undefined);
   return new Response('Transaction created', { status: 201 });
-};
-
-export const PUT = async (requet: NextRequest): Promise<Response> => {
-  return new Response();
 };
