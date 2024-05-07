@@ -44,6 +44,27 @@ export class TransactionService {
       startPeriod,
       endPeriod
     );
-    return transactions;
+    return transactions.map((transaction) => {
+      return {
+        id: transaction.id,
+        category: transaction.category,
+        transactionType: transaction.transactionType,
+        amount: transaction.amount,
+        currency: transaction.currency,
+        date: transaction.date,
+      } as TransactionDto;
+    });
+  }
+
+  async getTransaction(id: string): Promise<TransactionDto> {
+    const transaction = await this.transactionRepository.getTransaction(id);
+    return {
+      id: transaction.id,
+      category: transaction.category,
+      transactionType: transaction.transactionType,
+      amount: transaction.amount,
+      currency: transaction.currency,
+      date: transaction.date,
+    } as TransactionDto;
   }
 }

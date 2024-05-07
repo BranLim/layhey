@@ -22,15 +22,22 @@ import {
   transactionTypeFromValue,
 } from '@/types/Transaction';
 import { NumericFormat } from 'react-number-format';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { closeModal } from '@/slices/modal-slice';
+
+interface Props {
+  params: {
+    id: string;
+  };
+}
 
 interface InputOption {
   recurring: boolean;
 }
 
 interface Input {
+  id: string;
   type: string;
   category: string;
   amount: number;
@@ -39,24 +46,43 @@ interface Input {
   options: InputOption;
 }
 
-const AddTransaction = () => {
+const getTransaction = async (id: string): Promise<TransactionDto> => {
+  const response = await fetch(`http://localhost:3000/api/transactions/${id}`);
+  if (response.ok) {
+    return response.json();
+  }
+  return {} as TransactionDto;
+};
+
+const UpdateTransaction = ({ params }: Props) => {
   const {
     register,
     handleSubmit,
-
     control,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm<Input>();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    (async () => {
+      const transaction = await getTransaction(params.id);
+      setValue('category', transaction.category);
+      setValue('amount', transaction.amount);
+      setValue('date', transaction.date);
+      setValue('currency', transaction.currency);
+      setValue('type', transaction.transactionType);
+    })();
+  }, []);
 
   const handleCloseModal = () => {
     dispatch(closeModal());
   };
 
   const onSubmit: SubmitHandler<Input> = async (data: Input) => {
-    console.log(data);
     const newTransaction: TransactionDto = {
-      id: '',
+      ...getValues(),
       category: categoryFromValue(data.category),
       transactionType: transactionTypeFromValue(data.type),
       amount: data.amount,
@@ -158,4 +184,4 @@ const AddTransaction = () => {
   );
 };
 
-export default AddTransaction;
+export default UpdateTransaction;

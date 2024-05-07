@@ -96,10 +96,11 @@ export const ActionMenu = () => {
                   ></IconButton>
                 </Tooltip>
                 <IconButton
+                  as={NextLink}
                   aria-label='Edit Transaction'
+                  icon={<EditIcon />}
                   size='lg'
                   colorScheme='gray'
-                  icon={<EditIcon />}
                   isRound={true}
                   _hover={{
                     boxShadow: 'outline',
@@ -107,6 +108,9 @@ export const ActionMenu = () => {
                   _focus={{
                     boxShadow: 'outline',
                   }}
+                  onClick={handleOpenModal}
+                  href='/transactions/update/6635f92426594141912d3a90'
+                  passHref
                 />
               </Stack>
             </Box>

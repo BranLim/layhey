@@ -1,6 +1,5 @@
 'use client';
 
-import AddTransaction from '@/app/transactions/add/page';
 import {
   Modal,
   ModalBody,
@@ -13,8 +12,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { closeModal, selectIsOpenModal } from '@/slices/modal-slice';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
+import UpdateTransaction from '@/app/transactions/update/[id]/page';
 
-export default function AddTransactionModal() {
+interface Props {
+  params: {
+    id: string;
+  };
+}
+export default function UpdateTransactionModal({ params }: Props) {
   const ref = useRef(null);
   const isOpen = useSelector(selectIsOpenModal);
   const dispatch = useDispatch();
@@ -39,7 +44,7 @@ export default function AddTransactionModal() {
         <ModalHeader></ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <AddTransaction />
+          <UpdateTransaction params={params} />
         </ModalBody>
       </ModalContent>
     </Modal>

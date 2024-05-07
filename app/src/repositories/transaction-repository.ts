@@ -1,4 +1,4 @@
-import { Transaction, TransactionDto } from '@/types/Transaction';
+import { Transaction } from '@/types/Transaction';
 import { connectMongo } from '@/lib/mongodb';
 import { TransactionModel } from '@/models/transaction-model';
 
@@ -19,6 +19,22 @@ export class TransactionRepository {
     await newTransaction.save();
   }
 
+  async update(id: string, transaction: Transaction): Promise<Transaction> {
+    const updatedTransaction = await TransactionModel.findByIdAndUpdate(
+      id,
+      {
+        date: transaction.date,
+        amount: transaction.amount,
+        currency: transaction.currency,
+        category: transaction.category,
+        transactionType: transaction.transactionType,
+        budget: undefined,
+      },
+      { new: true }
+    );
+    return updatedTransaction;
+  }
+
   async getTransactions(
     startPeriod: string,
     endPeriod: string
@@ -34,9 +50,10 @@ export class TransactionRepository {
     if (!foundTransactions) {
       return [] as Transaction[];
     }
-    const transactions: Transaction[] = foundTransactions.map(
+    return foundTransactions.map(
       (transaction) =>
         ({
+          id: transaction._id,
           category: transaction.category,
           amount: transaction.amount,
           currency: transaction.currency,
@@ -44,22 +61,18 @@ export class TransactionRepository {
           budgetId: transaction.budget?._id ?? '',
         }) as Transaction
     );
-    return transactions;
   }
 
-  async update(id: string, transaction: Transaction): Promise<Transaction> {
-    const updatedTransaction = await TransactionModel.findByIdAndUpdate(
-      id,
-      {
-        date: transaction.date,
-        amount: transaction.amount,
-        currency: transaction.currency,
-        category: transaction.category,
-        transactionType: transaction.transactionType,
-        budget: undefined,
-      },
-      { new: true }
-    );
-    return updatedTransaction;
+  async getTransaction(id: string): Promise<Transaction> {
+    await connectMongo();
+    const foundTransaction = await TransactionModel.findById(id);
+    return {
+      id: foundTransaction._id,
+      category: foundTransaction.category,
+      amount: foundTransaction.amount,
+      currency: foundTransaction.currency,
+      date: foundTransaction.date,
+      budgetId: foundTransaction.budget?._id ?? '',
+    } as Transaction;
   }
 }

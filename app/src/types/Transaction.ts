@@ -19,6 +19,7 @@ export enum ExpenseType {
 export type TransactionType = IncomeType | ExpenseType;
 
 export type Transaction = {
+  id: string;
   transactionType: TransactionType;
   category: TransactionCategory;
   amount: number;
