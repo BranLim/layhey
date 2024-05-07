@@ -4,6 +4,7 @@ import {
   Box,
   Collapse,
   Flex,
+  HStack,
   IconButton,
   Stack,
   Tooltip,
@@ -13,6 +14,8 @@ import { useRef, useState } from 'react';
 import {
   AddIcon,
   ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   ChevronUpIcon,
   EditIcon,
   HamburgerIcon,
@@ -33,15 +36,15 @@ export const ActionMenu = () => {
     <>
       <Flex
         position='fixed'
-        bottom='40px'
-        right='40px'
+        bottom='100px'
+        left='45%'
         alignItems='flex-end'
         zIndex='999'
       >
         <Box position='relative'>
           <IconButton
             ref={buttonRef}
-            icon={isExpanded ? <ChevronDownIcon /> : <ChevronUpIcon />}
+            icon={isExpanded ? <ChevronLeftIcon /> : <ChevronRightIcon />}
             aria-label={isExpanded ? 'Close toolbar' : 'Open toolbar'}
             variant='solid'
             colorScheme='blue'
@@ -59,9 +62,8 @@ export const ActionMenu = () => {
           <Collapse in={isExpanded} animateOpacity>
             <Box
               position='absolute'
-              bottom='10'
-              right='-1.5'
-              width='calc(100% + 17px)'
+              bottom='-1.5'
+              left='0'
               p='2'
               bg='white.300'
               border='1px solid'
@@ -71,9 +73,9 @@ export const ActionMenu = () => {
               mt='0px'
               zIndex='0'
               transition='transform 0.5s ease-in-out'
-              transform={isExpanded ? 'translateY(-20%)' : 'translateY(0)'}
+              transform={isExpanded ? 'translateX(50%)' : 'translateX(0)'}
             >
-              <Stack>
+              <Stack direction='row'>
                 <Tooltip label='Add new Transaction'>
                   <IconButton
                     as={NextLink}
