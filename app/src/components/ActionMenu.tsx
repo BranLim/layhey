@@ -42,23 +42,29 @@ export const ActionMenu = () => {
         zIndex='999'
       >
         <Box position='relative'>
-          <IconButton
-            ref={buttonRef}
-            icon={isExpanded ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-            aria-label={isExpanded ? 'Close toolbar' : 'Open toolbar'}
-            variant='solid'
-            colorScheme='blue'
-            onClick={() => setIsExpanded(!isExpanded)}
-            size='lg'
-            zIndex='999'
-            isRound={true}
-            _hover={{
-              boxShadow: 'outline',
-            }}
-            _focus={{
-              boxShadow: 'outline',
-            }}
-          />
+          <Tooltip
+            label='Action menu for transaction management. Click to expand.'
+            openDelay={500}
+          >
+            <IconButton
+              ref={buttonRef}
+              icon={<HamburgerIcon />}
+              aria-label={isExpanded ? 'Close toolbar' : 'Open toolbar'}
+              variant='solid'
+              colorScheme='blue'
+              onClick={() => setIsExpanded(!isExpanded)}
+              size='lg'
+              zIndex='999'
+              isRound={true}
+              _hover={{
+                boxShadow: 'outline',
+              }}
+              _focus={{
+                boxShadow: 'outline',
+              }}
+            />
+          </Tooltip>
+
           <Collapse in={isExpanded} animateOpacity>
             <Box
               position='absolute'
@@ -76,7 +82,7 @@ export const ActionMenu = () => {
               transform={isExpanded ? 'translateX(50%)' : 'translateX(0)'}
             >
               <Stack direction='row'>
-                <Tooltip label='Add new Transaction'>
+                <Tooltip label='Add new transaction' openDelay={500}>
                   <IconButton
                     as={NextLink}
                     icon={<AddIcon />}
@@ -95,23 +101,25 @@ export const ActionMenu = () => {
                     }}
                   ></IconButton>
                 </Tooltip>
-                <IconButton
-                  as={NextLink}
-                  aria-label='Edit Transaction'
-                  icon={<EditIcon />}
-                  size='lg'
-                  colorScheme='gray'
-                  isRound={true}
-                  _hover={{
-                    boxShadow: 'outline',
-                  }}
-                  _focus={{
-                    boxShadow: 'outline',
-                  }}
-                  onClick={handleOpenModal}
-                  href='/transactions/update/6635f92426594141912d3a90'
-                  passHref
-                />
+                <Tooltip label='Edit selected transaction' openDelay={500}>
+                  <IconButton
+                    as={NextLink}
+                    aria-label='Edit Transaction'
+                    icon={<EditIcon />}
+                    size='lg'
+                    colorScheme='gray'
+                    isRound={true}
+                    _hover={{
+                      boxShadow: 'outline',
+                    }}
+                    _focus={{
+                      boxShadow: 'outline',
+                    }}
+                    onClick={handleOpenModal}
+                    href='/transactions/update/6635f92426594141912d3a90'
+                    passHref
+                  />
+                </Tooltip>
               </Stack>
             </Box>
           </Collapse>
