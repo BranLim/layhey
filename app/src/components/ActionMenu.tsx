@@ -36,7 +36,7 @@ export const ActionMenu = () => {
     <>
       <Flex
         position='fixed'
-        bottom='100px'
+        top='100px'
         left='45%'
         alignItems='flex-end'
         zIndex='999'
