@@ -7,6 +7,7 @@ interface BudgetState {
     outflow: number;
     currency: string;
   };
+  transactions: TransactionDto[];
   refreshData: boolean;
 }
 
@@ -16,6 +17,7 @@ const initialState = {
     outflow: 0,
     currency: 'SGD',
   },
+  transactions: [] as TransactionDto[],
   refreshData: false,
 } satisfies BudgetState as BudgetState;
 
@@ -54,6 +56,17 @@ const transactionSlice = createSlice({
   name: 'transaction',
   initialState,
   reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(getTransactions.fulfilled, (state, action) => {
+      return {
+        ...state,
+        transaction: action.payload,
+      };
+    });
+  },
 });
+
+export const selectBudgetInflow = (state: any) => state.inflow;
+export const selectBudgetOutflow = (state: any) => state.outflow;
 
 export default transactionSlice.reducer;
