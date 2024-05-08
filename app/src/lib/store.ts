@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import modalReducer from '../slices/modal-slice';
+import transactionReducer from '../slices/transaction-slice';
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       modal: modalReducer,
+      transaction: transactionReducer,
     },
   });
 };
