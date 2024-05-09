@@ -13,6 +13,8 @@ interface Expense {
 
 interface BudgetState {
   budgetSummary: {
+    startPeriod: string;
+    endPeriod: string;
     inflow: number;
     outflow: number;
     difference: number;
@@ -20,10 +22,14 @@ interface BudgetState {
   };
   income: Record<string, Income>;
   expense: Record<string, Expense>;
+  status: string;
+  error?: any;
 }
 
 const initialState = {
   budgetSummary: {
+    startPeriod: '',
+    endPeriod: '',
     inflow: 0,
     outflow: 0,
     difference: 0,
@@ -31,6 +37,7 @@ const initialState = {
   },
   income: {} as Record<string, Income>,
   expense: {} as Record<string, Expense>,
+  status: 'idle',
 } satisfies BudgetState as BudgetState;
 
 export const getTransactions = createAsyncThunk(
@@ -43,14 +50,19 @@ export const getTransactions = createAsyncThunk(
     endPeriod: string;
   }): Promise<TransactionDto[]> => {
     try {
-      const response = await fetch(`${process.env.SERVER_URL}/transactions`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-        },
-      });
+      const response = await fetch(
+        `${process.env.SERVER_URL}/transactions?startPeriod=${startPeriod}&endPeriod=${endPeriod}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+          },
+        }
+      );
       if (!response.ok) {
-        return [] as TransactionDto[];
+        throw new Error(
+          `Error get transactions for the period: ${startPeriod} - ${endPeriod}`
+        );
       }
       const foundTransactions = await response.json();
       return foundTransactions.map((transaction: any) => {
@@ -65,7 +77,7 @@ export const getTransactions = createAsyncThunk(
       });
     } catch (error) {
       console.error(error);
-      return [] as TransactionDto[];
+      throw error;
     }
   }
 );
@@ -73,37 +85,57 @@ export const getTransactions = createAsyncThunk(
 const transactionSlice = createSlice({
   name: 'transaction',
   initialState,
-  reducers: {},
+  reducers: {
+    setBudgetPeriod: (state, action) => {
+      const { startPeriod, endPeriod } = action.payload;
+      state.budgetSummary.startPeriod = startPeriod;
+      state.budgetSummary.endPeriod = endPeriod;
+    },
+  },
   extraReducers: (builder) => {
-    builder.addCase(getTransactions.fulfilled, (state, action) => {
-      const { budgetSummary, income, expense } = state;
-      const transactionDtos: TransactionDto[] = action.payload;
-      const totalIncome = transactionDtos
-        .filter(
-          (transaction) => transaction.category == TransactionCategory.Income
-        )
-        .reduce((total, transaction) => total + transaction.amount, 0);
+    builder
+      .addCase(getTransactions.pending, (state, action) => {
+        state.status = 'loading';
+        if (state.error) {
+          state.error = undefined;
+        }
+      })
+      .addCase(getTransactions.fulfilled, (state, action) => {
+        const { budgetSummary, income, expense } = state;
+        const transactionDtos: TransactionDto[] = action.payload;
+        const totalIncome = transactionDtos
+          .filter(
+            (transaction) => transaction.category == TransactionCategory.Income
+          )
+          .reduce((total, transaction) => total + transaction.amount, 0);
 
-      const totalExpense = transactionDtos
-        .filter(
-          (transaction) => transaction.category == TransactionCategory.Expense
-        )
-        .reduce((total, transaction) => total + transaction.amount, 0);
-      return {
-        budgetSummary: {
-          ...budgetSummary,
-          inflow: totalIncome,
-          outflow: totalExpense,
-          difference: totalIncome - totalExpense,
-        },
-        income: { ...income },
-        expense: { ...expense },
-      };
-    });
+        const totalExpense = transactionDtos
+          .filter(
+            (transaction) => transaction.category == TransactionCategory.Expense
+          )
+          .reduce((total, transaction) => total + transaction.amount, 0);
+
+        state.budgetSummary.inflow = totalIncome;
+        state.budgetSummary.outflow = totalExpense;
+        state.budgetSummary.difference = totalIncome - totalExpense;
+      })
+      .addCase(getTransactions.rejected, (state, action) => {
+        state.status = 'error';
+        state.error = action.error;
+      });
   },
 });
 
+export const { setBudgetPeriod } = transactionSlice.actions;
+
 export const selectBudgetInflow = (state: any) => state.inflow;
 export const selectBudgetOutflow = (state: any) => state.outflow;
+export const selectBudgetSummary = (state: any) => ({
+  startPeriod: state.budgetSummary.startPeriod,
+  endPeriod: state.budgetSummary.endPeriod,
+  inflow: state.budgetSummary.inflow,
+  outflow: state.budgetSummary.outflow,
+  difference: state.budgetSummary.difference,
+});
 
 export default transactionSlice.reducer;
