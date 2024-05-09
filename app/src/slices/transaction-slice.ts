@@ -1,29 +1,47 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TransactionCategory, TransactionDto } from '@/types/Transaction';
+
+interface Income {
+  period: string;
+  total: number;
+}
+
+interface Expense {
+  period: string;
+  total: number;
+}
 
 interface BudgetState {
   budgetSummary: {
     inflow: number;
     outflow: number;
+    difference: number;
     currency: string;
   };
-  transactions: TransactionDto[];
-  refreshData: boolean;
+  income: Record<string, Income>;
+  expense: Record<string, Expense>;
 }
 
 const initialState = {
   budgetSummary: {
     inflow: 0,
     outflow: 0,
+    difference: 0,
     currency: 'SGD',
   },
-  transactions: [] as TransactionDto[],
-  refreshData: false,
+  income: {} as Record<string, Income>,
+  expense: {} as Record<string, Expense>,
 } satisfies BudgetState as BudgetState;
 
 export const getTransactions = createAsyncThunk(
   'transactions/request',
-  async () => {
+  async ({
+    startPeriod,
+    endPeriod,
+  }: {
+    startPeriod: string;
+    endPeriod: string;
+  }): Promise<TransactionDto[]> => {
     try {
       const response = await fetch(`${process.env.SERVER_URL}/transactions`, {
         method: 'GET',
@@ -58,9 +76,28 @@ const transactionSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(getTransactions.fulfilled, (state, action) => {
+      const { budgetSummary, income, expense } = state;
+      const transactionDtos: TransactionDto[] = action.payload;
+      const totalIncome = transactionDtos
+        .filter(
+          (transaction) => transaction.category == TransactionCategory.Income
+        )
+        .reduce((total, transaction) => total + transaction.amount, 0);
+
+      const totalExpense = transactionDtos
+        .filter(
+          (transaction) => transaction.category == TransactionCategory.Expense
+        )
+        .reduce((total, transaction) => total + transaction.amount, 0);
       return {
-        ...state,
-        transaction: action.payload,
+        budgetSummary: {
+          ...budgetSummary,
+          inflow: totalIncome,
+          outflow: totalExpense,
+          difference: totalIncome - totalExpense,
+        },
+        income: { ...income },
+        expense: { ...expense },
       };
     });
   },
