@@ -1,19 +1,20 @@
 import { Container } from '@chakra-ui/react';
 import { ActionMenu } from '@/components/ActionMenu';
-import { useDispatch, useSelector } from 'react-redux';
 import { selectIsOpenModal } from '@/slices/modal-slice';
 import {
+  getTransactions,
   selectBudgetPeriod,
   selectBudgetSummary,
   setBudgetPeriod,
 } from '@/slices/transaction-slice';
 import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 
 export const MainContent = () => {
-  const dispatch = useDispatch();
-  const budgetPeriod = useSelector(selectBudgetPeriod);
-  const budgetSummary = useSelector(selectBudgetSummary);
-  const modalClose = useSelector(selectIsOpenModal);
+  const dispatch = useAppDispatch();
+  const budgetPeriod = useAppSelector(selectBudgetPeriod);
+  const budgetSummary = useAppSelector(selectBudgetSummary);
+  const modalClose = useAppSelector(selectIsOpenModal);
 
   useEffect(() => {
     if (!budgetPeriod.startPeriod && !budgetPeriod.endPeriod) {
@@ -24,6 +25,9 @@ export const MainContent = () => {
       return;
     }
     console.log(`Updating Budget Period: ${JSON.stringify(budgetSummary)}`);
+    dispatch(
+      getTransactions({ startPeriod: '2024-01-01', endPeriod: '2024-12-31' })
+    );
   }, [budgetPeriod.startPeriod, budgetPeriod.endPeriod]);
 
   useEffect(() => {

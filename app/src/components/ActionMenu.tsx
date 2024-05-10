@@ -4,30 +4,21 @@ import {
   Box,
   Collapse,
   Flex,
-  HStack,
   IconButton,
   Stack,
   Tooltip,
 } from '@chakra-ui/react';
 import * as React from 'react';
 import { useRef, useState } from 'react';
-import {
-  AddIcon,
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronUpIcon,
-  EditIcon,
-  HamburgerIcon,
-} from '@chakra-ui/icons';
+import { AddIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import NextLink from 'next/link';
-import { useDispatch } from 'react-redux';
 import { openModal } from '@/slices/modal-slice';
+import { useAppDispatch } from '@/lib/hooks';
 
 export const ActionMenu = () => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const handleOpenModal = () => {
     dispatch(openModal());
   };

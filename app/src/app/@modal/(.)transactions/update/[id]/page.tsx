@@ -8,11 +8,11 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/modal';
-import { useDispatch, useSelector } from 'react-redux';
 import { closeModal, selectIsOpenModal } from '@/slices/modal-slice';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
 import UpdateTransaction from '@/app/transactions/update/[id]/page';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 
 interface Props {
   params: {
@@ -21,8 +21,8 @@ interface Props {
 }
 export default function UpdateTransactionModal({ params }: Props) {
   const ref = useRef(null);
-  const isOpen = useSelector(selectIsOpenModal);
-  const dispatch = useDispatch();
+  const isOpen = useAppSelector(selectIsOpenModal);
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
   const handleCloseModal = () => {

@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import modalReducer from '../slices/modal-slice';
 import transactionReducer from '../slices/transaction-slice';
+import { useDispatch, useSelector } from 'react-redux';
 
 export const makeStore = () => {
   return configureStore({

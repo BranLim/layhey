@@ -5,6 +5,7 @@ import {
 } from '@reduxjs/toolkit';
 import { TransactionCategory, TransactionDto } from '@/types/Transaction';
 import { toDate, toPeriod } from '@/utils/transaction-period-date-formatter';
+import { RootState } from '@/lib/store';
 
 const periodFormat = 'yyyy-MM-dd';
 
@@ -18,7 +19,7 @@ interface Expense {
   total: number;
 }
 
-interface BudgetState {
+export interface BudgetState {
   budgetSummary: {
     startPeriod: string;
     endPeriod: string;
@@ -48,17 +49,20 @@ const initialState = {
 } satisfies BudgetState as BudgetState;
 
 export const getTransactions = createAsyncThunk(
-  'transactions/request',
-  async ({
-    startPeriod,
-    endPeriod,
-  }: {
-    startPeriod: string;
-    endPeriod: string;
-  }): Promise<TransactionDto[]> => {
+  'transactions/getTransactions',
+  async (
+    {
+      startPeriod,
+      endPeriod,
+    }: {
+      startPeriod: string;
+      endPeriod: string;
+    },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await fetch(
-        `${process.env.SERVER_URL}/transactions?startPeriod=${startPeriod}&endPeriod=${endPeriod}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${startPeriod}&endPeriod=${endPeriod}`,
         {
           method: 'GET',
           headers: {
@@ -82,9 +86,9 @@ export const getTransactions = createAsyncThunk(
           transactionType: transaction.transactionType,
         } as TransactionDto;
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      throw error;
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -100,6 +104,7 @@ const transactionSlice = createSlice({
     },
     addTransaction: (state, action) => {
       const { date, category, amount } = action.payload;
+      console.log(`Transaction Detail: ${date}, ${category}, ${amount}`);
       const budgetStartPeriod = toDate(
         state.budgetSummary.startPeriod,
         periodFormat
@@ -122,12 +127,13 @@ const transactionSlice = createSlice({
               period: transactionPeriod,
               total: currentIncome ? currentIncome.total + amount : amount,
             };
+            state.income[transactionPeriod] = updatedIncome;
+            console.log(JSON.stringify(updatedIncome));
             let totalIncome = 0;
             for (const key in state.income) {
               const income = state.income[key];
               totalIncome += income.total;
             }
-            state.income[transactionPeriod] = updatedIncome;
             state.budgetSummary.inflow = totalIncome;
             console.log('Updating income');
             break;
@@ -137,12 +143,13 @@ const transactionSlice = createSlice({
               period: transactionPeriod,
               total: currentExpense ? currentExpense.total + amount : amount,
             };
+            state.expense[transactionPeriod] = updatedExpense;
             let totalExpense = 0;
             for (const key in state.income) {
               const expense = state.expense[key];
               totalExpense += expense.total;
             }
-            state.expense[transactionPeriod] = updatedExpense;
+
             state.budgetSummary.outflow = totalExpense;
             console.log('Updating expense');
             break;
