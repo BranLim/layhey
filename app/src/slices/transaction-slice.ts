@@ -1,4 +1,8 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+} from '@reduxjs/toolkit';
 import { TransactionCategory, TransactionDto } from '@/types/Transaction';
 import { toDate, toPeriod } from '@/utils/transaction-period-date-formatter';
 
@@ -114,7 +118,7 @@ const transactionSlice = createSlice({
         switch (category) {
           case TransactionCategory.Income:
             const currentIncome = state.income[transactionPeriod];
-            state.income[transactionPeriod] = {
+            const updatedIncome = {
               period: transactionPeriod,
               total: currentIncome ? currentIncome.total + amount : amount,
             };
@@ -123,11 +127,13 @@ const transactionSlice = createSlice({
               const income = state.income[key];
               totalIncome += income.total;
             }
+            state.income[transactionPeriod] = updatedIncome;
             state.budgetSummary.inflow = totalIncome;
+            console.log('Updating income');
             break;
           case TransactionCategory.Expense:
             const currentExpense = state.expense[transactionPeriod];
-            state.income[transactionPeriod] = {
+            const updatedExpense = {
               period: transactionPeriod,
               total: currentExpense ? currentExpense.total + amount : amount,
             };
@@ -136,7 +142,9 @@ const transactionSlice = createSlice({
               const expense = state.expense[key];
               totalExpense += expense.total;
             }
-            state.budgetSummary.inflow = totalExpense;
+            state.expense[transactionPeriod] = updatedExpense;
+            state.budgetSummary.outflow = totalExpense;
+            console.log('Updating expense');
             break;
         }
         state.budgetSummary.difference =
@@ -179,15 +187,24 @@ const transactionSlice = createSlice({
 });
 
 export const { setBudgetPeriod, addTransaction } = transactionSlice.actions;
-
-export const selectBudgetInflow = (state: any) => state.inflow;
-export const selectBudgetOutflow = (state: any) => state.outflow;
-export const selectBudgetSummary = (state: any) => ({
-  startPeriod: state.budgetSummary?.startPeriod ?? '',
-  endPeriod: state.budgetSummary?.endPeriod ?? '',
-  inflow: state.budgetSummary?.inflow ?? 0,
-  outflow: state.budgetSummary?.outflow ?? 0,
-  difference: state.budgetSummary?.difference ?? 0,
-});
+export const selectBudgetPeriod = createSelector(
+  (state: any) => state.transaction.budgetSummary,
+  (budgetSummary) => ({
+    startPeriod: budgetSummary.startPeriod,
+    endPeriod: budgetSummary.endPeriod,
+  })
+);
+export const selectBudgetInflow = (state: any) => state.transaction.inflow;
+export const selectBudgetOutflow = (state: any) => state.transaction.outflow;
+export const selectBudgetSummary = createSelector(
+  (state: any) => state.transaction.budgetSummary,
+  (budgetSummary) => ({
+    startPeriod: budgetSummary.startPeriod,
+    endPeriod: budgetSummary.endPeriod,
+    inflow: budgetSummary.inflow,
+    outflow: budgetSummary.outflow,
+    difference: budgetSummary.difference,
+  })
+);
 
 export default transactionSlice.reducer;
