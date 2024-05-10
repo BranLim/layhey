@@ -47,7 +47,9 @@ interface Input {
 }
 
 const getTransaction = async (id: string): Promise<TransactionDto> => {
-  const response = await fetch(`http://localhost:3000/api/transactions/${id}`);
+  const response = await fetch(
+    `${process.env.SERVER_URL}/api/transactions/${id}`
+  );
   if (response.ok) {
     return response.json();
   }
@@ -74,7 +76,7 @@ const UpdateTransaction = ({ params }: Props) => {
       setValue('currency', transaction.currency);
       setValue('type', transaction.transactionType);
     })();
-  }, []);
+  });
 
   const handleCloseModal = () => {
     dispatch(closeModal());

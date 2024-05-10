@@ -25,6 +25,7 @@ import { NumericFormat } from 'react-number-format';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { closeModal } from '@/slices/modal-slice';
+import { addTransaction } from '@/slices/transaction-slice';
 
 interface InputOption {
   recurring: boolean;
@@ -63,11 +64,12 @@ const AddTransaction = () => {
       date: data.date,
       currency: 'SGD',
     };
-    await fetch('http://localhost:3000/api/transactions', {
+    await fetch(`${process.env.SERVER_URL}/api/transactions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newTransaction),
     });
+    dispatch(addTransaction(newTransaction));
   };
 
   return (

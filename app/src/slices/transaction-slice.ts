@@ -1,5 +1,8 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { TransactionCategory, TransactionDto } from '@/types/Transaction';
+import { toDate, toPeriod } from '@/utils/transaction-period-date-formatter';
+
+const periodFormat = 'yyyy-MM-dd';
 
 interface Income {
   period: string;
@@ -20,8 +23,8 @@ interface BudgetState {
     difference: number;
     currency: string;
   };
-  income: Record<string, Income>;
-  expense: Record<string, Expense>;
+  income: Map<string, Income>;
+  expense: Map<string, Expense>;
   status: string;
   error?: any;
 }
@@ -35,8 +38,8 @@ const initialState = {
     difference: 0,
     currency: 'SGD',
   },
-  income: {} as Record<string, Income>,
-  expense: {} as Record<string, Expense>,
+  income: new Map<string, Income>(),
+  expense: new Map<string, Expense>(),
   status: 'idle',
 } satisfies BudgetState as BudgetState;
 
@@ -91,6 +94,51 @@ const transactionSlice = createSlice({
       state.budgetSummary.startPeriod = startPeriod;
       state.budgetSummary.endPeriod = endPeriod;
     },
+    addTransaction: (state, action) => {
+      const { date, category, amount } = action.payload as TransactionDto;
+      const budgetStartPeriod = toDate(
+        state.budgetSummary.startPeriod,
+        periodFormat
+      );
+      const budgetEndPeriod = toDate(
+        state.budgetSummary.endPeriod,
+        periodFormat
+      );
+      if (
+        date.getUTCFullYear() >= budgetStartPeriod.getUTCFullYear() &&
+        date.getUTCFullYear() <= budgetEndPeriod.getUTCFullYear()
+      ) {
+        const transactionPeriod = toPeriod(date, 'yyyy-MM');
+        switch (category) {
+          case TransactionCategory.Income:
+            const currentIncome = state.income.get('transactionPeriod');
+            state.income.set(transactionPeriod, {
+              period: transactionPeriod,
+              total: currentIncome ? currentIncome.total + amount : amount,
+            });
+            let totalIncome = 0;
+            state.income.forEach((value, key) => {
+              totalExpense += value.total;
+            });
+            state.budgetSummary.inflow = totalIncome;
+            break;
+          case TransactionCategory.Expense:
+            const currentExpense = state.expense.get('transactionPeriod');
+            state.expense.set(transactionPeriod, {
+              period: transactionPeriod,
+              total: currentExpense ? currentExpense.total + amount : amount,
+            });
+            let totalExpense = 0;
+            state.expense.forEach((value, key) => {
+              totalExpense += value.total;
+            });
+            state.budgetSummary.outflow = totalExpense;
+            break;
+        }
+        state.budgetSummary.difference =
+          state.budgetSummary.inflow - state.budgetSummary.outflow;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -126,16 +174,16 @@ const transactionSlice = createSlice({
   },
 });
 
-export const { setBudgetPeriod } = transactionSlice.actions;
+export const { setBudgetPeriod, addTransaction } = transactionSlice.actions;
 
 export const selectBudgetInflow = (state: any) => state.inflow;
 export const selectBudgetOutflow = (state: any) => state.outflow;
 export const selectBudgetSummary = (state: any) => ({
-  startPeriod: state.budgetSummary.startPeriod,
-  endPeriod: state.budgetSummary.endPeriod,
-  inflow: state.budgetSummary.inflow,
-  outflow: state.budgetSummary.outflow,
-  difference: state.budgetSummary.difference,
+  startPeriod: state.budgetSummary?.startPeriod ?? '',
+  endPeriod: state.budgetSummary?.endPeriod ?? '',
+  inflow: state.budgetSummary?.inflow ?? 0,
+  outflow: state.budgetSummary?.outflow ?? 0,
+  difference: state.budgetSummary?.difference ?? 0,
 });
 
 export default transactionSlice.reducer;
