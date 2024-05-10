@@ -48,7 +48,7 @@ interface Input {
 
 const getTransaction = async (id: string): Promise<TransactionDto> => {
   const response = await fetch(
-    `${process.env.SERVER_URL}/api/transactions/${id}`
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions/${id}`
   );
   if (response.ok) {
     return response.json();

@@ -35,4 +35,5 @@ services:
       LAYHEY_DB_USERNAME: ${LAYHEY_DB_USERNAME}
       LAYHEY_DB_PASSWORD: ${LAYHEY_DB_PASSWORD}
       LAYHEY_DB_NAME: layhey
+      SERVER_URL: "http://localhost:3000"
       MONGODB_URI: "mongodb://${LAYHEY_DB_USERNAME}:${LAYHEY_DB_PASSWORD}@mongodb:27017/layhey"

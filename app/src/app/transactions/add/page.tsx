@@ -64,12 +64,15 @@ const AddTransaction = () => {
       date: data.date,
       currency: 'SGD',
     };
-    await fetch(`${process.env.SERVER_URL}/api/transactions`, {
+    const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`;
+    console.log(apiPath);
+    await fetch(apiPath, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newTransaction),
     });
     dispatch(addTransaction(newTransaction));
+    dispatch(closeModal());
   };
 
   return (

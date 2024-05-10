@@ -23,8 +23,8 @@ interface BudgetState {
     difference: number;
     currency: string;
   };
-  income: Map<string, Income>;
-  expense: Map<string, Expense>;
+  income: { [key: string]: Income };
+  expense: { [key: string]: Expense };
   status: string;
   error?: any;
 }
@@ -38,8 +38,8 @@ const initialState = {
     difference: 0,
     currency: 'SGD',
   },
-  income: new Map<string, Income>(),
-  expense: new Map<string, Expense>(),
+  income: {},
+  expense: {},
   status: 'idle',
 } satisfies BudgetState as BudgetState;
 
@@ -95,7 +95,7 @@ const transactionSlice = createSlice({
       state.budgetSummary.endPeriod = endPeriod;
     },
     addTransaction: (state, action) => {
-      const { date, category, amount } = action.payload as TransactionDto;
+      const { date, category, amount } = action.payload;
       const budgetStartPeriod = toDate(
         state.budgetSummary.startPeriod,
         periodFormat
@@ -104,35 +104,39 @@ const transactionSlice = createSlice({
         state.budgetSummary.endPeriod,
         periodFormat
       );
+      const transactionDate = toDate(date, 'yyyy-MM-dd');
       if (
-        date.getUTCFullYear() >= budgetStartPeriod.getUTCFullYear() &&
-        date.getUTCFullYear() <= budgetEndPeriod.getUTCFullYear()
+        transactionDate.getUTCFullYear() >=
+          budgetStartPeriod.getUTCFullYear() &&
+        transactionDate.getUTCFullYear() <= budgetEndPeriod.getUTCFullYear()
       ) {
         const transactionPeriod = toPeriod(date, 'yyyy-MM');
         switch (category) {
           case TransactionCategory.Income:
-            const currentIncome = state.income.get('transactionPeriod');
-            state.income.set(transactionPeriod, {
+            const currentIncome = state.income[transactionPeriod];
+            state.income[transactionPeriod] = {
               period: transactionPeriod,
               total: currentIncome ? currentIncome.total + amount : amount,
-            });
+            };
             let totalIncome = 0;
-            state.income.forEach((value, key) => {
-              totalExpense += value.total;
-            });
+            for (const key in state.income) {
+              const income = state.income[key];
+              totalIncome += income.total;
+            }
             state.budgetSummary.inflow = totalIncome;
             break;
           case TransactionCategory.Expense:
-            const currentExpense = state.expense.get('transactionPeriod');
-            state.expense.set(transactionPeriod, {
+            const currentExpense = state.expense[transactionPeriod];
+            state.income[transactionPeriod] = {
               period: transactionPeriod,
               total: currentExpense ? currentExpense.total + amount : amount,
-            });
+            };
             let totalExpense = 0;
-            state.expense.forEach((value, key) => {
-              totalExpense += value.total;
-            });
-            state.budgetSummary.outflow = totalExpense;
+            for (const key in state.income) {
+              const expense = state.expense[key];
+              totalExpense += expense.total;
+            }
+            state.budgetSummary.inflow = totalExpense;
             break;
         }
         state.budgetSummary.difference =
