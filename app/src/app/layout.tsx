@@ -4,6 +4,7 @@ import './globals.css';
 import { Providers } from '@/app/providers';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { Box } from '@chakra-ui/react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,10 +25,12 @@ export default function RootLayout({
     <html lang='en'>
       <body>
         <Providers>
-          <Header />
-          {children}
-          {modal}
-          <Footer />
+          <Box height='100vh' overflow='hidden'>
+            <Header />
+            {children}
+            {modal}
+            <Footer />
+          </Box>
         </Providers>
       </body>
     </html>

@@ -3,10 +3,10 @@ import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 export const Footer = () => {
   return (
     <Flex
-      position='fixed'
+      position='sticky'
       bottom='0'
       align='center'
-      width='100%'
+      bg='white'
       justify='space-between'
       borderTop='1px solid'
       borderColor='gray.200'

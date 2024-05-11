@@ -27,7 +27,7 @@ export const ActionMenu = () => {
     <>
       <Flex
         position='fixed'
-        top='100px'
+        top='120px'
         left='45%'
         alignItems='flex-end'
         zIndex='999'
@@ -62,7 +62,7 @@ export const ActionMenu = () => {
               bottom='-1.5'
               left='0'
               p='2'
-              bg='white.300'
+              bg='white'
               border='1px solid'
               borderColor='gainsboro'
               boxShadow='lg'
