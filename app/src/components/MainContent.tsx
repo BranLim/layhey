@@ -1,4 +1,4 @@
-import { Container } from '@chakra-ui/react';
+import { Box, Container } from '@chakra-ui/react';
 import { ActionMenu } from '@/components/ActionMenu';
 import { selectIsOpenModal } from '@/slices/modal-slice';
 import {
@@ -9,6 +9,7 @@ import {
 } from '@/slices/transaction-slice';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { BudgetView } from '@/components/BudgetView';
 
 export const MainContent = () => {
   const dispatch = useAppDispatch();
@@ -43,8 +44,9 @@ export const MainContent = () => {
   ]);
 
   return (
-    <Container>
+    <Box bg='gray'>
       <ActionMenu />
-    </Container>
+      <BudgetView />
+    </Box>
   );
 };

@@ -122,6 +122,8 @@ const transactionSlice = createSlice({
         const transactionPeriod = toPeriod(date, 'yyyy-MM');
         switch (category) {
           case TransactionCategory.Income:
+            console.log('Updating income');
+
             const currentIncome = state.income[transactionPeriod];
             const updatedIncome = {
               period: transactionPeriod,
@@ -129,21 +131,24 @@ const transactionSlice = createSlice({
             };
             state.income[transactionPeriod] = updatedIncome;
             console.log(JSON.stringify(updatedIncome));
+
             let totalIncome = 0;
             for (const key in state.income) {
               const income = state.income[key];
               totalIncome += income.total;
             }
             state.budgetSummary.inflow = totalIncome;
-            console.log('Updating income');
             break;
           case TransactionCategory.Expense:
+            console.log('Updating expense');
+
             const currentExpense = state.expense[transactionPeriod];
             const updatedExpense = {
               period: transactionPeriod,
               total: currentExpense ? currentExpense.total + amount : amount,
             };
             state.expense[transactionPeriod] = updatedExpense;
+            console.log(JSON.stringify(updatedExpense));
             let totalExpense = 0;
             for (const key in state.income) {
               const expense = state.expense[key];
@@ -151,7 +156,6 @@ const transactionSlice = createSlice({
             }
 
             state.budgetSummary.outflow = totalExpense;
-            console.log('Updating expense');
             break;
         }
         state.budgetSummary.difference =
