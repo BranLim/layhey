@@ -31,6 +31,8 @@ export const ActionMenu = () => {
         left='45%'
         alignItems='flex-end'
         zIndex='999'
+        onMouseEnter={() => setIsExpanded(!isExpanded)}
+        onMouseLeave={() => setIsExpanded(!isExpanded)}
       >
         <Box position='relative'>
           <Tooltip
@@ -43,10 +45,10 @@ export const ActionMenu = () => {
               aria-label={isExpanded ? 'Close toolbar' : 'Open toolbar'}
               variant='solid'
               colorScheme='blue'
-              onClick={() => setIsExpanded(!isExpanded)}
               size='lg'
               zIndex='999'
               isRound={true}
+              boxShadow='3px 3px 6px lightgray'
               _hover={{
                 boxShadow: 'outline',
               }}
@@ -65,12 +67,12 @@ export const ActionMenu = () => {
               bg='white'
               border='1px solid'
               borderColor='gainsboro'
-              boxShadow='lg'
+              boxShadow='3px 3px 6px lightgray'
               borderRadius='3xl'
               mt='0px'
               zIndex='0'
               transition='transform 0.5s ease-in-out'
-              transform={isExpanded ? 'translateX(50%)' : 'translateX(0)'}
+              transform={isExpanded ? 'translateX(44%)' : 'translateX(0)'}
             >
               <Stack direction='row'>
                 <Tooltip label='Add new transaction' openDelay={500}>
@@ -82,8 +84,10 @@ export const ActionMenu = () => {
                     href='/transactions/add'
                     passHref
                     size='lg'
-                    colorScheme='gray'
                     isRound={true}
+                    colorScheme='gray'
+                    border='1px'
+                    borderColor='lightgray'
                     _hover={{
                       boxShadow: 'outline',
                     }}
@@ -100,6 +104,8 @@ export const ActionMenu = () => {
                     size='lg'
                     colorScheme='gray'
                     isRound={true}
+                    border='1px'
+                    borderColor='lightgray'
                     _hover={{
                       boxShadow: 'outline',
                     }}
