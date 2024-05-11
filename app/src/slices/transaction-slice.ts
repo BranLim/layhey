@@ -149,12 +149,13 @@ const transactionSlice = createSlice({
             };
             state.expense[transactionPeriod] = updatedExpense;
             console.log(JSON.stringify(updatedExpense));
+
             let totalExpense = 0;
-            for (const key in state.income) {
+            for (const key in state.expense) {
               const expense = state.expense[key];
               totalExpense += expense.total;
             }
-
+            console.log(`Total Expense: ${totalExpense}`);
             state.budgetSummary.outflow = totalExpense;
             break;
         }
