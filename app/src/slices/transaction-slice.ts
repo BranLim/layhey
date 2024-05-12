@@ -6,6 +6,7 @@ import {
 import { TransactionCategory, TransactionDto } from '@/types/Transaction';
 import { toDate, toPeriod } from '@/utils/transaction-period-date-formatter';
 import { RootState } from '@/lib/store';
+import { BudgetSummary } from '@/types/Budget';
 
 const periodFormat = 'yyyy-MM-dd';
 
@@ -20,12 +21,7 @@ interface Expense {
 }
 
 export interface BudgetState {
-  budgetSummary: {
-    startPeriod: string;
-    endPeriod: string;
-    inflow: number;
-    outflow: number;
-    difference: number;
+  budgetSummary: BudgetSummary & {
     currency: string;
   };
   income: { [key: string]: Income };
@@ -34,7 +30,7 @@ export interface BudgetState {
   error?: any;
 }
 
-const initialState = {
+const initialState: BudgetState = {
   budgetSummary: {
     startPeriod: '',
     endPeriod: '',
@@ -46,7 +42,7 @@ const initialState = {
   income: {},
   expense: {},
   status: 'idle',
-} satisfies BudgetState as BudgetState;
+};
 
 export const getTransactions = createAsyncThunk(
   'transactions/getTransactions',

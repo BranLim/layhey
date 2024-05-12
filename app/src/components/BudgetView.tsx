@@ -1,19 +1,23 @@
+import React, { useEffect } from 'react';
 import ReactFlow, {
-  applyNodeChanges,
   Background,
   BackgroundVariant,
+  Node,
   Position,
+  useNodesState,
 } from 'reactflow';
 import { useAppSelector } from '@/lib/hooks';
 import {
   selectBudgetPeriod,
   selectBudgetSummary,
 } from '@/slices/transaction-slice';
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BudgetNode } from '@/components/budget/BudgetNode';
 import { selectIsOpenModal } from '@/slices/modal-slice';
+import { BudgetSummary } from '@/types/Budget';
+import 'reactflow/dist/style.css';
 
-const initialNodes = [
+const nodeTypes = { budgetNode: BudgetNode };
+const initialNodes: Node<BudgetSummary>[] = [
   {
     id: 'node-1',
     type: 'budgetNode',
@@ -21,7 +25,10 @@ const initialNodes = [
     sourcePosition: Position.Top,
     targetPosition: Position.Bottom,
     draggable: true,
+    focusable: true,
     data: {
+      startPeriod: '',
+      endPeriod: '',
       inflow: 0,
       outflow: 0,
       difference: 0,
@@ -30,12 +37,10 @@ const initialNodes = [
 ];
 
 export const BudgetView = () => {
-  const nodeTypes = useMemo(() => ({ budgetNode: BudgetNode }), []);
   const modalClose = useAppSelector(selectIsOpenModal);
   const budgetPeriod = useAppSelector(selectBudgetPeriod);
   const budgetSummary = useAppSelector(selectBudgetSummary);
-  const [nodes, setNodes] = useState(initialNodes);
-  const [edges, setEdges] = useState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
 
   useEffect(() => {
     if (!budgetPeriod.startPeriod && !budgetPeriod.endPeriod) {
@@ -43,9 +48,11 @@ export const BudgetView = () => {
     }
     console.log(`Updating Budget Summary: ${JSON.stringify(budgetSummary)}`);
     const firstNode = nodes[0];
-    const updatedNode = {
+    const updatedNode: Node<BudgetSummary> = {
       ...firstNode,
       data: {
+        startPeriod: budgetSummary.startPeriod,
+        endPeriod: budgetSummary.endPeriod,
         inflow: budgetSummary.inflow,
         outflow: budgetSummary.outflow,
         difference: budgetSummary.difference,
@@ -62,11 +69,12 @@ export const BudgetView = () => {
   return (
     <ReactFlow
       nodes={nodes}
-      edges={edges}
       nodeTypes={nodeTypes}
       fitView={true}
       proOptions={{ hideAttribution: true }}
-      elementsSelectable={true}
+      onNodesChange={onNodesChange}
+      minZoom={0.3}
+      maxZoom={1.2}
     >
       <Background color='lightgray' variant={BackgroundVariant.Dots} />
     </ReactFlow>
