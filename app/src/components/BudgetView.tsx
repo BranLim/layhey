@@ -66,6 +66,7 @@ export const BudgetView = () => {
       nodeTypes={nodeTypes}
       fitView={true}
       proOptions={{ hideAttribution: true }}
+      elementsSelectable={true}
     >
       <Background color='lightgray' variant={BackgroundVariant.Dots} />
     </ReactFlow>

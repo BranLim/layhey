@@ -11,7 +11,6 @@ export type BudgetNodeData = {
 export const BudgetNode = (props: NodeProps<BudgetNodeData>) => {
   return (
     <>
-      <Handle type='source' position={Position.Top} />
       <Box
         bg='white'
         maxWidth='xs'
@@ -19,7 +18,9 @@ export const BudgetNode = (props: NodeProps<BudgetNodeData>) => {
         borderColor='darkgray'
         borderRadius='12px'
         boxShadow='0px 0px 12px 2px gray'
+        zIndex={999}
       >
+        <Handle type='source' position={Position.Top} draggable={true} />
         <SimpleGrid columns={2} gap={4} p={2}>
           <Heading fontSize='md'>Income</Heading>
           <Text fontSize='lg'>{props.data.inflow}</Text>
@@ -30,8 +31,8 @@ export const BudgetNode = (props: NodeProps<BudgetNodeData>) => {
           <Heading fontSize='md'>Surplus/Deficit</Heading>
           <Text fontSize='lg'>{props.data.difference}</Text>
         </SimpleGrid>
+        <Handle type='target' position={Position.Bottom} draggable={true} />
       </Box>
-      <Handle type='target' position={Position.Bottom} />
     </>
   );
 };
