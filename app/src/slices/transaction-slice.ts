@@ -169,19 +169,45 @@ const transactionSlice = createSlice({
         }
       })
       .addCase(getTransactions.fulfilled, (state, action) => {
-        const { budgetSummary, income, expense } = state;
         const transactionDtos: TransactionDto[] = action.payload;
-        const totalIncome = transactionDtos
-          .filter(
-            (transaction) => transaction.category == TransactionCategory.Income
-          )
-          .reduce((total, transaction) => total + transaction.amount, 0);
+        const incomeTransactions = transactionDtos.filter(
+          (transaction) => transaction.category == TransactionCategory.Income
+        );
+        const expenseTransactions = transactionDtos.filter(
+          (transaction) => transaction.category == TransactionCategory.Expense
+        );
 
-        const totalExpense = transactionDtos
-          .filter(
-            (transaction) => transaction.category == TransactionCategory.Expense
-          )
-          .reduce((total, transaction) => total + transaction.amount, 0);
+        let totalIncome = 0;
+        incomeTransactions.forEach((transaction) => {
+          const transactionPeriod = toPeriod(transaction.date, 'yyyy-MM');
+          if (!state.income[transactionPeriod]) {
+            state.income[transactionPeriod] = {
+              period: transactionPeriod,
+              total: transaction.amount,
+            };
+          } else {
+            state.income[transactionPeriod].total =
+              state.income[transactionPeriod].total + transaction.amount;
+          }
+
+          totalIncome += transaction.amount;
+        });
+
+        let totalExpense = 0;
+        expenseTransactions.forEach((transaction) => {
+          const transactionPeriod = toPeriod(transaction.date, 'yyyy-MM');
+          if (!state.expense[transactionPeriod]) {
+            state.expense[transactionPeriod] = {
+              period: transactionPeriod,
+              total: transaction.amount,
+            };
+          } else {
+            state.expense[transactionPeriod].total =
+              state.expense[transactionPeriod].total + transaction.amount;
+          }
+
+          totalExpense += transaction.amount;
+        });
 
         state.budgetSummary.inflow = totalIncome;
         state.budgetSummary.outflow = totalExpense;
