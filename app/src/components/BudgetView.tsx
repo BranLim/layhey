@@ -1,17 +1,10 @@
-import { Box } from '@chakra-ui/react';
-import ReactFlow, {
-  addEdge,
-  applyEdgeChanges,
-  applyNodeChanges,
-  Background,
-  Controls,
-} from 'reactflow';
+import ReactFlow, { Background, BackgroundVariant } from 'reactflow';
 import { useAppSelector } from '@/lib/hooks';
 import {
   selectBudgetPeriod,
   selectBudgetSummary,
 } from '@/slices/transaction-slice';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BudgetNode } from '@/components/budget/BudgetNode';
 import { selectIsOpenModal } from '@/slices/modal-slice';
 
@@ -65,7 +58,7 @@ export const BudgetView = () => {
       fitView={true}
       proOptions={{ hideAttribution: true }}
     >
-      <Background />
+      <Background color='lightgray' variant={BackgroundVariant.Dots} />
     </ReactFlow>
   );
 };

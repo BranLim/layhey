@@ -12,9 +12,10 @@ export const BudgetNode = (props: NodeProps<BudgetNodeData>) => {
     <Box
       bg='white'
       maxWidth='xs'
-      border='1px'
-      borderRadius='4px'
-      boxShadow='2px 2px 2px 3px lightgray'
+      border='2px'
+      borderColor='darkgray'
+      borderRadius='12px'
+      boxShadow='0px 0px 12px 2px gray'
     >
       <SimpleGrid columns={2} gap={4} p={2}>
         <Heading fontSize='md'>Income</Heading>
