@@ -12,6 +12,7 @@ import {
 import { selectIsOpenModal } from '@/slices/modal-slice';
 import { useEffect } from 'react';
 import { BudgetControl } from '@/components/budget/BudgetControl';
+import { Flex } from '@chakra-ui/react';
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -34,8 +35,10 @@ export default function Home() {
 
   return (
     <>
-      <ActionMenu />
-      <BudgetControl />
+      <Flex alignItems='flex-start'>
+        <ActionMenu />
+      </Flex>
+
       <BudgetView />
     </>
   );

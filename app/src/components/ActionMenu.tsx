@@ -26,10 +26,10 @@ export const ActionMenu = () => {
   return (
     <>
       <Flex
-        position='fixed'
-        top='128px'
+        position='relative'
+        top='20px'
         left='45%'
-        alignItems='flex-end'
+        alignItems='flex-start'
         zIndex='999'
         onMouseEnter={() => setIsExpanded(!isExpanded)}
         onMouseLeave={() => setIsExpanded(!isExpanded)}
