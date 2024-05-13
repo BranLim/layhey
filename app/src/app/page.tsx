@@ -11,6 +11,7 @@ import {
 } from '@/slices/transaction-slice';
 import { selectIsOpenModal } from '@/slices/modal-slice';
 import { useEffect } from 'react';
+import { BudgetControl } from '@/components/budget/BudgetControl';
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -34,6 +35,7 @@ export default function Home() {
   return (
     <>
       <ActionMenu />
+      <BudgetControl />
       <BudgetView />
     </>
   );

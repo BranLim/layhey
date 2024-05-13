@@ -5,3 +5,10 @@ export type BudgetSummary = {
   outflow: number;
   difference: number;
 };
+
+export type BudgetConfiguration = {
+  id: string;
+  startPeriod: string;
+  endPeriod: string;
+  displayCurrency: string;
+};

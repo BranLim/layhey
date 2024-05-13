@@ -27,7 +27,7 @@ export const ActionMenu = () => {
     <>
       <Flex
         position='fixed'
-        top='120px'
+        top='128px'
         left='45%'
         alignItems='flex-end'
         zIndex='999'
@@ -48,7 +48,7 @@ export const ActionMenu = () => {
               size='lg'
               zIndex='999'
               isRound={true}
-              boxShadow='3px 3px 6px lightgray'
+              boxShadow='2px 3px 8px gray'
               _hover={{
                 boxShadow: 'outline',
               }}
@@ -67,7 +67,7 @@ export const ActionMenu = () => {
               bg='white'
               border='1px solid'
               borderColor='gainsboro'
-              boxShadow='3px 3px 6px lightgray'
+              boxShadow='2px 3px 8px gray'
               borderRadius='3xl'
               mt='0px'
               zIndex='0'

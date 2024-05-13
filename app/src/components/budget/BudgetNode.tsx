@@ -4,7 +4,11 @@ import { Handle, NodeProps, Position } from 'reactflow';
 import { Box, Flex, SimpleGrid, Spacer, Text, VStack } from '@chakra-ui/react';
 import { BudgetSummary } from '@/types/Budget';
 
-export const BudgetNode = (props: NodeProps<BudgetSummary>) => {
+export type BudgetNodeProps = BudgetSummary & {
+  rootNode?: boolean;
+};
+
+export const BudgetNode = (props: NodeProps<BudgetNodeProps>) => {
   const numberFormatter = new Intl.NumberFormat('en-SG', {
     style: 'currency',
     currency: 'SGD',
@@ -22,7 +26,9 @@ export const BudgetNode = (props: NodeProps<BudgetSummary>) => {
         boxShadow='0px 0px 12px 2px gray'
         zIndex={999}
       >
-        <Handle type='source' position={Position.Top} />
+        {!props.data.rootNode && (
+          <Handle type='source' position={Position.Top} />
+        )}
         <VStack width='sm'>
           <Flex width='2xs'>
             <Box>

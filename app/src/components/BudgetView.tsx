@@ -11,13 +11,13 @@ import {
   selectBudgetPeriod,
   selectBudgetSummary,
 } from '@/slices/transaction-slice';
-import { BudgetNode } from '@/components/budget/BudgetNode';
+import { BudgetNode, BudgetNodeProps } from '@/components/budget/BudgetNode';
 import { selectIsOpenModal } from '@/slices/modal-slice';
 import { BudgetSummary } from '@/types/Budget';
 import 'reactflow/dist/style.css';
 
 const nodeTypes = { budgetNode: BudgetNode };
-const initialNodes: Node<BudgetSummary>[] = [
+const initialNodes: Node<BudgetNodeProps>[] = [
   {
     id: 'node-1',
     type: 'budgetNode',
@@ -48,9 +48,10 @@ export const BudgetView = () => {
     }
     console.log(`Updating Budget Summary: ${JSON.stringify(budgetSummary)}`);
     const firstNode = nodes[0];
-    const updatedNode: Node<BudgetSummary> = {
+    const updatedNode: Node<BudgetNodeProps> = {
       ...firstNode,
       data: {
+        rootNode: true,
         startPeriod: budgetSummary.startPeriod,
         endPeriod: budgetSummary.endPeriod,
         inflow: budgetSummary.inflow,
