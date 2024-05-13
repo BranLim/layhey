@@ -1,6 +1,5 @@
-import { useRef } from 'react';
 import {
-  Flex,
+  Box,
   FormControl,
   FormLabel,
   Heading,
@@ -9,41 +8,69 @@ import {
   Select,
   VStack,
 } from '@chakra-ui/react';
+import { useForm } from 'react-hook-form';
+import { toPeriod } from '@/utils/transaction-period-date-formatter';
+
+type Input = {
+  startPeriod: string;
+  endPeriod: string;
+  displayCurrency: string;
+};
+
+const currentYear = new Date().getFullYear();
+const startOfYear = toPeriod(new Date(currentYear, 0, 1), 'yyyy-MM-dd');
+const endOfYear = toPeriod(new Date(currentYear, 11, 31), 'yyyy-MM-dd');
+const defaultViewOptionValues: Input = {
+  startPeriod: startOfYear,
+  endPeriod: endOfYear,
+  displayCurrency: 'SGD',
+};
 
 export const BudgetControl = () => {
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
+  const {
+    register,
+    formState: { errors },
+  } = useForm<Input>({ defaultValues: defaultViewOptionValues });
   return (
     <>
-      <Flex
-        position='relative'
-        top='20px'
-        left='20px'
-        alignItems='flex-start'
+      <Box
+        position='absolute'
+        bottom='80px'
+        right='20px'
         zIndex='10'
-        bg='white'
+        bg='#fafafa'
         border='2px'
-        borderRadius='16px'
-        boxShadow='2px 3px 8px gray'
+        borderRadius='8px'
+        boxShadow='0px 4px 6px 1px black'
         borderColor='gray'
-        width='md'
+        width='lg'
       >
         <VStack alignItems='left'>
           <Heading pl='2' pt='2' size='xs' justifyContent='left'>
             Budget View Options
           </Heading>
-          <HStack ml='4' p='2'>
+          <HStack p='2'>
             <FormControl>
               <FormLabel htmlFor='budgetStartPeriod' fontSize='sm'>
                 Start Period
               </FormLabel>
-              <Input id='budgetStartPeriod' type='date' size='sm' />
+              <Input
+                id='budgetStartPeriod'
+                type='date'
+                size='sm'
+                {...register('startPeriod', { valueAsDate: false })}
+              />
             </FormControl>
             <FormControl>
               <FormLabel htmlFor='budgetStartPeriod' fontSize='sm'>
                 End Period
               </FormLabel>
-              <Input id='budgetEndPeriod' type='date' size='sm' />
+              <Input
+                id='budgetEndPeriod'
+                type='date'
+                size='sm'
+                {...register('endPeriod', { valueAsDate: false })}
+              />
             </FormControl>
             <FormControl>
               <FormLabel htmlFor='budgetCurrency' fontSize='sm'>
@@ -55,7 +82,7 @@ export const BudgetControl = () => {
             </FormControl>
           </HStack>
         </VStack>
-      </Flex>
+      </Box>
     </>
   );
 };

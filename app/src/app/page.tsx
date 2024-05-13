@@ -9,10 +9,9 @@ import {
   selectBudgetSummary,
   setBudgetPeriod,
 } from '@/slices/transaction-slice';
-import { selectIsOpenModal } from '@/slices/modal-slice';
 import { useEffect } from 'react';
 import { BudgetControl } from '@/components/budget/BudgetControl';
-import { Flex } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -35,11 +34,11 @@ export default function Home() {
 
   return (
     <>
-      <Flex alignItems='flex-start'>
+      <BudgetView />
+      <Flex flexWrap='wrap' width='lg'>
+        <BudgetControl />
         <ActionMenu />
       </Flex>
-
-      <BudgetView />
     </>
   );
 }

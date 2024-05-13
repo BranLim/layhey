@@ -21,9 +21,9 @@ export const BudgetNode = (props: NodeProps<BudgetNodeProps>) => {
         bg='white'
         width='sm'
         border='2px'
-        borderColor='darkgray'
+        borderColor='black'
         borderRadius='12px'
-        boxShadow='0px 0px 12px 2px gray'
+        boxShadow='0px 0px 10px gray'
         zIndex={999}
       >
         {!props.data.rootNode && (
