@@ -102,7 +102,7 @@ export const BudgetView = () => {
       <Background
         color='lightgray'
         variant={BackgroundVariant.Dots}
-        size={2}
+        size={1}
         style={{ background: 'lightslategrey' }}
       />
     </ReactFlow>

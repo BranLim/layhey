@@ -10,9 +10,9 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { toPeriod } from '@/utils/transaction-period-date-formatter';
 import { useAppDispatch } from '@/lib/hooks';
 import { setBudgetPeriod } from '@/slices/transaction-slice';
+import { getCurrentYear, toFormattedDate } from '@/utils/date-utils';
 
 type Input = {
   startPeriod: string;
@@ -20,9 +20,9 @@ type Input = {
   displayCurrency: string;
 };
 
-const currentYear = new Date().getFullYear();
-const startOfYear = toPeriod(new Date(currentYear, 0, 1), 'yyyy-MM-dd');
-const endOfYear = toPeriod(new Date(currentYear, 11, 31), 'yyyy-MM-dd');
+const currentYear = getCurrentYear();
+const startOfYear = toFormattedDate(new Date(currentYear, 0, 1), 'yyyy-MM-dd');
+const endOfYear = toFormattedDate(new Date(currentYear, 11, 31), 'yyyy-MM-dd');
 const defaultViewOptionValues: Input = {
   startPeriod: startOfYear,
   endPeriod: endOfYear,

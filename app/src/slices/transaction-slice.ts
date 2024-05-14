@@ -4,10 +4,12 @@ import {
   createSlice,
 } from '@reduxjs/toolkit';
 import { TransactionCategory, TransactionDto } from '@/types/Transaction';
-import { toDate, toPeriod } from '@/utils/transaction-period-date-formatter';
-import { RootState } from '@/lib/store';
 import { BudgetSummary } from '@/types/Budget';
-import { isTransactionDateWithin } from '@/utils/date-utils';
+import {
+  isTransactionDateWithin,
+  toDate,
+  toFormattedDate,
+} from '@/utils/date-utils';
 
 const periodFormat = 'yyyy-MM-dd';
 
@@ -201,7 +203,10 @@ const transactionSlice = createSlice({
 
         let totalIncome = 0;
         incomeTransactions.forEach((transaction) => {
-          const transactionPeriod = toPeriod(transaction.date, 'yyyy-MM');
+          const transactionPeriod = toFormattedDate(
+            transaction.date,
+            'yyyy-MM'
+          );
           if (!state.income[transactionPeriod]) {
             state.income[transactionPeriod] = {
               period: transactionPeriod,
@@ -217,7 +222,10 @@ const transactionSlice = createSlice({
 
         let totalExpense = 0;
         expenseTransactions.forEach((transaction) => {
-          const transactionPeriod = toPeriod(transaction.date, 'yyyy-MM');
+          const transactionPeriod = toFormattedDate(
+            transaction.date,
+            'yyyy-MM'
+          );
           if (!state.expense[transactionPeriod]) {
             state.expense[transactionPeriod] = {
               period: transactionPeriod,

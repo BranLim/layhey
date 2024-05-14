@@ -18,6 +18,7 @@ import {
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import {
   categoryFromValue,
+  TransactionCategory,
   TransactionDto,
   TransactionSource,
   transactionTypeFromValue,
@@ -26,6 +27,7 @@ import { NumericFormat } from 'react-number-format';
 import { closeModal } from '@/slices/modal-slice';
 import { addTransaction } from '@/slices/transaction-slice';
 import { useAppDispatch } from '@/lib/hooks';
+import { getCurrentDate, toDate } from '@/utils/date-utils';
 
 interface InputOption {
   recurring: boolean;
@@ -33,13 +35,26 @@ interface InputOption {
 
 interface Input {
   category: string;
-  date: Date;
+  date: string;
   source: string;
-  type: string;
+  type?: string;
   amount: number;
   currency: string;
   options: InputOption;
 }
+
+const today = getCurrentDate('yyyy-MM-dd');
+const defaultFormValues: Input = {
+  category: TransactionCategory.Income,
+  date: today,
+  source: '',
+  type: '',
+  amount: 0,
+  currency: 'SGD',
+  options: {
+    recurring: false,
+  },
+};
 
 const AddTransaction = () => {
   const {
@@ -47,7 +62,7 @@ const AddTransaction = () => {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<Input>();
+  } = useForm<Input>({ defaultValues: defaultFormValues });
   const dispatch = useAppDispatch();
 
   const handleCloseModal = () => {
@@ -55,14 +70,14 @@ const AddTransaction = () => {
   };
 
   const onSubmit: SubmitHandler<Input> = async (data: Input) => {
-    console.log(data);
+    console.log(`Form Data: ${data}`);
     const newTransaction: TransactionDto = {
       id: '',
       category: categoryFromValue(data.category),
       transactionSource: transactionTypeFromValue(data.source),
       transactionType: '',
       amount: data.amount,
-      date: data.date,
+      date: toDate(data.date, 'dd-MM-yyyy'),
       currency: 'SGD',
     };
     const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`;
@@ -120,7 +135,7 @@ const AddTransaction = () => {
             <Input
               id='date'
               type='date'
-              {...register('date', { required: true })}
+              {...register('date', { required: true, valueAsDate: false })}
             />
           </FormControl>
           <FormControl>
@@ -132,13 +147,11 @@ const AddTransaction = () => {
               placeholder='Transaction Source'
               {...register('source', { required: false })}
             >
-              {[...Object.values(TransactionSource)].map(
-                (transactionSource) => (
-                  <option key={transactionSource} value={transactionSource}>
-                    {transactionSource}
-                  </option>
-                )
-              )}
+              {...Object.values(TransactionSource).map((transactionSource) => (
+                <option key={transactionSource} value={transactionSource}>
+                  {transactionSource}
+                </option>
+              ))}
             </Select>
           </FormControl>
 
