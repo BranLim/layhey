@@ -30,7 +30,7 @@ export const BudgetNode = (props: NodeProps<BudgetNodeProps>) => {
           <Handle type='source' position={Position.Top} />
         )}
         <VStack width='sm'>
-          <Flex width='2xs'>
+          <Flex width='2xs' alignItems='flex-start'>
             <Box>
               <Text as={'b'} fontSize='md' align='center'>
                 Start Period

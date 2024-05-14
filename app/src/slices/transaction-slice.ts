@@ -7,6 +7,7 @@ import { TransactionCategory, TransactionDto } from '@/types/Transaction';
 import { toDate, toPeriod } from '@/utils/transaction-period-date-formatter';
 import { RootState } from '@/lib/store';
 import { BudgetSummary } from '@/types/Budget';
+import { isTransactionDateWithin } from '@/utils/date-utils';
 
 const periodFormat = 'yyyy-MM-dd';
 
@@ -130,8 +131,18 @@ const transactionSlice = createSlice({
 
             let totalIncome = 0;
             for (const key in state.income) {
-              const income = state.income[key];
-              totalIncome += income.total;
+              const transactionDate = toDate(key, 'yyyy-MM');
+              console.log(`Income Period: ${key}`);
+              if (
+                isTransactionDateWithin(
+                  transactionDate,
+                  budgetStartPeriod,
+                  budgetEndPeriod
+                )
+              ) {
+                const income = state.income[key];
+                totalIncome += income.total;
+              }
             }
             state.budgetSummary.inflow = totalIncome;
             break;
@@ -148,8 +159,17 @@ const transactionSlice = createSlice({
 
             let totalExpense = 0;
             for (const key in state.expense) {
-              const expense = state.expense[key];
-              totalExpense += expense.total;
+              const transactionDate = toDate(key, 'yyyy-MM');
+              if (
+                isTransactionDateWithin(
+                  transactionDate,
+                  budgetStartPeriod,
+                  budgetEndPeriod
+                )
+              ) {
+                const expense = state.expense[key];
+                totalExpense += expense.total;
+              }
             }
             console.log(`Total Expense: ${totalExpense}`);
             state.budgetSummary.outflow = totalExpense;
