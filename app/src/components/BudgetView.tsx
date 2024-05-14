@@ -99,7 +99,12 @@ export const BudgetView = () => {
       minZoom={0.3}
       maxZoom={1.2}
     >
-      <Background color='lightgray' variant={BackgroundVariant.Dots} />
+      <Background
+        color='lightgray'
+        variant={BackgroundVariant.Dots}
+        size={2}
+        style={{ background: 'lightslategrey' }}
+      />
     </ReactFlow>
   );
 };

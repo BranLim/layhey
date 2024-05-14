@@ -13,6 +13,7 @@ export class TransactionRepository {
       amount: transaction.amount,
       currency: transaction.currency,
       category: transaction.category,
+      transactionSource: transaction.transactionSource,
       transactionType: transaction.transactionType,
       budget: undefined,
     });
@@ -27,6 +28,7 @@ export class TransactionRepository {
         amount: transaction.amount,
         currency: transaction.currency,
         category: transaction.category,
+        transactionSource: transaction.transactionSource,
         transactionType: transaction.transactionType,
         budget: undefined,
       },
@@ -55,6 +57,7 @@ export class TransactionRepository {
         ({
           id: transaction._id,
           category: transaction.category,
+          transactionSource: transaction.transactionSource,
           amount: transaction.amount,
           currency: transaction.currency,
           date: transaction.date,
@@ -69,8 +72,10 @@ export class TransactionRepository {
     return {
       id: foundTransaction._id,
       category: foundTransaction.category,
+      transactionSource: foundTransaction.transactionSource,
       amount: foundTransaction.amount,
       currency: foundTransaction.currency,
+
       date: foundTransaction.date,
       budgetId: foundTransaction.budget?._id ?? '',
     } as Transaction;

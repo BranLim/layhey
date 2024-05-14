@@ -9,6 +9,7 @@ const budgetSchema = new Schema({
 const transactionSchema = new Schema({
   category: String,
   transactionType: String,
+  transactionSource: String,
   amount: Number,
   currency: String,
   date: Date,

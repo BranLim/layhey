@@ -7,7 +7,10 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  HStack,
   Input,
+  Radio,
+  RadioGroup,
   Select,
   Spacer,
   Stack,
@@ -15,15 +18,11 @@ import {
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import {
   categoryFromValue,
-  ExpenseType,
-  IncomeType,
-  TransactionCategory,
   TransactionDto,
+  TransactionSource,
   transactionTypeFromValue,
 } from '@/types/Transaction';
 import { NumericFormat } from 'react-number-format';
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { closeModal } from '@/slices/modal-slice';
 import { addTransaction } from '@/slices/transaction-slice';
 import { useAppDispatch } from '@/lib/hooks';
@@ -33,10 +32,11 @@ interface InputOption {
 }
 
 interface Input {
-  type: string;
   category: string;
-  amount: number;
   date: Date;
+  source: string;
+  type: string;
+  amount: number;
   currency: string;
   options: InputOption;
 }
@@ -45,7 +45,6 @@ const AddTransaction = () => {
   const {
     register,
     handleSubmit,
-
     control,
     formState: { errors },
   } = useForm<Input>();
@@ -60,7 +59,8 @@ const AddTransaction = () => {
     const newTransaction: TransactionDto = {
       id: '',
       category: categoryFromValue(data.category),
-      transactionType: transactionTypeFromValue(data.type),
+      transactionSource: transactionTypeFromValue(data.source),
+      transactionType: '',
       amount: data.amount,
       date: data.date,
       currency: 'SGD',
@@ -82,6 +82,18 @@ const AddTransaction = () => {
     <Box p={4} w={480}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={4}>
+          <FormControl>
+            <RadioGroup defaultValue='Income'>
+              <HStack>
+                <Radio value='Income' {...register('category')}>
+                  Income
+                </Radio>
+                <Radio value='Expense' {...register('category')}>
+                  Expense
+                </Radio>
+              </HStack>
+            </RadioGroup>
+          </FormControl>
           <FormControl isRequired isInvalid={!!errors.amount}>
             <FormLabel htmlFor='amount'>Amount</FormLabel>
             <Controller
@@ -112,34 +124,21 @@ const AddTransaction = () => {
             />
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor='category'>Category</FormLabel>
+            <FormLabel htmlFor='transactionSource'>
+              Transaction Source
+            </FormLabel>
             <Select
-              id='category'
-              placeholder='Transaction Category'
-              {...register('category', { required: true })}
+              id='transactionSource'
+              placeholder='Transaction Source'
+              {...register('source', { required: false })}
             >
-              {Object.values(TransactionCategory).map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl>
-            <FormLabel htmlFor='transactionType'>Transaction Type</FormLabel>
-            <Select
-              id='transactionType'
-              placeholder='Transaction Type'
-              {...register('type', { required: true })}
-            >
-              {[
-                ...Object.values(IncomeType),
-                ...Object.values(ExpenseType),
-              ].map((transactionType) => (
-                <option key={transactionType} value={transactionType}>
-                  {transactionType}
-                </option>
-              ))}
+              {[...Object.values(TransactionSource)].map(
+                (transactionSource) => (
+                  <option key={transactionSource} value={transactionSource}>
+                    {transactionSource}
+                  </option>
+                )
+              )}
             </Select>
           </FormControl>
 

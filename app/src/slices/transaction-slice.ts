@@ -184,6 +184,8 @@ const transactionSlice = createSlice({
     builder
       .addCase(getTransactions.pending, (state, action) => {
         state.status = 'loading';
+        state.income = {};
+        state.expense = {};
         if (state.error) {
           state.error = undefined;
         }

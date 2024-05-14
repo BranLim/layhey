@@ -3,24 +3,20 @@ export enum TransactionCategory {
   Expense = 'Expense',
 }
 
-export enum IncomeType {
+export enum TransactionSource {
   Salary = 'Salary',
   Dividend = 'Dividend',
   Cashback = 'Cashback',
   GovernmentAssistance = 'Government Assistance',
-}
-
-export enum ExpenseType {
   CreditCard = 'Credit Card',
   Cash = 'Cash',
   DirectDebit = 'Direct Debit',
 }
 
-export type TransactionType = IncomeType | ExpenseType;
-
 export type Transaction = {
   id: string;
-  transactionType: TransactionType;
+  transactionSource: TransactionSource;
+  transactionType: string;
   category: TransactionCategory;
   amount: number;
   currency: string;
@@ -42,15 +38,11 @@ export const categoryFromValue = (
 
 export const transactionTypeFromValue = (
   value: string
-): TransactionType | never => {
-  const incomeValues = Object.values(IncomeType);
-  const expenseValues = Object.values(ExpenseType);
+): TransactionSource | never => {
+  const transactionSources = Object.values(TransactionSource);
 
-  if (incomeValues.includes(value as IncomeType)) {
-    return value as IncomeType;
-  }
-  if (expenseValues.includes(value as ExpenseType)) {
-    return value as ExpenseType;
+  if (transactionSources.includes(value as TransactionSource)) {
+    return value as TransactionSource;
   }
   throw new Error(`Invalid transaction type: ${value}`);
 };

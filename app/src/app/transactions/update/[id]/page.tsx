@@ -7,7 +7,10 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  HStack,
   Input,
+  Radio,
+  RadioGroup,
   Select,
   Spacer,
   Stack,
@@ -15,14 +18,13 @@ import {
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import {
   categoryFromValue,
-  ExpenseType,
-  IncomeType,
   TransactionCategory,
   TransactionDto,
+  TransactionSource,
   transactionTypeFromValue,
 } from '@/types/Transaction';
 import { NumericFormat } from 'react-number-format';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { closeModal } from '@/slices/modal-slice';
 
@@ -39,6 +41,7 @@ interface InputOption {
 interface Input {
   id: string;
   type: string;
+  source: string;
   category: string;
   amount: number;
   date: Date;
@@ -74,7 +77,7 @@ const UpdateTransaction = ({ params }: Props) => {
       setValue('amount', transaction.amount);
       setValue('date', transaction.date);
       setValue('currency', transaction.currency);
-      setValue('type', transaction.transactionType);
+      setValue('source', transaction.transactionSource);
     })();
   });
 
@@ -86,12 +89,13 @@ const UpdateTransaction = ({ params }: Props) => {
     const newTransaction: TransactionDto = {
       ...getValues(),
       category: categoryFromValue(data.category),
-      transactionType: transactionTypeFromValue(data.type),
+      transactionSource: transactionTypeFromValue(data.source),
+      transactionType: '',
       amount: data.amount,
       date: data.date,
       currency: 'SGD',
     };
-    await fetch('http://localhost:3000/api/transactions', {
+    await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newTransaction),
@@ -102,6 +106,15 @@ const UpdateTransaction = ({ params }: Props) => {
     <Box p={4} w={480}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={4}>
+          <FormControl>
+            <RadioGroup defaultValue='Income'>
+              <HStack>
+                <Radio value='Income'>Income</Radio>
+                <Radio value='Expense'>Expense</Radio>
+              </HStack>
+            </RadioGroup>
+          </FormControl>
+
           <FormControl isRequired isInvalid={!!errors.amount}>
             <FormLabel htmlFor='amount'>Amount</FormLabel>
             <Controller
@@ -152,12 +165,9 @@ const UpdateTransaction = ({ params }: Props) => {
               placeholder='Transaction Type'
               {...register('type', { required: true })}
             >
-              {[
-                ...Object.values(IncomeType),
-                ...Object.values(ExpenseType),
-              ].map((transactionType) => (
-                <option key={transactionType} value={transactionType}>
-                  {transactionType}
+              {...Object.values(TransactionSource).map((transactionSource) => (
+                <option key={transactionSource} value={transactionSource}>
+                  {transactionSource}
                 </option>
               ))}
             </Select>
