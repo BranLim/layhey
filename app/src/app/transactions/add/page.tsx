@@ -3,23 +3,31 @@
 import {
   Box,
   Button,
-  Checkbox,
   Flex,
   FormControl,
   FormLabel,
   HStack,
   Input,
+  InputGroup,
+  InputRightAddon,
+  InputRightElement,
   Radio,
   RadioGroup,
   Select,
   Spacer,
   Stack,
+  Switch,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
 } from '@chakra-ui/react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import {
+  AddTransactionRequest,
   categoryFromValue,
   TransactionCategory,
-  TransactionDto,
   TransactionSource,
   transactionTypeFromValue,
 } from '@/types/Transaction';
@@ -28,9 +36,10 @@ import { closeModal } from '@/slices/modal-slice';
 import { addTransaction } from '@/slices/transaction-slice';
 import { useAppDispatch } from '@/lib/hooks';
 import { getCurrentDate, toDate } from '@/utils/date-utils';
+import { RepeatRule, Rule, SplitRule } from '@/types/Rule';
 
-interface InputOption {
-  recurring: boolean;
+interface AdditionalRules {
+  rule?: Rule;
 }
 
 interface Input {
@@ -40,7 +49,8 @@ interface Input {
   type?: string;
   amount: number;
   currency: string;
-  options: InputOption;
+  hasAdditionalRules?: boolean;
+  additionalRules: AdditionalRules;
 }
 
 const today = getCurrentDate('yyyy-MM-dd');
@@ -51,34 +61,38 @@ const defaultFormValues: Input = {
   type: '',
   amount: 0,
   currency: 'SGD',
-  options: {
-    recurring: false,
-  },
+  hasAdditionalRules: false,
+  additionalRules: {},
 };
 
 const AddTransaction = () => {
+  const dispatch = useAppDispatch();
   const {
     register,
     handleSubmit,
+    setValue,
     control,
     formState: { errors },
   } = useForm<Input>({ defaultValues: defaultFormValues });
-  const dispatch = useAppDispatch();
 
   const handleCloseModal = () => {
     dispatch(closeModal());
   };
 
   const onSubmit: SubmitHandler<Input> = async (data: Input) => {
-    console.log(`Form Data: ${data}`);
-    const newTransaction: TransactionDto = {
-      id: '',
-      category: categoryFromValue(data.category),
-      transactionSource: transactionTypeFromValue(data.source),
-      transactionType: '',
-      amount: data.amount,
-      date: toDate(data.date, 'dd-MM-yyyy'),
-      currency: 'SGD',
+    console.log(`Form Data: ${JSON.stringify(data)}`);
+    const newTransaction: AddTransactionRequest = {
+      transaction: {
+        id: '',
+        category: categoryFromValue(data.category),
+        transactionSource: transactionTypeFromValue(data.source),
+        transactionType: '',
+        amount: data.amount,
+        date: toDate(data.date, 'yyyy-MM-dd'),
+        currency: 'SGD',
+      },
+      hasAdditionalRules: data.hasAdditionalRules,
+      rules: [] as Rule[],
     };
     const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`;
     const response = await fetch(apiPath, {
@@ -88,7 +102,7 @@ const AddTransaction = () => {
     });
     if (response.ok) {
       console.log('Transaction added. Updating state');
-      dispatch(addTransaction(newTransaction));
+      dispatch(addTransaction(newTransaction.transaction));
       dispatch(closeModal());
     }
   };
@@ -154,10 +168,76 @@ const AddTransaction = () => {
               ))}
             </Select>
           </FormControl>
-
-          <FormControl mt={2}>
-            <Checkbox {...register('options.recurring')}>Recurring</Checkbox>
+          <FormControl as={HStack} mt={2} verticalAlign='middle'>
+            <FormLabel htmlFor='additionalRules'>Additional Rules</FormLabel>
+            <Switch id='additionalRules' {...register('hasAdditionalRules')} />
           </FormControl>
+          <Tabs
+            variant='enclosed'
+            onChange={(index) => {
+              switch (index) {
+                case 0:
+                  setValue('additionalRules.rule', {
+                    type: 'split',
+                    frequency: 0,
+                  } as SplitRule);
+                  break;
+                case 1:
+                  setValue('additionalRules.rule', {
+                    type: 'repeat',
+                    frequency: 0,
+                  } as RepeatRule);
+                  break;
+              }
+            }}
+          >
+            <TabList>
+              <Tab>Split</Tab>
+              <Tab>Repeat</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <Stack>
+                  <FormControl as='fieldset'>
+                    <FormLabel as='legend'>Frequency</FormLabel>
+                    <InputGroup>
+                      <Input
+                        id='splitFrequency'
+                        width='md'
+                        {...register('additionalRules.rule.frequency')}
+                      />
+
+                      <InputRightElement width='2xs'>
+                        <InputRightAddon borderRadius={0}>per</InputRightAddon>
+                        <Select
+                          id='splitInterval'
+                          roundedLeft={0}
+                          {...register('additionalRules.rule.interval')}
+                          size='md'
+                        >
+                          <option key='day' value='daily'>
+                            Day
+                          </option>
+                          <option key='week' value='weekly'>
+                            Week
+                          </option>
+                          <option key='month' value='monthly'>
+                            Month
+                          </option>
+                          <option key='year' value='yearly'>
+                            Year
+                          </option>
+                        </Select>
+                      </InputRightElement>
+                    </InputGroup>
+                  </FormControl>
+                  <FormControl></FormControl>
+                </Stack>
+              </TabPanel>
+              <TabPanel></TabPanel>
+            </TabPanels>
+          </Tabs>
+
           <Flex alignItems='right' mt={4}>
             <Spacer />
             <Button mt={4} mr={2} type='submit' colorScheme='blue'>

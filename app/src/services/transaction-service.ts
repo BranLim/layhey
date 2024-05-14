@@ -1,5 +1,9 @@
 import { TransactionRepository } from '@/repositories/transaction-repository';
-import { Transaction, TransactionDto } from '@/types/Transaction';
+import {
+  AddTransactionRequest,
+  Transaction,
+  TransactionDto,
+} from '@/types/Transaction';
 import { Option } from '@/types/Option';
 
 export class TransactionService {
@@ -10,10 +14,11 @@ export class TransactionService {
   }
 
   async addTransaction(
-    transaction: TransactionDto,
+    addTransactionRequest: AddTransactionRequest,
     option?: Option
   ): Promise<void> {
     try {
+      const { transaction, hasAdditionalRules, rules } = addTransactionRequest;
       await this.transactionRepository.add({ ...transaction, budgetId: '' });
     } catch (error) {
       throw error;

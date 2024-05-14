@@ -41,7 +41,7 @@ export default function UpdateTransactionModal({ params }: Props) {
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader></ModalHeader>
+        <ModalHeader color='gray.500'>Update Transaction</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <UpdateTransaction params={params} />

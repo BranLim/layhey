@@ -112,13 +112,14 @@ const transactionSlice = createSlice({
         state.budgetSummary.endPeriod,
         periodFormat
       );
-      const transactionDate = toDate(date, 'yyyy-MM-dd');
+      const transactionDate =
+        typeof date === 'string' ? toDate(date, 'yyyy-MM-dd') : date;
       if (
         transactionDate.getUTCFullYear() >=
           budgetStartPeriod.getUTCFullYear() &&
         transactionDate.getUTCFullYear() <= budgetEndPeriod.getUTCFullYear()
       ) {
-        const transactionPeriod = toPeriod(date, 'yyyy-MM');
+        const transactionPeriod = toFormattedDate(date, 'yyyy-MM');
         switch (category) {
           case TransactionCategory.Income:
             console.log('Updating income');

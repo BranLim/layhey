@@ -36,7 +36,7 @@ export default function AddTransactionModal() {
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader></ModalHeader>
+        <ModalHeader color='gray.500'>Add Transaction</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <AddTransaction />
