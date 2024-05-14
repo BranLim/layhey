@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   FormControl,
   FormLabel,
   Heading,
@@ -8,8 +9,10 @@ import {
   Select,
   VStack,
 } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { toPeriod } from '@/utils/transaction-period-date-formatter';
+import { useAppDispatch } from '@/lib/hooks';
+import { setBudgetPeriod } from '@/slices/transaction-slice';
 
 type Input = {
   startPeriod: string;
@@ -27,10 +30,35 @@ const defaultViewOptionValues: Input = {
 };
 
 export const BudgetControl = () => {
+  const dispatch = useAppDispatch();
   const {
     register,
+    handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<Input>({ defaultValues: defaultViewOptionValues });
+
+  const onSubmit: SubmitHandler<Input> = (data: Input) => {
+    console.log(data);
+    dispatch(
+      setBudgetPeriod({
+        startPeriod: data.startPeriod,
+        endPeriod: data.endPeriod,
+      })
+    );
+  };
+
+  const onReset = () => {
+    setValue('startPeriod', startOfYear);
+    setValue('endPeriod', endOfYear);
+    dispatch(
+      setBudgetPeriod({
+        startPeriod: startOfYear,
+        endPeriod: endOfYear,
+      })
+    );
+  };
+
   return (
     <>
       <Box
@@ -38,50 +66,63 @@ export const BudgetControl = () => {
         bottom='80px'
         right='20px'
         zIndex='10'
-        bg='#fafafa'
+        bg='#fdfdfd'
         border='2px'
         borderRadius='8px'
         boxShadow='0px 4px 6px 1px black'
         borderColor='gray'
-        width='lg'
+        width='3xl'
       >
-        <VStack alignItems='left'>
-          <Heading pl='2' pt='2' size='xs' justifyContent='left'>
-            Budget View Options
-          </Heading>
-          <HStack p='2'>
-            <FormControl>
-              <FormLabel htmlFor='budgetStartPeriod' fontSize='sm'>
-                Start Period
-              </FormLabel>
-              <Input
-                id='budgetStartPeriod'
-                type='date'
-                size='sm'
-                {...register('startPeriod', { valueAsDate: false })}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor='budgetStartPeriod' fontSize='sm'>
-                End Period
-              </FormLabel>
-              <Input
-                id='budgetEndPeriod'
-                type='date'
-                size='sm'
-                {...register('endPeriod', { valueAsDate: false })}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor='budgetCurrency' fontSize='sm'>
-                Currency
-              </FormLabel>
-              <Select id='budgetCurrency' size='sm'>
-                <option>SGD</option>
-              </Select>
-            </FormControl>
-          </HStack>
-        </VStack>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <VStack alignItems='left' p='0'>
+            <Heading pl='2' pt='2' size='xs' justifyContent='left'>
+              Budget View Options
+            </Heading>
+            <HStack p='2'>
+              <FormControl width='xs'>
+                <FormLabel htmlFor='budgetStartPeriod' fontSize='sm'>
+                  Start Period
+                </FormLabel>
+                <Input
+                  id='budgetStartPeriod'
+                  type='date'
+                  {...register('startPeriod', { valueAsDate: false })}
+                />
+              </FormControl>
+              <FormControl width='xs'>
+                <FormLabel htmlFor='budgetStartPeriod' fontSize='sm'>
+                  End Period
+                </FormLabel>
+                <Input
+                  id='budgetEndPeriod'
+                  type='date'
+                  {...register('endPeriod', { valueAsDate: false })}
+                />
+              </FormControl>
+              <FormControl width='xs'>
+                <FormLabel htmlFor='budgetCurrency' fontSize='sm'>
+                  Currency
+                </FormLabel>
+                <Select id='budgetCurrency'>
+                  <option>SGD</option>
+                </Select>
+              </FormControl>
+              <Button mt='8' type='submit' colorScheme='blue' size='md'>
+                Submit
+              </Button>
+              <Button
+                mt='8'
+                colorScheme='gray'
+                size='md'
+                onClick={() => {
+                  onReset();
+                }}
+              >
+                Reset
+              </Button>
+            </HStack>
+          </VStack>
+        </form>
       </Box>
     </>
   );

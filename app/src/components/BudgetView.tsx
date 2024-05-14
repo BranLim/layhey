@@ -6,10 +6,12 @@ import ReactFlow, {
   Position,
   useNodesState,
 } from 'reactflow';
-import { useAppSelector } from '@/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
+  getTransactions,
   selectBudgetPeriod,
   selectBudgetSummary,
+  setBudgetPeriod,
 } from '@/slices/transaction-slice';
 import { BudgetNode, BudgetNodeProps } from '@/components/budget/BudgetNode';
 import { selectIsOpenModal } from '@/slices/modal-slice';
@@ -37,10 +39,28 @@ const initialNodes: Node<BudgetNodeProps>[] = [
 ];
 
 export const BudgetView = () => {
+  const dispatch = useAppDispatch();
   const modalClose = useAppSelector(selectIsOpenModal);
   const budgetPeriod = useAppSelector(selectBudgetPeriod);
   const budgetSummary = useAppSelector(selectBudgetSummary);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+
+  useEffect(() => {
+    if (!budgetPeriod.startPeriod && !budgetPeriod.endPeriod) {
+      console.log('Setting budget period');
+      dispatch(
+        setBudgetPeriod({ startPeriod: '2024-01-01', endPeriod: '2024-12-31' })
+      );
+      return;
+    }
+    console.log(`Updating Budget Period: ${JSON.stringify(budgetSummary)}`);
+    dispatch(
+      getTransactions({
+        startPeriod: budgetPeriod.startPeriod,
+        endPeriod: budgetPeriod.endPeriod,
+      })
+    );
+  }, [budgetPeriod.startPeriod, budgetPeriod.endPeriod]);
 
   useEffect(() => {
     if (!budgetPeriod.startPeriod && !budgetPeriod.endPeriod) {
@@ -62,6 +82,8 @@ export const BudgetView = () => {
     setNodes([updatedNode]);
   }, [
     modalClose,
+    budgetSummary.startPeriod,
+    budgetSummary.endPeriod,
     budgetSummary.inflow,
     budgetSummary.outflow,
     budgetSummary.difference,

@@ -26,6 +26,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { closeModal } from '@/slices/modal-slice';
 import { addTransaction } from '@/slices/transaction-slice';
+import { useAppDispatch } from '@/lib/hooks';
 
 interface InputOption {
   recurring: boolean;
@@ -48,7 +49,7 @@ const AddTransaction = () => {
     control,
     formState: { errors },
   } = useForm<Input>();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const handleCloseModal = () => {
     dispatch(closeModal());
