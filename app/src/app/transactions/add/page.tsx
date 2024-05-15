@@ -149,7 +149,7 @@ const AddTransaction = () => {
             <Input
               id='date'
               type='date'
-              {...register('date', { required: true, valueAsDate: false })}
+              {...register('date', { required: true, valueAsDate: true })}
             />
           </FormControl>
           <FormControl>

@@ -29,8 +29,8 @@ const initialNodes: Node<BudgetNodeProps>[] = [
     draggable: true,
     focusable: true,
     data: {
-      startPeriod: '',
-      endPeriod: '',
+      startPeriod: undefined,
+      endPeriod: undefined,
       inflow: 0,
       outflow: 0,
       difference: 0,
@@ -49,7 +49,10 @@ export const BudgetView = () => {
     if (!budgetPeriod.startPeriod && !budgetPeriod.endPeriod) {
       console.log('Setting budget period');
       dispatch(
-        setBudgetPeriod({ startPeriod: '2024-01-01', endPeriod: '2024-12-31' })
+        setBudgetPeriod({
+          startPeriod: new Date(2024, 0, 1),
+          endPeriod: new Date(2024, 11, 31),
+        })
       );
       return;
     }

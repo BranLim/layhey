@@ -3,7 +3,7 @@ import React from 'react';
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Box, Flex, SimpleGrid, Spacer, Text, VStack } from '@chakra-ui/react';
 import { BudgetSummary } from '@/types/Budget';
-import { switchDateFormat } from '@/utils/date-utils';
+import { switchDateFormat, toFormattedDate } from '@/utils/date-utils';
 
 export type BudgetNodeProps = BudgetSummary & {
   rootNode?: boolean;
@@ -37,11 +37,8 @@ export const BudgetNode = (props: NodeProps<BudgetNodeProps>) => {
                 Start Period
               </Text>
               <Text fontSize='md' align='center'>
-                {switchDateFormat(
-                  props.data.startPeriod,
-                  'yyyy-MM-dd',
-                  'dd-MMM-yyyy'
-                )}
+                {props.data.startPeriod &&
+                  toFormattedDate(props.data.startPeriod, 'dd-MMM-yyyy')}
               </Text>
             </Box>
             <Spacer />
@@ -50,11 +47,8 @@ export const BudgetNode = (props: NodeProps<BudgetNodeProps>) => {
                 End Period
               </Text>
               <Text fontSize='md' align='center'>
-                {switchDateFormat(
-                  props.data.endPeriod,
-                  'yyyy-MM-dd',
-                  'dd-MMM-yyyy'
-                )}
+                {props.data.endPeriod &&
+                  toFormattedDate(props.data.endPeriod, 'dd-MMM-yyyy')}
               </Text>
             </Box>
           </Flex>

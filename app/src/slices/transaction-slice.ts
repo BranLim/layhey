@@ -6,7 +6,6 @@ import {
 import { TransactionCategory, TransactionDto } from '@/types/Transaction';
 import { BudgetSummary } from '@/types/Budget';
 import {
-  fromTransactionPeriodToDate,
   isTransactionDateWithin,
   toDate,
   toFormattedDate,
@@ -36,8 +35,8 @@ export interface BudgetState {
 
 const initialState: BudgetState = {
   budgetSummary: {
-    startPeriod: '',
-    endPeriod: '',
+    startPeriod: undefined,
+    endPeriod: undefined,
     inflow: 0,
     outflow: 0,
     difference: 0,
@@ -105,15 +104,12 @@ const transactionSlice = createSlice({
     addTransaction: (state, action) => {
       const { date, category, amount } = action.payload;
       console.log(`Transaction Detail: ${date}, ${category}, ${amount}`);
-      const budgetStartPeriod = toDate(
-        state.budgetSummary.startPeriod,
-        periodFormat
-      );
-      const budgetEndPeriod = toDate(
-        state.budgetSummary.endPeriod,
-        periodFormat
-      );
-      const transactionDate = toDate(date, 'yyyy-MM-dd');
+      const budgetStartPeriod = state.budgetSummary.startPeriod;
+      const budgetEndPeriod = state.budgetSummary.endPeriod;
+
+      if (!budgetStartPeriod || !budgetEndPeriod) {
+        return;
+      }
 
       if (isTransactionDateWithin(date, budgetStartPeriod, budgetEndPeriod)) {
         const transactionMonthKey = toFormattedDate(date, 'yyyy-MM');
@@ -131,18 +127,8 @@ const transactionSlice = createSlice({
 
             let totalIncome = 0;
             for (const key in state.income) {
-              const incomeMonth = toDate(key, 'yyyy-MM');
-              console.log(`Income Period: ${key}`);
-              if (
-                isTransactionDateWithin(
-                  incomeMonth,
-                  budgetStartPeriod,
-                  budgetEndPeriod
-                )
-              ) {
-                const income = state.income[key];
-                totalIncome += income.total;
-              }
+              const income = state.income[key];
+              totalIncome += income.total;
             }
             state.budgetSummary.inflow = totalIncome;
             break;
@@ -159,18 +145,8 @@ const transactionSlice = createSlice({
 
             let totalExpense = 0;
             for (const expenseMonth in state.expense) {
-              const transactionMonth =
-                fromTransactionPeriodToDate(expenseMonth);
-              if (
-                isTransactionDateWithin(
-                  transactionMonth,
-                  budgetStartPeriod,
-                  budgetEndPeriod
-                )
-              ) {
-                const expense = state.expense[expenseMonth];
-                totalExpense += expense.total;
-              }
+              const expense = state.expense[expenseMonth];
+              totalExpense += expense.total;
             }
             console.log(`Total Expense: ${totalExpense}`);
             state.budgetSummary.outflow = totalExpense;

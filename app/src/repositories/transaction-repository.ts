@@ -10,7 +10,7 @@ export class TransactionRepository {
     await connectMongo();
 
     const newTransaction = new TransactionModel({
-      date: toDate(transaction.date, 'yyyy-MM-dd'),
+      date: transaction.date,
       amount: transaction.amount,
       currency: transaction.currency,
       category: transaction.category,

@@ -1,6 +1,6 @@
 export type BudgetSummary = {
-  startPeriod: string;
-  endPeriod: string;
+  startPeriod?: Date;
+  endPeriod?: Date;
   inflow: number;
   outflow: number;
   difference: number;
@@ -8,7 +8,7 @@ export type BudgetSummary = {
 
 export type BudgetConfiguration = {
   id: string;
-  startPeriod: string;
-  endPeriod: string;
+  startPeriod?: Date;
+  endPeriod?: Date;
   displayCurrency: string;
 };
