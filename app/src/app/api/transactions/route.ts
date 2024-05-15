@@ -1,5 +1,6 @@
 import { TransactionService } from '@/services/transaction-service';
 import { NextRequest } from 'next/server';
+import { TransactionResponse } from '@/types/Transaction';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +13,18 @@ export const GET = async (request: NextRequest): Promise<Response> => {
     startPeriod,
     endPeriod
   );
-  return Response.json(transactions);
+  const transactionResponse = transactions.map((transaction) => {
+    return {
+      id: transaction.id,
+      date: transaction.date.toISOString(),
+      amount: transaction.amount,
+      category: transaction.category,
+      transactionSource: transaction.transactionSource,
+      transactionType: transaction.transactionType,
+      currency: transaction.currency,
+    } as TransactionResponse;
+  });
+  return Response.json(transactionResponse);
 };
 
 export const POST = async (request: NextRequest): Promise<Response> => {

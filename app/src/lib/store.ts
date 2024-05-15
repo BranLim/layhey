@@ -9,6 +9,16 @@ export const makeStore = () => {
       modal: modalReducer,
       transaction: transactionReducer,
     },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: {
+          // Ignore these paths in the state
+          ignoredPaths: [
+            'transaction.budgetSummary.startPeriod',
+            'transaction.budgetSummary.endPeriod',
+          ],
+        },
+      }),
   });
 };
 

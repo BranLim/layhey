@@ -28,6 +28,10 @@ export type Transaction = {
 
 export type TransactionDto = Omit<Transaction, 'budgetId'>;
 
+export type TransactionResponse = Omit<TransactionDto, 'date'> & {
+  date: string;
+};
+
 export type AddTransactionRequest = {
   transaction: TransactionDto;
   hasAdditionalRules?: boolean;

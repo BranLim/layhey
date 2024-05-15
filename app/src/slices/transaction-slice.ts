@@ -3,12 +3,17 @@ import {
   createSelector,
   createSlice,
 } from '@reduxjs/toolkit';
-import { TransactionCategory, TransactionDto } from '@/types/Transaction';
+import {
+  Transaction,
+  TransactionCategory,
+  TransactionDto,
+  TransactionResponse,
+} from '@/types/Transaction';
 import { BudgetSummary } from '@/types/Budget';
 import {
   isTransactionDateWithin,
-  toDate,
   toFormattedDate,
+  toTransactionMonth,
 } from '@/utils/date-utils';
 
 const periodFormat = 'yyyy-MM-dd';
@@ -54,14 +59,16 @@ export const getTransactions = createAsyncThunk(
       startPeriod,
       endPeriod,
     }: {
-      startPeriod: string;
-      endPeriod: string;
+      startPeriod: Date;
+      endPeriod: Date;
     },
     { rejectWithValue }
   ) => {
     try {
+      const formattedStartPeriod = toFormattedDate(startPeriod, 'yyyy-MM-dd');
+      const formattedEndPeriod = toFormattedDate(endPeriod, 'yyyy-MM-dd');
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${startPeriod}&endPeriod=${endPeriod}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${formattedStartPeriod}&endPeriod=${formattedEndPeriod}`,
         {
           method: 'GET',
           headers: {
@@ -75,16 +82,7 @@ export const getTransactions = createAsyncThunk(
         );
       }
       const foundTransactions = await response.json();
-      return foundTransactions.map((transaction: any) => {
-        return {
-          id: transaction.id,
-          date: transaction.date,
-          currency: transaction.currency,
-          amount: transaction.amount,
-          category: transaction.category,
-          transactionType: transaction.transactionType,
-        } as TransactionDto;
-      });
+      return foundTransactions;
     } catch (error: any) {
       console.error(error);
       return rejectWithValue(error.message);
@@ -98,8 +96,8 @@ const transactionSlice = createSlice({
   reducers: {
     setBudgetPeriod: (state, action) => {
       const { startPeriod, endPeriod } = action.payload;
-      state.budgetSummary.startPeriod = startPeriod;
-      state.budgetSummary.endPeriod = endPeriod;
+      state.budgetSummary.startPeriod = new Date(startPeriod);
+      state.budgetSummary.endPeriod = new Date(endPeriod);
     },
     addTransaction: (state, action) => {
       const { date, category, amount } = action.payload;
@@ -112,7 +110,7 @@ const transactionSlice = createSlice({
       }
 
       if (isTransactionDateWithin(date, budgetStartPeriod, budgetEndPeriod)) {
-        const transactionMonthKey = toFormattedDate(date, 'yyyy-MM');
+        const transactionMonthKey = toTransactionMonth(date);
         switch (category) {
           case TransactionCategory.Income:
             console.log('Updating income');
@@ -168,41 +166,47 @@ const transactionSlice = createSlice({
         }
       })
       .addCase(getTransactions.fulfilled, (state, action) => {
-        const transactionDtos: TransactionDto[] = action.payload;
+        const transactionDtos: TransactionResponse[] = action.payload;
 
         let totalIncome = 0;
         let totalExpense = 0;
-        transactionDtos?.forEach((transaction) => {
-          const transactionMonth = toFormattedDate(transaction.date, 'yyyy-MM');
+        try {
+          transactionDtos?.forEach((transaction) => {
+            const transactionMonth = toTransactionMonth(
+              new Date(transaction.date)
+            );
 
-          switch (transaction.category) {
-            case TransactionCategory.Income:
-              if (!state.income[transactionMonth]) {
-                state.income[transactionMonth] = {
-                  period: transactionMonth,
-                  total: transaction.amount,
-                };
-              } else {
-                state.income[transactionMonth].total =
-                  state.income[transactionMonth].total + transaction.amount;
-              }
-              totalIncome += transaction.amount;
-              break;
-            case TransactionCategory.Expense:
-              if (!state.expense[transactionMonth]) {
-                state.expense[transactionMonth] = {
-                  period: transactionMonth,
-                  total: transaction.amount,
-                };
-              } else {
-                state.expense[transactionMonth].total =
-                  state.expense[transactionMonth].total + transaction.amount;
-              }
+            switch (transaction.category) {
+              case TransactionCategory.Income:
+                if (!state.income[transactionMonth]) {
+                  state.income[transactionMonth] = {
+                    period: transactionMonth,
+                    total: transaction.amount,
+                  };
+                } else {
+                  state.income[transactionMonth].total =
+                    state.income[transactionMonth].total + transaction.amount;
+                }
+                totalIncome += transaction.amount;
+                break;
+              case TransactionCategory.Expense:
+                if (!state.expense[transactionMonth]) {
+                  state.expense[transactionMonth] = {
+                    period: transactionMonth,
+                    total: transaction.amount,
+                  };
+                } else {
+                  state.expense[transactionMonth].total =
+                    state.expense[transactionMonth].total + transaction.amount;
+                }
 
-              totalExpense += transaction.amount;
-              break;
-          }
-        });
+                totalExpense += transaction.amount;
+                break;
+            }
+          });
+        } catch (error) {
+          state.error = error;
+        }
 
         state.budgetSummary.inflow = totalIncome;
         state.budgetSummary.outflow = totalExpense;
@@ -216,6 +220,8 @@ const transactionSlice = createSlice({
 });
 
 export const { setBudgetPeriod, addTransaction } = transactionSlice.actions;
+export const selectHasError = (state: any) => !!state.transaction.error;
+export const selectError = (state: any) => state.transaction.error;
 export const selectBudgetPeriod = createSelector(
   (state: any) => state.transaction.budgetSummary,
   (budgetSummary) => ({

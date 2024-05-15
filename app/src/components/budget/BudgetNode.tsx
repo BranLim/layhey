@@ -3,7 +3,7 @@ import React from 'react';
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Box, Flex, SimpleGrid, Spacer, Text, VStack } from '@chakra-ui/react';
 import { BudgetSummary } from '@/types/Budget';
-import { switchDateFormat, toFormattedDate } from '@/utils/date-utils';
+import { toFormattedDate } from '@/utils/date-utils';
 
 export type BudgetNodeProps = BudgetSummary & {
   rootNode?: boolean;

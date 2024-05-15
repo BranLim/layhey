@@ -39,31 +39,10 @@ const initialNodes: Node<BudgetNodeProps>[] = [
 ];
 
 export const BudgetView = () => {
-  const dispatch = useAppDispatch();
   const modalClose = useAppSelector(selectIsOpenModal);
   const budgetPeriod = useAppSelector(selectBudgetPeriod);
   const budgetSummary = useAppSelector(selectBudgetSummary);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-
-  useEffect(() => {
-    if (!budgetPeriod.startPeriod && !budgetPeriod.endPeriod) {
-      console.log('Setting budget period');
-      dispatch(
-        setBudgetPeriod({
-          startPeriod: new Date(2024, 0, 1),
-          endPeriod: new Date(2024, 11, 31),
-        })
-      );
-      return;
-    }
-    console.log(`Updating Budget Period: ${JSON.stringify(budgetSummary)}`);
-    dispatch(
-      getTransactions({
-        startPeriod: budgetPeriod.startPeriod,
-        endPeriod: budgetPeriod.endPeriod,
-      })
-    );
-  }, [budgetPeriod.startPeriod, budgetPeriod.endPeriod]);
 
   useEffect(() => {
     if (!budgetPeriod.startPeriod && !budgetPeriod.endPeriod) {

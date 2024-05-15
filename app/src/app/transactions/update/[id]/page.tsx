@@ -34,19 +34,14 @@ interface Props {
   };
 }
 
-interface InputOption {
-  recurring: boolean;
-}
-
 interface Input {
   id: string;
   type: string;
   source: string;
   category: string;
   amount: number;
-  date: string;
+  date: Date;
   currency: string;
-  options: InputOption;
 }
 
 const getTransaction = async (id: string): Promise<TransactionDto> => {
@@ -141,7 +136,7 @@ const UpdateTransaction = ({ params }: Props) => {
             <Input
               id='date'
               type='date'
-              {...register('date', { required: true, valueAsDate: false })}
+              {...register('date', { required: true, valueAsDate: true })}
             />
           </FormControl>
           <FormControl>
@@ -173,9 +168,6 @@ const UpdateTransaction = ({ params }: Props) => {
             </Select>
           </FormControl>
 
-          <FormControl mt={2}>
-            <Checkbox {...register('options.recurring')}>Recurring</Checkbox>
-          </FormControl>
           <Flex alignItems='right' mt={4}>
             <Spacer />
             <Button mt={4} mr={2} type='submit' colorScheme='blue'>

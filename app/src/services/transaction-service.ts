@@ -44,21 +44,12 @@ export class TransactionService {
   async getTransactions(
     startPeriod: string,
     endPeriod: string
-  ): Promise<TransactionDto[]> {
+  ): Promise<Transaction[]> {
     const transactions = await this.transactionRepository.getTransactions(
       startPeriod,
       endPeriod
     );
-    return transactions.map((transaction) => {
-      return {
-        id: transaction.id,
-        category: transaction.category,
-        transactionType: transaction.transactionType,
-        amount: transaction.amount,
-        currency: transaction.currency,
-        date: transaction.date,
-      } as TransactionDto;
-    });
+    return transactions;
   }
 
   async getTransaction(id: string): Promise<TransactionDto> {

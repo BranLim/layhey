@@ -1,4 +1,5 @@
-import { Box, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import { Flex, Heading, Link, Stack } from '@chakra-ui/react';
+import NextLink from 'next/link';
 
 export const Header = () => {
   return (
@@ -12,7 +13,7 @@ export const Header = () => {
       bg='white'
     >
       <Stack ml={4}>
-        <Heading size='xl' color='gray.500'>
+        <Heading as={NextLink} size='xl' color='gray.500' href='/'>
           Layhey
         </Heading>
         <Heading size='sm'>Budgeting Made Simple</Heading>

@@ -10,19 +10,25 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useAppDispatch } from '@/lib/hooks';
-import { setBudgetPeriod } from '@/slices/transaction-slice';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import {
+  getTransactions,
+  selectBudgetPeriod,
+  selectBudgetSummary,
+  setBudgetPeriod,
+} from '@/slices/transaction-slice';
 import { getCurrentYear, toFormattedDate } from '@/utils/date-utils';
+import { useEffect } from 'react';
 
 type Input = {
-  startPeriod: string;
-  endPeriod: string;
+  startPeriod: Date;
+  endPeriod: Date;
   displayCurrency: string;
 };
 
 const currentYear = getCurrentYear();
-const startOfYear = toFormattedDate(new Date(currentYear, 0, 1), 'yyyy-MM-dd');
-const endOfYear = toFormattedDate(new Date(currentYear, 11, 31), 'yyyy-MM-dd');
+const startOfYear = new Date(currentYear, 0, 1);
+const endOfYear = new Date(currentYear, 11, 31);
 const defaultViewOptionValues: Input = {
   startPeriod: startOfYear,
   endPeriod: endOfYear,
@@ -31,12 +37,35 @@ const defaultViewOptionValues: Input = {
 
 export const BudgetControl = () => {
   const dispatch = useAppDispatch();
+  const budgetPeriod = useAppSelector(selectBudgetPeriod);
+  const budgetSummary = useAppSelector(selectBudgetSummary);
   const {
     register,
     handleSubmit,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<Input>({ defaultValues: defaultViewOptionValues });
+
+  useEffect(() => {
+    if (!budgetPeriod.startPeriod && !budgetPeriod.endPeriod) {
+      console.log('Setting budget period');
+      dispatch(
+        setBudgetPeriod({
+          startPeriod: startOfYear,
+          endPeriod: endOfYear,
+        })
+      );
+      return;
+    }
+    console.log(`Updating Budget Period: ${JSON.stringify(budgetSummary)}`);
+    dispatch(
+      getTransactions({
+        startPeriod: budgetPeriod.startPeriod,
+        endPeriod: budgetPeriod.endPeriod,
+      })
+    );
+  }, [budgetPeriod.startPeriod, budgetPeriod.endPeriod]);
 
   const onSubmit: SubmitHandler<Input> = (data: Input) => {
     console.log(data);
@@ -86,17 +115,22 @@ export const BudgetControl = () => {
                 <Input
                   id='budgetStartPeriod'
                   type='date'
-                  {...register('startPeriod', { valueAsDate: false })}
+                  value={toFormattedDate(
+                    getValues('startPeriod'),
+                    'yyyy-MM-dd'
+                  )}
+                  {...register('startPeriod', { valueAsDate: true })}
                 />
               </FormControl>
               <FormControl width='xs'>
-                <FormLabel htmlFor='budgetStartPeriod' fontSize='sm'>
+                <FormLabel htmlFor='budgetEndPeriod' fontSize='sm'>
                   End Period
                 </FormLabel>
                 <Input
                   id='budgetEndPeriod'
                   type='date'
-                  {...register('endPeriod', { valueAsDate: false })}
+                  value={toFormattedDate(getValues('endPeriod'), 'yyyy-MM-dd')}
+                  {...register('endPeriod', { valueAsDate: true })}
                 />
               </FormControl>
               <FormControl width='xs'>

@@ -23,7 +23,7 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import {
   AddTransactionRequest,
   categoryFromValue,
@@ -35,7 +35,7 @@ import { NumericFormat } from 'react-number-format';
 import { closeModal } from '@/slices/modal-slice';
 import { addTransaction } from '@/slices/transaction-slice';
 import { useAppDispatch } from '@/lib/hooks';
-import { getCurrentDate, toDate } from '@/utils/date-utils';
+import { getCurrentDate, toFormattedDate } from '@/utils/date-utils';
 import { RepeatRule, Rule, SplitRule } from '@/types/Rule';
 
 interface AdditionalRules {
@@ -53,10 +53,9 @@ interface Input {
   additionalRules: AdditionalRules;
 }
 
-const today = getCurrentDate();
 const defaultFormValues: Input = {
   category: TransactionCategory.Income,
-  date: today,
+  date: getCurrentDate(),
   source: '',
   type: '',
   amount: 0,
@@ -71,9 +70,16 @@ const AddTransaction = () => {
     register,
     handleSubmit,
     setValue,
+    getValues,
     control,
     formState: { errors },
   } = useForm<Input>({ defaultValues: defaultFormValues });
+
+  const hasAdditionalRules = useWatch({
+    control,
+    name: 'hasAdditionalRules',
+    defaultValue: false,
+  });
 
   const handleCloseModal = () => {
     dispatch(closeModal());
@@ -136,6 +142,7 @@ const AddTransaction = () => {
                   decimalSeparator='.'
                   max={50}
                   value={value}
+                  autoFocus={true}
                   onValueChange={(values: any) => {
                     const { floatValue } = values;
                     onChange(floatValue);
@@ -149,6 +156,7 @@ const AddTransaction = () => {
             <Input
               id='date'
               type='date'
+              value={toFormattedDate(getValues('date'), 'yyyy-MM-dd')}
               {...register('date', { required: true, valueAsDate: true })}
             />
           </FormControl>
@@ -172,72 +180,74 @@ const AddTransaction = () => {
             <FormLabel htmlFor='additionalRules'>Additional Rules</FormLabel>
             <Switch id='additionalRules' {...register('hasAdditionalRules')} />
           </FormControl>
-          <Tabs
-            variant='enclosed'
-            onChange={(index) => {
-              switch (index) {
-                case 0:
-                  setValue('additionalRules.rule', {
-                    type: 'split',
-                    frequency: 0,
-                  } as SplitRule);
-                  break;
-                case 1:
-                  setValue('additionalRules.rule', {
-                    type: 'repeat',
-                    frequency: 0,
-                  } as RepeatRule);
-                  break;
-              }
-            }}
-          >
-            <TabList>
-              <Tab>Split</Tab>
-              <Tab>Repeat</Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel>
-                <Stack>
-                  <FormControl as='fieldset'>
-                    <FormLabel as='legend'>Frequency</FormLabel>
-                    <InputGroup>
-                      <Input
-                        id='splitFrequency'
-                        width='md'
-                        {...register('additionalRules.rule.frequency')}
-                      />
-
-                      <InputRightElement width='2xs'>
-                        <InputRightAddon borderRadius={0}>per</InputRightAddon>
-                        <Select
-                          id='splitInterval'
-                          roundedLeft={0}
-                          {...register('additionalRules.rule.interval')}
-                          size='md'
-                        >
-                          <option key='day' value='daily'>
-                            Day
-                          </option>
-                          <option key='week' value='weekly'>
-                            Week
-                          </option>
-                          <option key='month' value='monthly'>
-                            Month
-                          </option>
-                          <option key='year' value='yearly'>
-                            Year
-                          </option>
-                        </Select>
-                      </InputRightElement>
-                    </InputGroup>
-                  </FormControl>
-                  <FormControl></FormControl>
-                </Stack>
-              </TabPanel>
-              <TabPanel></TabPanel>
-            </TabPanels>
-          </Tabs>
-
+          {hasAdditionalRules && (
+            <Tabs
+              variant='enclosed'
+              onChange={(index) => {
+                switch (index) {
+                  case 0:
+                    setValue('additionalRules.rule', {
+                      type: 'split',
+                      frequency: 0,
+                    } as SplitRule);
+                    break;
+                  case 1:
+                    setValue('additionalRules.rule', {
+                      type: 'repeat',
+                      frequency: 0,
+                    } as RepeatRule);
+                    break;
+                }
+              }}
+            >
+              <TabList>
+                <Tab>Split</Tab>
+                <Tab>Repeat</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  <Stack>
+                    <FormControl as='fieldset'>
+                      <FormLabel as='legend'>Frequency</FormLabel>
+                      <InputGroup>
+                        <Input
+                          id='splitFrequency'
+                          width='md'
+                          {...register('additionalRules.rule.frequency')}
+                        />
+                        <InputRightElement width='2xs'>
+                          <InputRightAddon borderRadius={0}>
+                            per
+                          </InputRightAddon>
+                          <Select
+                            id='splitInterval'
+                            roundedLeft={0}
+                            {...register('additionalRules.rule.interval')}
+                            size='md'
+                          >
+                            <option key='day' value='daily'>
+                              Day
+                            </option>
+                            <option key='week' value='weekly'>
+                              Week
+                            </option>
+                            <option key='month' value='monthly'>
+                              Month
+                            </option>
+                            <option key='year' value='yearly'>
+                              Year
+                            </option>
+                          </Select>
+                        </InputRightElement>
+                      </InputGroup>
+                    </FormControl>
+                    <FormControl></FormControl>
+                  </Stack>
+                </TabPanel>
+                <TabPanel></TabPanel>
+              </TabPanels>
+            </Tabs>
+          )}
           <Flex alignItems='right' mt={4}>
             <Spacer />
             <Button mt={4} mr={2} type='submit' colorScheme='blue'>

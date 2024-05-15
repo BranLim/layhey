@@ -1,7 +1,6 @@
 import { Transaction } from '@/types/Transaction';
 import { connectMongo } from '@/lib/mongodb';
 import { TransactionModel } from '@/models/transaction-model';
-import { toDate } from '@/utils/date-utils';
 
 export class TransactionRepository {
   constructor() {}
