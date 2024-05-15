@@ -3,12 +3,7 @@ import {
   createSelector,
   createSlice,
 } from '@reduxjs/toolkit';
-import {
-  Transaction,
-  TransactionCategory,
-  TransactionDto,
-  TransactionResponse,
-} from '@/types/Transaction';
+import { TransactionCategory, TransactionResponse } from '@/types/Transaction';
 import { BudgetSummary } from '@/types/Budget';
 import {
   isTransactionDateWithin,

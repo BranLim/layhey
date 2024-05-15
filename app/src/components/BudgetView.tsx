@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -6,19 +6,15 @@ import ReactFlow, {
   Position,
   useNodesState,
 } from 'reactflow';
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { useAppSelector } from '@/lib/hooks';
 import {
-  getTransactions,
   selectBudgetPeriod,
   selectBudgetSummary,
-  setBudgetPeriod,
 } from '@/slices/transaction-slice';
 import { BudgetNode, BudgetNodeProps } from '@/components/budget/BudgetNode';
 import { selectIsOpenModal } from '@/slices/modal-slice';
-import { BudgetSummary } from '@/types/Budget';
 import 'reactflow/dist/style.css';
 
-const nodeTypes = { budgetNode: BudgetNode };
 const initialNodes: Node<BudgetNodeProps>[] = [
   {
     id: 'node-1',
@@ -43,7 +39,7 @@ export const BudgetView = () => {
   const budgetPeriod = useAppSelector(selectBudgetPeriod);
   const budgetSummary = useAppSelector(selectBudgetSummary);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-
+  const nodeTypes = useMemo(() => ({ budgetNode: BudgetNode }), []);
   useEffect(() => {
     if (!budgetPeriod.startPeriod && !budgetPeriod.endPeriod) {
       return;

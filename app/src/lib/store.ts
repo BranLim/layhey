@@ -12,7 +12,13 @@ export const makeStore = () => {
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: {
-          // Ignore these paths in the state
+          ignoredActionPaths: [
+            'meta.arg.startPeriod',
+            'meta.arg.endPeriod',
+            'payload.startPeriod',
+            'payload.endPeriod',
+          ],
+          ignoredActions: [],
           ignoredPaths: [
             'transaction.budgetSummary.startPeriod',
             'transaction.budgetSummary.endPeriod',
