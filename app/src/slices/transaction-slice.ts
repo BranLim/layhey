@@ -7,6 +7,7 @@ import { TransactionCategory, TransactionDto } from '@/types/Transaction';
 import { BudgetSummary } from '@/types/Budget';
 import {
   isTransactionDateWithin,
+  switchDateFormat,
   toDate,
   toFormattedDate,
 } from '@/utils/date-utils';
@@ -112,14 +113,17 @@ const transactionSlice = createSlice({
         state.budgetSummary.endPeriod,
         periodFormat
       );
-      const transactionDate =
-        typeof date === 'string' ? toDate(date, 'yyyy-MM-dd') : date;
+      const transactionDate = toDate(date, 'yyyy-MM-dd');
       if (
         transactionDate.getUTCFullYear() >=
           budgetStartPeriod.getUTCFullYear() &&
         transactionDate.getUTCFullYear() <= budgetEndPeriod.getUTCFullYear()
       ) {
-        const transactionPeriod = toFormattedDate(date, 'yyyy-MM');
+        const transactionPeriod = switchDateFormat(
+          date,
+          'yyyy-MM-dd',
+          'yyyy-MM'
+        );
         switch (category) {
           case TransactionCategory.Income:
             console.log('Updating income');
@@ -204,10 +208,12 @@ const transactionSlice = createSlice({
 
         let totalIncome = 0;
         incomeTransactions.forEach((transaction) => {
-          const transactionPeriod = toFormattedDate(
+          const transactionPeriod = switchDateFormat(
             transaction.date,
+            'yyyy-MM-dd',
             'yyyy-MM'
           );
+
           if (!state.income[transactionPeriod]) {
             state.income[transactionPeriod] = {
               period: transactionPeriod,
@@ -223,10 +229,12 @@ const transactionSlice = createSlice({
 
         let totalExpense = 0;
         expenseTransactions.forEach((transaction) => {
-          const transactionPeriod = toFormattedDate(
+          const transactionPeriod = switchDateFormat(
             transaction.date,
+            'yyyy-MM-dd',
             'yyyy-MM'
           );
+
           if (!state.expense[transactionPeriod]) {
             state.expense[transactionPeriod] = {
               period: transactionPeriod,

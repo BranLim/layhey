@@ -88,7 +88,7 @@ const AddTransaction = () => {
         transactionSource: transactionTypeFromValue(data.source),
         transactionType: '',
         amount: data.amount,
-        date: toDate(data.date, 'yyyy-MM-dd'),
+        date: data.date,
         currency: 'SGD',
       },
       hasAdditionalRules: data.hasAdditionalRules,

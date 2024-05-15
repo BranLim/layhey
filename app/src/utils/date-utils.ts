@@ -38,7 +38,11 @@ export const switchDateFormat = (
 ) => {
   const convertedDate = toDate(formattedDate, originalFormat);
   if (isNaN(convertedDate.getTime())) {
-    return 'Invalid  date';
+    console.log(
+      `Error Converting date ${formattedDate} from ${originalFormat} to ${newFormat} `
+    );
+    return formattedDate;
+    //throw new Error(`Invalid  date ${formattedDate}`);
   }
   return toFormattedDate(convertedDate, newFormat);
 };

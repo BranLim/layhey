@@ -44,7 +44,7 @@ interface Input {
   source: string;
   category: string;
   amount: number;
-  date: Date;
+  date: string;
   currency: string;
   options: InputOption;
 }
@@ -141,7 +141,7 @@ const UpdateTransaction = ({ params }: Props) => {
             <Input
               id='date'
               type='date'
-              {...register('date', { required: true })}
+              {...register('date', { required: true, valueAsDate: false })}
             />
           </FormControl>
           <FormControl>

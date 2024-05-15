@@ -1,6 +1,7 @@
 import { Transaction } from '@/types/Transaction';
 import { connectMongo } from '@/lib/mongodb';
 import { TransactionModel } from '@/models/transaction-model';
+import { toDate } from '@/utils/date-utils';
 
 export class TransactionRepository {
   constructor() {}
@@ -9,7 +10,7 @@ export class TransactionRepository {
     await connectMongo();
 
     const newTransaction = new TransactionModel({
-      date: transaction.date,
+      date: toDate(transaction.date, 'yyyy-MM-dd'),
       amount: transaction.amount,
       currency: transaction.currency,
       category: transaction.category,
