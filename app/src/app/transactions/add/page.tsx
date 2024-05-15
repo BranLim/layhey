@@ -44,7 +44,7 @@ interface AdditionalRules {
 
 interface Input {
   category: string;
-  date: string;
+  date: Date;
   source: string;
   type?: string;
   amount: number;
@@ -53,7 +53,7 @@ interface Input {
   additionalRules: AdditionalRules;
 }
 
-const today = getCurrentDate('yyyy-MM-dd');
+const today = getCurrentDate();
 const defaultFormValues: Input = {
   category: TransactionCategory.Income,
   date: today,

@@ -22,7 +22,7 @@ export type Transaction = {
   category: TransactionCategory;
   amount: number;
   currency: string;
-  date: string;
+  date: Date;
   budgetId: string;
 };
 

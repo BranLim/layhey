@@ -6,8 +6,8 @@ import {
 import { TransactionCategory, TransactionDto } from '@/types/Transaction';
 import { BudgetSummary } from '@/types/Budget';
 import {
+  fromTransactionPeriodToDate,
   isTransactionDateWithin,
-  switchDateFormat,
   toDate,
   toFormattedDate,
 } from '@/utils/date-utils';
@@ -114,35 +114,28 @@ const transactionSlice = createSlice({
         periodFormat
       );
       const transactionDate = toDate(date, 'yyyy-MM-dd');
-      if (
-        transactionDate.getUTCFullYear() >=
-          budgetStartPeriod.getUTCFullYear() &&
-        transactionDate.getUTCFullYear() <= budgetEndPeriod.getUTCFullYear()
-      ) {
-        const transactionPeriod = switchDateFormat(
-          date,
-          'yyyy-MM-dd',
-          'yyyy-MM'
-        );
+
+      if (isTransactionDateWithin(date, budgetStartPeriod, budgetEndPeriod)) {
+        const transactionMonthKey = toFormattedDate(date, 'yyyy-MM');
         switch (category) {
           case TransactionCategory.Income:
             console.log('Updating income');
 
-            const currentIncome = state.income[transactionPeriod];
+            const currentIncome = state.income[transactionMonthKey];
             const updatedIncome = {
-              period: transactionPeriod,
+              period: transactionMonthKey,
               total: currentIncome ? currentIncome.total + amount : amount,
             };
-            state.income[transactionPeriod] = updatedIncome;
+            state.income[transactionMonthKey] = updatedIncome;
             console.log(JSON.stringify(updatedIncome));
 
             let totalIncome = 0;
             for (const key in state.income) {
-              const transactionDate = toDate(key, 'yyyy-MM');
+              const incomeMonth = toDate(key, 'yyyy-MM');
               console.log(`Income Period: ${key}`);
               if (
                 isTransactionDateWithin(
-                  transactionDate,
+                  incomeMonth,
                   budgetStartPeriod,
                   budgetEndPeriod
                 )
@@ -156,25 +149,26 @@ const transactionSlice = createSlice({
           case TransactionCategory.Expense:
             console.log('Updating expense');
 
-            const currentExpense = state.expense[transactionPeriod];
+            const currentExpense = state.expense[transactionMonthKey];
             const updatedExpense = {
-              period: transactionPeriod,
+              period: transactionMonthKey,
               total: currentExpense ? currentExpense.total + amount : amount,
             };
-            state.expense[transactionPeriod] = updatedExpense;
+            state.expense[transactionMonthKey] = updatedExpense;
             console.log(JSON.stringify(updatedExpense));
 
             let totalExpense = 0;
-            for (const key in state.expense) {
-              const transactionDate = toDate(key, 'yyyy-MM');
+            for (const expenseMonth in state.expense) {
+              const transactionMonth =
+                fromTransactionPeriodToDate(expenseMonth);
               if (
                 isTransactionDateWithin(
-                  transactionDate,
+                  transactionMonth,
                   budgetStartPeriod,
                   budgetEndPeriod
                 )
               ) {
-                const expense = state.expense[key];
+                const expense = state.expense[expenseMonth];
                 totalExpense += expense.total;
               }
             }
@@ -199,53 +193,39 @@ const transactionSlice = createSlice({
       })
       .addCase(getTransactions.fulfilled, (state, action) => {
         const transactionDtos: TransactionDto[] = action.payload;
-        const incomeTransactions = transactionDtos.filter(
-          (transaction) => transaction.category == TransactionCategory.Income
-        );
-        const expenseTransactions = transactionDtos.filter(
-          (transaction) => transaction.category == TransactionCategory.Expense
-        );
 
         let totalIncome = 0;
-        incomeTransactions.forEach((transaction) => {
-          const transactionPeriod = switchDateFormat(
-            transaction.date,
-            'yyyy-MM-dd',
-            'yyyy-MM'
-          );
-
-          if (!state.income[transactionPeriod]) {
-            state.income[transactionPeriod] = {
-              period: transactionPeriod,
-              total: transaction.amount,
-            };
-          } else {
-            state.income[transactionPeriod].total =
-              state.income[transactionPeriod].total + transaction.amount;
-          }
-
-          totalIncome += transaction.amount;
-        });
-
         let totalExpense = 0;
-        expenseTransactions.forEach((transaction) => {
-          const transactionPeriod = switchDateFormat(
-            transaction.date,
-            'yyyy-MM-dd',
-            'yyyy-MM'
-          );
+        transactionDtos?.forEach((transaction) => {
+          const transactionMonth = toFormattedDate(transaction.date, 'yyyy-MM');
 
-          if (!state.expense[transactionPeriod]) {
-            state.expense[transactionPeriod] = {
-              period: transactionPeriod,
-              total: transaction.amount,
-            };
-          } else {
-            state.expense[transactionPeriod].total =
-              state.expense[transactionPeriod].total + transaction.amount;
+          switch (transaction.category) {
+            case TransactionCategory.Income:
+              if (!state.income[transactionMonth]) {
+                state.income[transactionMonth] = {
+                  period: transactionMonth,
+                  total: transaction.amount,
+                };
+              } else {
+                state.income[transactionMonth].total =
+                  state.income[transactionMonth].total + transaction.amount;
+              }
+              totalIncome += transaction.amount;
+              break;
+            case TransactionCategory.Expense:
+              if (!state.expense[transactionMonth]) {
+                state.expense[transactionMonth] = {
+                  period: transactionMonth,
+                  total: transaction.amount,
+                };
+              } else {
+                state.expense[transactionMonth].total =
+                  state.expense[transactionMonth].total + transaction.amount;
+              }
+
+              totalExpense += transaction.amount;
+              break;
           }
-
-          totalExpense += transaction.amount;
         });
 
         state.budgetSummary.inflow = totalIncome;

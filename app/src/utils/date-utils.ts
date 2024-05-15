@@ -1,4 +1,4 @@
-import { format, parse } from 'date-fns';
+import { format, parse, setMonth } from 'date-fns';
 
 export const isTransactionDateWithin = (
   transactionDate: Date,
@@ -19,8 +19,13 @@ export const getCurrentYear = () => {
   return new Date().getUTCFullYear();
 };
 
-export const getCurrentDate = (dateFormat: string) => {
-  return format(new Date(), dateFormat);
+export const getCurrentDate = (): Date => {
+  return new Date();
+};
+
+export const fromTransactionPeriodToDate = (formattedDate: string): Date => {
+  const [year, month] = formattedDate.split('-').map(Number);
+  return new Date(year, month - 1);
 };
 
 export const toDate = (formattedDate: string, dateFormat: string): Date => {
@@ -29,6 +34,14 @@ export const toDate = (formattedDate: string, dateFormat: string): Date => {
 
 export const toFormattedDate = (date: Date, dateFormat: string): string => {
   return format(date, dateFormat);
+};
+
+export const toTransactionPeriodFormat = (date: Date) => {
+  if (!date) {
+    return '';
+  }
+  const temp = setMonth(new Date(), date.getUTCMonth());
+  return `${date.getUTCFullYear()}-${format(temp, 'MM')}`;
 };
 
 export const switchDateFormat = (
