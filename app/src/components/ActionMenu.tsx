@@ -69,7 +69,7 @@ export const ActionMenu = () => {
             mt='0px'
             zIndex='0'
             transition='transform 0.5s ease-in-out'
-            transform={isExpanded ? 'translateX(44%)' : 'translateX(0)'}
+            transform={isExpanded ? 'translateX(54px)' : 'translateX(0)'}
           >
             <Stack direction='row'>
               <Tooltip label='Add new transaction' openDelay={500}>
@@ -113,6 +113,27 @@ export const ActionMenu = () => {
                   href='/transactions/update/6635f92426594141912d3a90'
                   passHref
                 />
+              </Tooltip>
+              <Tooltip label='Add accounting period' openDelay={500}>
+                <IconButton
+                  as={NextLink}
+                  icon={<AddIcon />}
+                  aria-label='Add Accounting Period'
+                  onClick={handleOpenModal}
+                  href='/accounting/period/add'
+                  passHref
+                  size='lg'
+                  isRound={true}
+                  colorScheme='gray'
+                  border='1px'
+                  borderColor='lightgray'
+                  _hover={{
+                    boxShadow: 'outline',
+                  }}
+                  _focus={{
+                    boxShadow: 'outline',
+                  }}
+                ></IconButton>
               </Tooltip>
             </Stack>
           </Box>

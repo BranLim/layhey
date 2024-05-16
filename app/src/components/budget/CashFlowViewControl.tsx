@@ -13,7 +13,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
   getTransactions,
-  selectBudgetPeriod,
+  selectAccountingPeriod,
   selectCashFlowSummary,
   setAccountingPeriod,
 } from '@/slices/cashflow-slice';
@@ -37,8 +37,8 @@ const defaultViewOptionValues: Input = {
 
 export const CashFlowViewControl = () => {
   const dispatch = useAppDispatch();
-  const budgetPeriod = useAppSelector(selectBudgetPeriod);
-  const budgetSummary = useAppSelector(selectCashFlowSummary);
+  const accountingPeriod = useAppSelector(selectAccountingPeriod);
+  const cashFlowSummary = useAppSelector(selectCashFlowSummary);
   const {
     register,
     handleSubmit,
@@ -49,7 +49,7 @@ export const CashFlowViewControl = () => {
   } = useForm<Input>({ defaultValues: defaultViewOptionValues });
 
   useEffect(() => {
-    if (!budgetPeriod.startPeriod && !budgetPeriod.endPeriod) {
+    if (!accountingPeriod.startPeriod && !accountingPeriod.endPeriod) {
       console.log('Setting budget period');
       dispatch(
         setAccountingPeriod({
@@ -59,17 +59,19 @@ export const CashFlowViewControl = () => {
       );
       return;
     }
-    console.log(`Updating Budget Period: ${JSON.stringify(budgetSummary)}`);
+    console.log(
+      `Updating Accounting Period: ${JSON.stringify(cashFlowSummary)}`
+    );
     dispatch(
       getTransactions({
-        startPeriod: budgetPeriod.startPeriod,
-        endPeriod: budgetPeriod.endPeriod,
+        startPeriod: accountingPeriod.startPeriod,
+        endPeriod: accountingPeriod.endPeriod,
       })
     );
-  }, [budgetPeriod.startPeriod, budgetPeriod.endPeriod]);
+  }, [accountingPeriod.startPeriod, accountingPeriod.endPeriod]);
 
   const onSubmit: SubmitHandler<Input> = (data: Input) => {
-    console.log(`Setting budget period: ${JSON.stringify(data)}`);
+    console.log(`Setting accounting period: ${JSON.stringify(data)}`);
     dispatch(
       setAccountingPeriod({
         startPeriod: data.startPeriod.toISOString(),
@@ -106,11 +108,11 @@ export const CashFlowViewControl = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <VStack alignItems='left' p='0'>
             <Heading pl='2' pt='2' size='xs' justifyContent='left'>
-              Budget View Options
+              Cash Flow View Control
             </Heading>
             <HStack p='2'>
               <FormControl width='xs'>
-                <FormLabel htmlFor='budgetStartPeriod' fontSize='sm'>
+                <FormLabel htmlFor='accountingStartPeriod' fontSize='sm'>
                   Start Period
                 </FormLabel>
                 <Controller
@@ -119,7 +121,7 @@ export const CashFlowViewControl = () => {
                   render={({ field }) => (
                     <Input
                       {...field}
-                      id='budgetStartPeriod'
+                      id='accountingStartPeriod'
                       type='date'
                       value={toFormattedDate(
                         getValues('startPeriod'),
@@ -133,7 +135,7 @@ export const CashFlowViewControl = () => {
                 />
               </FormControl>
               <FormControl width='xs'>
-                <FormLabel htmlFor='budgetEndPeriod' fontSize='sm'>
+                <FormLabel htmlFor='accountingEndPeriod' fontSize='sm'>
                   End Period
                 </FormLabel>
                 <Controller
@@ -142,7 +144,7 @@ export const CashFlowViewControl = () => {
                   render={({ field }) => (
                     <Input
                       {...field}
-                      id='budgetEndPeriod'
+                      id='accountingEndPeriod'
                       type='date'
                       value={toFormattedDate(
                         getValues('endPeriod'),

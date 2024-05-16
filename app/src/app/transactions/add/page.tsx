@@ -38,11 +38,11 @@ import { useAppDispatch } from '@/lib/hooks';
 import { getCurrentDate, toFormattedDate } from '@/utils/date-utils';
 import { RepeatRule, Rule, SplitRule } from '@/types/Rule';
 
-interface AdditionalRules {
+type AdditionalRules = {
   rule?: Rule;
-}
+};
 
-interface Input {
+type FormData = {
   category: string;
   date: Date;
   source: string;
@@ -51,9 +51,9 @@ interface Input {
   currency: string;
   hasAdditionalRules?: boolean;
   additionalRules: AdditionalRules;
-}
+};
 
-const defaultFormValues: Input = {
+const defaultFormValues: FormData = {
   category: TransactionCategory.Income,
   date: getCurrentDate(),
   source: '',
@@ -73,7 +73,7 @@ const AddTransaction = () => {
     getValues,
     control,
     formState: { errors },
-  } = useForm<Input>({ defaultValues: defaultFormValues });
+  } = useForm<FormData>({ defaultValues: defaultFormValues });
 
   const hasAdditionalRules = useWatch({
     control,
@@ -85,7 +85,7 @@ const AddTransaction = () => {
     dispatch(closeModal());
   };
 
-  const onSubmit: SubmitHandler<Input> = async (data: Input) => {
+  const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
     console.log(`Form Data: ${JSON.stringify(data)}`);
     const newTransaction: AddTransactionRequest = {
       transaction: {
@@ -114,7 +114,7 @@ const AddTransaction = () => {
   };
 
   return (
-    <Box p={4} w={480}>
+    <Box pt={4}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={4}>
           <FormControl>
@@ -258,7 +258,7 @@ const AddTransaction = () => {
               </TabPanels>
             </Tabs>
           )}
-          <Flex alignItems='right' mt={4}>
+          <Flex alignItems='right' pt={4} pb={2}>
             <Spacer />
             <Button mt={4} mr={2} type='submit' colorScheme='blue'>
               Add

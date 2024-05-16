@@ -8,7 +8,7 @@ import ReactFlow, {
 } from 'reactflow';
 import { useAppSelector } from '@/lib/hooks';
 import {
-  selectBudgetPeriod,
+  selectAccountingPeriod,
   selectCashFlowSummary,
 } from '@/slices/cashflow-slice';
 import {
@@ -40,7 +40,7 @@ const initialNodes: Node<BudgetNodeProps>[] = [
 
 export const CashFlowView = () => {
   const modalClose = useAppSelector(selectIsOpenModal);
-  const budgetPeriod = useAppSelector(selectBudgetPeriod);
+  const budgetPeriod = useAppSelector(selectAccountingPeriod);
   const budgetSummary = useAppSelector(selectCashFlowSummary);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const nodeTypes = useMemo(() => ({ budgetNode: CashFlowSummaryNode }), []);

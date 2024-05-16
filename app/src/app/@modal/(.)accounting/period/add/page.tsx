@@ -1,6 +1,5 @@
 'use client';
 
-import AddTransaction from '@/app/transactions/add/page';
 import {
   Modal,
   ModalBody,
@@ -14,6 +13,7 @@ import { closeModal, selectIsOpenModal } from '@/slices/modal-slice';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import AddAccountingPeriod from '@/app/accounting/period/add/page';
 
 export default function AddTransactionModal() {
   const ref = useRef(null);
@@ -37,16 +37,15 @@ export default function AddTransactionModal() {
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader color='gray.500'>Add Transaction</ModalHeader>
+        <ModalHeader color='gray.500'>Create Accounting Period</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Text fontSize='sm'>
-            A transaction can either be an income or expense. Once added, the
-            transaction will be used as part of your cash flow calculation
-            (depending on the selected accounting period).
+            Define an accounting period to simplify and speed up your workflow
+            when using Cash Flow Viewer.
           </Text>
-          <Divider pb='4' />
-          <AddTransaction />
+          <Divider pb={4} />
+          <AddAccountingPeriod />
         </ModalBody>
       </ModalContent>
     </Modal>

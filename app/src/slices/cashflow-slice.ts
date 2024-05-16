@@ -220,7 +220,7 @@ const cashFlowSlice = createSlice({
 export const { setAccountingPeriod, addTransaction } = cashFlowSlice.actions;
 export const selectHasError = (state: any) => !!state.cashflow.error;
 export const selectError = (state: any) => state.cashflow.error;
-export const selectBudgetPeriod = createSelector(
+export const selectAccountingPeriod = createSelector(
   (state: any) => state.cashflow.cashFlowSummary,
   (cashFlowSummary) => ({
     startPeriod: cashFlowSummary.startPeriod,
