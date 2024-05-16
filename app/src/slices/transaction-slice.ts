@@ -4,39 +4,25 @@ import {
   createSlice,
 } from '@reduxjs/toolkit';
 import { TransactionCategory, TransactionResponse } from '@/types/Transaction';
-import { BudgetSummary } from '@/types/Budget';
+import { BudgetSummaryState, BudgetTransaction } from '@/types/Budget';
 import {
   isTransactionDateWithin,
   toFormattedDate,
   toTransactionMonth,
 } from '@/utils/date-utils';
 
-const periodFormat = 'yyyy-MM-dd';
-
-interface Income {
-  period: string;
-  total: number;
-}
-
-interface Expense {
-  period: string;
-  total: number;
-}
-
 export interface BudgetState {
-  budgetSummary: BudgetSummary & {
-    currency: string;
-  };
-  income: { [key: string]: Income };
-  expense: { [key: string]: Expense };
+  budgetSummary: BudgetSummaryState;
+  income: { [key: string]: BudgetTransaction };
+  expense: { [key: string]: BudgetTransaction };
   status: string;
   error?: any;
 }
 
 const initialState: BudgetState = {
   budgetSummary: {
-    startPeriod: undefined,
-    endPeriod: undefined,
+    startPeriod: '',
+    endPeriod: '',
     inflow: 0,
     outflow: 0,
     difference: 0,
@@ -54,14 +40,20 @@ export const getTransactions = createAsyncThunk(
       startPeriod,
       endPeriod,
     }: {
-      startPeriod: Date;
-      endPeriod: Date;
+      startPeriod: string;
+      endPeriod: string;
     },
     { rejectWithValue }
   ) => {
     try {
-      const formattedStartPeriod = toFormattedDate(startPeriod, 'yyyy-MM-dd');
-      const formattedEndPeriod = toFormattedDate(endPeriod, 'yyyy-MM-dd');
+      const formattedStartPeriod = toFormattedDate(
+        new Date(startPeriod),
+        'yyyy-MM-dd'
+      );
+      const formattedEndPeriod = toFormattedDate(
+        new Date(endPeriod),
+        'yyyy-MM-dd'
+      );
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${formattedStartPeriod}&endPeriod=${formattedEndPeriod}`,
         {
@@ -91,27 +83,34 @@ const transactionSlice = createSlice({
   reducers: {
     setBudgetPeriod: (state, action) => {
       const { startPeriod, endPeriod } = action.payload;
-      state.budgetSummary.startPeriod = new Date(startPeriod);
-      state.budgetSummary.endPeriod = new Date(endPeriod);
+      state.budgetSummary.startPeriod = new Date(startPeriod).toISOString();
+      state.budgetSummary.endPeriod = new Date(endPeriod).toISOString();
     },
     addTransaction: (state, action) => {
       const { date, category, amount } = action.payload;
       console.log(`Transaction Detail: ${date}, ${category}, ${amount}`);
-      const budgetStartPeriod = state.budgetSummary.startPeriod;
-      const budgetEndPeriod = state.budgetSummary.endPeriod;
+      const budgetStartPeriod: string = state.budgetSummary.startPeriod;
+      const budgetEndPeriod: string = state.budgetSummary.endPeriod;
 
       if (!budgetStartPeriod || !budgetEndPeriod) {
         return;
       }
 
-      if (isTransactionDateWithin(date, budgetStartPeriod, budgetEndPeriod)) {
+      if (
+        isTransactionDateWithin(
+          date,
+          new Date(budgetStartPeriod),
+          new Date(budgetEndPeriod)
+        )
+      ) {
         const transactionMonthKey = toTransactionMonth(date);
         switch (category) {
           case TransactionCategory.Income:
             console.log('Updating income');
 
             const currentIncome = state.income[transactionMonthKey];
-            const updatedIncome = {
+            const updatedIncome: BudgetTransaction = {
+              type: 'income',
               period: transactionMonthKey,
               total: currentIncome ? currentIncome.total + amount : amount,
             };
@@ -129,7 +128,8 @@ const transactionSlice = createSlice({
             console.log('Updating expense');
 
             const currentExpense = state.expense[transactionMonthKey];
-            const updatedExpense = {
+            const updatedExpense: BudgetTransaction = {
+              type: 'expense',
               period: transactionMonthKey,
               total: currentExpense ? currentExpense.total + amount : amount,
             };
@@ -175,6 +175,7 @@ const transactionSlice = createSlice({
               case TransactionCategory.Income:
                 if (!state.income[transactionMonth]) {
                   state.income[transactionMonth] = {
+                    type: 'income',
                     period: transactionMonth,
                     total: transaction.amount,
                   };
@@ -187,6 +188,7 @@ const transactionSlice = createSlice({
               case TransactionCategory.Expense:
                 if (!state.expense[transactionMonth]) {
                   state.expense[transactionMonth] = {
+                    type: 'expense',
                     period: transactionMonth,
                     total: transaction.amount,
                   };

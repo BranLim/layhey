@@ -30,6 +30,7 @@ const initialNodes: Node<BudgetNodeProps>[] = [
       inflow: 0,
       outflow: 0,
       difference: 0,
+      currency: 'SGD',
     },
   },
 ];
@@ -55,6 +56,7 @@ export const BudgetView = () => {
         inflow: budgetSummary.inflow,
         outflow: budgetSummary.outflow,
         difference: budgetSummary.difference,
+        currency: 'SGD',
       },
     };
     setNodes([updatedNode]);

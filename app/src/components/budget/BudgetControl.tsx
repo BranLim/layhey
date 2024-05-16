@@ -52,8 +52,8 @@ export const BudgetControl = () => {
       console.log('Setting budget period');
       dispatch(
         setBudgetPeriod({
-          startPeriod: startOfYear,
-          endPeriod: endOfYear,
+          startPeriod: startOfYear.toISOString(),
+          endPeriod: endOfYear.toISOString(),
         })
       );
       return;
