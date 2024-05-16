@@ -9,9 +9,12 @@ import ReactFlow, {
 import { useAppSelector } from '@/lib/hooks';
 import {
   selectBudgetPeriod,
-  selectBudgetSummary,
+  selectCashFlowSummary,
 } from '@/slices/cashflow-slice';
-import { BudgetNode, BudgetNodeProps } from '@/components/budget/BudgetNode';
+import {
+  CashFlowSummaryNode,
+  BudgetNodeProps,
+} from '@/components/budget/CashFlowSummaryNode';
 import { selectIsOpenModal } from '@/slices/modal-slice';
 import 'reactflow/dist/style.css';
 
@@ -35,12 +38,12 @@ const initialNodes: Node<BudgetNodeProps>[] = [
   },
 ];
 
-export const BudgetView = () => {
+export const CashFlowView = () => {
   const modalClose = useAppSelector(selectIsOpenModal);
   const budgetPeriod = useAppSelector(selectBudgetPeriod);
-  const budgetSummary = useAppSelector(selectBudgetSummary);
+  const budgetSummary = useAppSelector(selectCashFlowSummary);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const nodeTypes = useMemo(() => ({ budgetNode: BudgetNode }), []);
+  const nodeTypes = useMemo(() => ({ budgetNode: CashFlowSummaryNode }), []);
   useEffect(() => {
     if (!budgetPeriod.startPeriod && !budgetPeriod.endPeriod) {
       return;

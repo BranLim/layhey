@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
   getTransactions,
   selectBudgetPeriod,
-  selectBudgetSummary,
+  selectCashFlowSummary,
   setAccountingPeriod,
 } from '@/slices/cashflow-slice';
 import { getCurrentYear, toFormattedDate } from '@/utils/date-utils';
@@ -35,10 +35,10 @@ const defaultViewOptionValues: Input = {
   displayCurrency: 'SGD',
 };
 
-export const BudgetControl = () => {
+export const CashFlowViewControl = () => {
   const dispatch = useAppDispatch();
   const budgetPeriod = useAppSelector(selectBudgetPeriod);
-  const budgetSummary = useAppSelector(selectBudgetSummary);
+  const budgetSummary = useAppSelector(selectCashFlowSummary);
   const {
     register,
     handleSubmit,

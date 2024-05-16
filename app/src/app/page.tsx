@@ -1,16 +1,16 @@
 'use client';
 
 import { ActionMenu } from '@/components/ActionMenu';
-import { BudgetView } from '@/components/BudgetView';
-import { BudgetControl } from '@/components/budget/BudgetControl';
+import { CashFlowView } from '@/components/CashFlowView';
+import { CashFlowViewControl } from '@/components/budget/CashFlowViewControl';
 import { Flex } from '@chakra-ui/react';
 
 export default function Home() {
   return (
     <>
-      <BudgetView />
+      <CashFlowView />
       <Flex flexWrap='wrap' width='lg'>
-        <BudgetControl />
+        <CashFlowViewControl />
         <ActionMenu />
       </Flex>
     </>

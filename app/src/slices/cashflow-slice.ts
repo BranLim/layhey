@@ -227,9 +227,9 @@ export const selectBudgetPeriod = createSelector(
     endPeriod: cashFlowSummary.endPeriod,
   })
 );
-export const selectBudgetInflow = (state: any) => state.cashflow.inflow;
-export const selectBudgetOutflow = (state: any) => state.cashflow.outflow;
-export const selectBudgetSummary = createSelector(
+export const selectCashInflow = (state: any) => state.cashflow.inflow;
+export const selectCashOutflow = (state: any) => state.cashflow.outflow;
+export const selectCashFlowSummary = createSelector(
   (state: any) => state.cashflow.cashFlowSummary,
   (cashFlowSummary) => ({
     startPeriod: cashFlowSummary.startPeriod,

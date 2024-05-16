@@ -9,7 +9,7 @@ export type BudgetNodeProps = CashFlowSummary & {
   rootNode?: boolean;
 };
 
-export const BudgetNode = (props: NodeProps<BudgetNodeProps>) => {
+export const CashFlowSummaryNode = (props: NodeProps<BudgetNodeProps>) => {
   const numberFormatter = new Intl.NumberFormat('en-SG', {
     style: 'currency',
     currency: 'SGD',
