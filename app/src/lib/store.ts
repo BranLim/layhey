@@ -1,13 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 import modalReducer from '../slices/modal-slice';
-import transactionReducer from '../slices/transaction-slice';
-import { useDispatch, useSelector } from 'react-redux';
+import cashflowReducer from '../slices/cashflow-slice';
+import budgetReducer from '../slices/flow-slice';
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       modal: modalReducer,
-      transaction: transactionReducer,
+      cashflow: cashflowReducer,
+      budget: budgetReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
@@ -19,10 +20,7 @@ export const makeStore = () => {
             'payload.endPeriod',
           ],
           ignoredActions: [],
-          ignoredPaths: [
-            'transaction.budgetSummary.startPeriod',
-            'transaction.budgetSummary.endPeriod',
-          ],
+          ignoredPaths: [],
         },
       }),
   });

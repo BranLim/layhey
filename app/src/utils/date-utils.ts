@@ -29,9 +29,12 @@ export const fromTransactionPeriodToDate = (formattedDate: string): Date => {
 };
 
 export const toFormattedDate = (date: Date, dateFormat: string): string => {
+  if (!date) {
+    return '';
+  }
   return format(date, dateFormat);
 };
 
-export const toTransactionMonth = (date: Date) => {
+export const toAccountingMonth = (date: Date) => {
   return `${date.getUTCFullYear()}-${format(date, 'MM')}`;
 };

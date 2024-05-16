@@ -4,23 +4,23 @@ import {
   createSlice,
 } from '@reduxjs/toolkit';
 import { TransactionCategory, TransactionResponse } from '@/types/Transaction';
-import { BudgetSummaryState, BudgetTransaction } from '@/types/Budget';
+import { CashFlowSummaryState, CashFlow } from '@/types/Budget';
 import {
   isTransactionDateWithin,
   toFormattedDate,
-  toTransactionMonth,
+  toAccountingMonth,
 } from '@/utils/date-utils';
 
-export interface BudgetState {
-  budgetSummary: BudgetSummaryState;
-  income: { [key: string]: BudgetTransaction };
-  expense: { [key: string]: BudgetTransaction };
+type CashFlowState = {
+  cashFlowSummary: CashFlowSummaryState;
+  income: { [key: string]: CashFlow };
+  expense: { [key: string]: CashFlow };
   status: string;
   error?: any;
-}
+};
 
-const initialState: BudgetState = {
-  budgetSummary: {
+const initialState: CashFlowState = {
+  cashFlowSummary: {
     startPeriod: '',
     endPeriod: '',
     inflow: 0,
@@ -34,7 +34,7 @@ const initialState: BudgetState = {
 };
 
 export const getTransactions = createAsyncThunk(
-  'transactions/getTransactions',
+  'cashflow/getTransactions',
   async (
     {
       startPeriod,
@@ -77,44 +77,45 @@ export const getTransactions = createAsyncThunk(
   }
 );
 
-const transactionSlice = createSlice({
-  name: 'transaction',
+const cashFlowSlice = createSlice({
+  name: 'cashflow',
   initialState,
   reducers: {
-    setBudgetPeriod: (state, action) => {
+    setAccountingPeriod: (state, action) => {
       const { startPeriod, endPeriod } = action.payload;
-      state.budgetSummary.startPeriod = new Date(startPeriod).toISOString();
-      state.budgetSummary.endPeriod = new Date(endPeriod).toISOString();
+      state.cashFlowSummary.startPeriod = new Date(startPeriod).toISOString();
+      state.cashFlowSummary.endPeriod = new Date(endPeriod).toISOString();
     },
     addTransaction: (state, action) => {
       const { date, category, amount } = action.payload;
       console.log(`Transaction Detail: ${date}, ${category}, ${amount}`);
-      const budgetStartPeriod: string = state.budgetSummary.startPeriod;
-      const budgetEndPeriod: string = state.budgetSummary.endPeriod;
+      const budgetStartPeriod: string = state.cashFlowSummary.startPeriod;
+      const budgetEndPeriod: string = state.cashFlowSummary.endPeriod;
 
       if (!budgetStartPeriod || !budgetEndPeriod) {
         return;
       }
 
+      const transactionDate = new Date(date);
       if (
         isTransactionDateWithin(
-          date,
+          transactionDate,
           new Date(budgetStartPeriod),
           new Date(budgetEndPeriod)
         )
       ) {
-        const transactionMonthKey = toTransactionMonth(date);
+        const accountingMonth = toAccountingMonth(transactionDate);
         switch (category) {
           case TransactionCategory.Income:
             console.log('Updating income');
 
-            const currentIncome = state.income[transactionMonthKey];
-            const updatedIncome: BudgetTransaction = {
+            const currentIncome = state.income[accountingMonth];
+            const updatedIncome: CashFlow = {
               type: 'income',
-              period: transactionMonthKey,
+              period: accountingMonth,
               total: currentIncome ? currentIncome.total + amount : amount,
             };
-            state.income[transactionMonthKey] = updatedIncome;
+            state.income[accountingMonth] = updatedIncome;
             console.log(JSON.stringify(updatedIncome));
 
             let totalIncome = 0;
@@ -122,18 +123,18 @@ const transactionSlice = createSlice({
               const income = state.income[key];
               totalIncome += income.total;
             }
-            state.budgetSummary.inflow = totalIncome;
+            state.cashFlowSummary.inflow = totalIncome;
             break;
           case TransactionCategory.Expense:
             console.log('Updating expense');
 
-            const currentExpense = state.expense[transactionMonthKey];
-            const updatedExpense: BudgetTransaction = {
+            const currentExpense = state.expense[accountingMonth];
+            const updatedExpense: CashFlow = {
               type: 'expense',
-              period: transactionMonthKey,
+              period: accountingMonth,
               total: currentExpense ? currentExpense.total + amount : amount,
             };
-            state.expense[transactionMonthKey] = updatedExpense;
+            state.expense[accountingMonth] = updatedExpense;
             console.log(JSON.stringify(updatedExpense));
 
             let totalExpense = 0;
@@ -142,11 +143,11 @@ const transactionSlice = createSlice({
               totalExpense += expense.total;
             }
             console.log(`Total Expense: ${totalExpense}`);
-            state.budgetSummary.outflow = totalExpense;
+            state.cashFlowSummary.outflow = totalExpense;
             break;
         }
-        state.budgetSummary.difference =
-          state.budgetSummary.inflow - state.budgetSummary.outflow;
+        state.cashFlowSummary.difference =
+          state.cashFlowSummary.inflow - state.cashFlowSummary.outflow;
       }
     },
   },
@@ -167,7 +168,7 @@ const transactionSlice = createSlice({
         let totalExpense = 0;
         try {
           transactionDtos?.forEach((transaction) => {
-            const transactionMonth = toTransactionMonth(
+            const transactionMonth = toAccountingMonth(
               new Date(transaction.date)
             );
 
@@ -205,9 +206,9 @@ const transactionSlice = createSlice({
           state.error = error;
         }
 
-        state.budgetSummary.inflow = totalIncome;
-        state.budgetSummary.outflow = totalExpense;
-        state.budgetSummary.difference = totalIncome - totalExpense;
+        state.cashFlowSummary.inflow = totalIncome;
+        state.cashFlowSummary.outflow = totalExpense;
+        state.cashFlowSummary.difference = totalIncome - totalExpense;
       })
       .addCase(getTransactions.rejected, (state, action) => {
         state.status = 'error';
@@ -216,27 +217,27 @@ const transactionSlice = createSlice({
   },
 });
 
-export const { setBudgetPeriod, addTransaction } = transactionSlice.actions;
-export const selectHasError = (state: any) => !!state.transaction.error;
-export const selectError = (state: any) => state.transaction.error;
+export const { setAccountingPeriod, addTransaction } = cashFlowSlice.actions;
+export const selectHasError = (state: any) => !!state.cashflow.error;
+export const selectError = (state: any) => state.cashflow.error;
 export const selectBudgetPeriod = createSelector(
-  (state: any) => state.transaction.budgetSummary,
-  (budgetSummary) => ({
-    startPeriod: budgetSummary.startPeriod,
-    endPeriod: budgetSummary.endPeriod,
+  (state: any) => state.cashflow.cashFlowSummary,
+  (cashFlowSummary) => ({
+    startPeriod: cashFlowSummary.startPeriod,
+    endPeriod: cashFlowSummary.endPeriod,
   })
 );
-export const selectBudgetInflow = (state: any) => state.transaction.inflow;
-export const selectBudgetOutflow = (state: any) => state.transaction.outflow;
+export const selectBudgetInflow = (state: any) => state.cashflow.inflow;
+export const selectBudgetOutflow = (state: any) => state.cashflow.outflow;
 export const selectBudgetSummary = createSelector(
-  (state: any) => state.transaction.budgetSummary,
-  (budgetSummary) => ({
-    startPeriod: budgetSummary.startPeriod,
-    endPeriod: budgetSummary.endPeriod,
-    inflow: budgetSummary.inflow,
-    outflow: budgetSummary.outflow,
-    difference: budgetSummary.difference,
+  (state: any) => state.cashflow.cashFlowSummary,
+  (cashFlowSummary) => ({
+    startPeriod: cashFlowSummary.startPeriod,
+    endPeriod: cashFlowSummary.endPeriod,
+    inflow: cashFlowSummary.inflow,
+    outflow: cashFlowSummary.outflow,
+    difference: cashFlowSummary.difference,
   })
 );
 
-export default transactionSlice.reducer;
+export default cashFlowSlice.reducer;

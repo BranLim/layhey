@@ -32,8 +32,10 @@ export type TransactionResponse = Omit<TransactionDto, 'date'> & {
   date: string;
 };
 
+export type TransactionRequest = TransactionResponse;
+
 export type AddTransactionRequest = {
-  transaction: TransactionDto;
+  transaction: TransactionRequest;
   hasAdditionalRules?: boolean;
   rules: Rule[];
 };

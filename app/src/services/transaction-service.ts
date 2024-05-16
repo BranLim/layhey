@@ -19,7 +19,12 @@ export class TransactionService {
   ): Promise<void> {
     try {
       const { transaction, hasAdditionalRules, rules } = addTransactionRequest;
-      await this.transactionRepository.add({ ...transaction, budgetId: '' });
+      const transactionToAdd: Transaction = {
+        ...transaction,
+        date: new Date(transaction.date),
+        budgetId: '',
+      };
+      await this.transactionRepository.add(transactionToAdd);
     } catch (error) {
       throw error;
     }

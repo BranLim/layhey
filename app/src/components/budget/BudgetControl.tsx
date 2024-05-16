@@ -9,14 +9,14 @@ import {
   Select,
   VStack,
 } from '@chakra-ui/react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import {
   getTransactions,
   selectBudgetPeriod,
   selectBudgetSummary,
-  setBudgetPeriod,
-} from '@/slices/transaction-slice';
+  setAccountingPeriod,
+} from '@/slices/cashflow-slice';
 import { getCurrentYear, toFormattedDate } from '@/utils/date-utils';
 import { useEffect } from 'react';
 
@@ -45,13 +45,14 @@ export const BudgetControl = () => {
     setValue,
     getValues,
     formState: { errors },
+    control,
   } = useForm<Input>({ defaultValues: defaultViewOptionValues });
 
   useEffect(() => {
     if (!budgetPeriod.startPeriod && !budgetPeriod.endPeriod) {
       console.log('Setting budget period');
       dispatch(
-        setBudgetPeriod({
+        setAccountingPeriod({
           startPeriod: startOfYear.toISOString(),
           endPeriod: endOfYear.toISOString(),
         })
@@ -68,11 +69,11 @@ export const BudgetControl = () => {
   }, [budgetPeriod.startPeriod, budgetPeriod.endPeriod]);
 
   const onSubmit: SubmitHandler<Input> = (data: Input) => {
-    console.log(data);
+    console.log(`Setting budget period: ${JSON.stringify(data)}`);
     dispatch(
-      setBudgetPeriod({
-        startPeriod: data.startPeriod,
-        endPeriod: data.endPeriod,
+      setAccountingPeriod({
+        startPeriod: data.startPeriod.toISOString(),
+        endPeriod: data.endPeriod.toISOString(),
       })
     );
   };
@@ -81,7 +82,7 @@ export const BudgetControl = () => {
     setValue('startPeriod', startOfYear);
     setValue('endPeriod', endOfYear);
     dispatch(
-      setBudgetPeriod({
+      setAccountingPeriod({
         startPeriod: startOfYear,
         endPeriod: endOfYear,
       })
@@ -112,25 +113,46 @@ export const BudgetControl = () => {
                 <FormLabel htmlFor='budgetStartPeriod' fontSize='sm'>
                   Start Period
                 </FormLabel>
-                <Input
-                  id='budgetStartPeriod'
-                  type='date'
-                  value={toFormattedDate(
-                    getValues('startPeriod'),
-                    'yyyy-MM-dd'
+                <Controller
+                  name='startPeriod'
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id='budgetStartPeriod'
+                      type='date'
+                      value={toFormattedDate(
+                        getValues('startPeriod'),
+                        'yyyy-MM-dd'
+                      )}
+                      onChange={(event) =>
+                        field.onChange(new Date(event.target.value))
+                      }
+                    />
                   )}
-                  {...register('startPeriod', { valueAsDate: true })}
                 />
               </FormControl>
               <FormControl width='xs'>
                 <FormLabel htmlFor='budgetEndPeriod' fontSize='sm'>
                   End Period
                 </FormLabel>
-                <Input
-                  id='budgetEndPeriod'
-                  type='date'
-                  value={toFormattedDate(getValues('endPeriod'), 'yyyy-MM-dd')}
-                  {...register('endPeriod', { valueAsDate: true })}
+                <Controller
+                  name='endPeriod'
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id='budgetEndPeriod'
+                      type='date'
+                      value={toFormattedDate(
+                        getValues('endPeriod'),
+                        'yyyy-MM-dd'
+                      )}
+                      onChange={(event) =>
+                        field.onChange(new Date(event.target.value))
+                      }
+                    />
+                  )}
                 />
               </FormControl>
               <FormControl width='xs'>

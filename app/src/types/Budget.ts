@@ -1,10 +1,10 @@
-export type BudgetTransaction = {
+export type CashFlow = {
   type: string;
   period: string;
   total: number;
 };
 
-export type BudgetSummary = {
+export type CashFlowSummary = {
   startPeriod?: Date;
   endPeriod?: Date;
   inflow: number;
@@ -13,17 +13,10 @@ export type BudgetSummary = {
   currency: string;
 };
 
-export type BudgetSummaryState = Omit<
-  BudgetSummary,
+export type CashFlowSummaryState = Omit<
+  CashFlowSummary,
   'startPeriod' | 'endPeriod'
 > & {
   startPeriod: string;
   endPeriod: string;
-};
-
-export type BudgetConfiguration = {
-  id: string;
-  startPeriod?: Date;
-  endPeriod?: Date;
-  displayCurrency: string;
 };

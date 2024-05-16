@@ -10,7 +10,7 @@ import { useAppSelector } from '@/lib/hooks';
 import {
   selectBudgetPeriod,
   selectBudgetSummary,
-} from '@/slices/transaction-slice';
+} from '@/slices/cashflow-slice';
 import { BudgetNode, BudgetNodeProps } from '@/components/budget/BudgetNode';
 import { selectIsOpenModal } from '@/slices/modal-slice';
 import 'reactflow/dist/style.css';
