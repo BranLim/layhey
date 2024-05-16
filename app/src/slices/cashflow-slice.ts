@@ -4,7 +4,7 @@ import {
   createSlice,
 } from '@reduxjs/toolkit';
 import { TransactionCategory, TransactionResponse } from '@/types/Transaction';
-import { CashFlowSummaryState, CashFlow } from '@/types/Budget';
+import { CashFlowSummaryState, CashFlow } from '@/types/CashFlow';
 import {
   isTransactionDateWithin,
   toFormattedDate,

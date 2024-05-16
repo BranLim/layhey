@@ -1,14 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 import modalReducer from '../slices/modal-slice';
 import cashflowReducer from '../slices/cashflow-slice';
-import budgetReducer from '../slices/flow-slice';
+import flowReducer from '../slices/flow-slice';
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       modal: modalReducer,
+      flow: flowReducer,
       cashflow: cashflowReducer,
-      budget: budgetReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({

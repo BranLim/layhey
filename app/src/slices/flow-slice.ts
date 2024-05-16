@@ -2,9 +2,11 @@ import { createSlice } from '@reduxjs/toolkit';
 
 export type FlowViewState = {};
 
+const initialState: FlowViewState = {};
+
 const flowSlice = createSlice({
-  name: 'budget',
-  initialState: {},
+  name: 'flow',
+  initialState: initialState,
   reducers: {},
 });
 
