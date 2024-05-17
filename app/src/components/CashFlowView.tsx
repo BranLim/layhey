@@ -13,12 +13,12 @@ import {
 } from '@/slices/cashflow-slice';
 import {
   CashFlowSummaryNode,
-  BudgetNodeProps,
+  CashFlowNodeProps,
 } from '@/components/budget/CashFlowSummaryNode';
 import { selectIsOpenModal } from '@/slices/modal-slice';
 import 'reactflow/dist/style.css';
 
-const initialNodes: Node<BudgetNodeProps>[] = [
+const initialNodes: Node<CashFlowNodeProps>[] = [
   {
     id: 'node-1',
     type: 'budgetNode',
@@ -50,7 +50,7 @@ export const CashFlowView = () => {
     }
     console.log(`Updating Budget Summary: ${JSON.stringify(budgetSummary)}`);
     const firstNode = nodes[0];
-    const updatedNode: Node<BudgetNodeProps> = {
+    const updatedNode: Node<CashFlowNodeProps> = {
       ...firstNode,
       data: {
         rootNode: true,

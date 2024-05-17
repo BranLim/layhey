@@ -1,3 +1,8 @@
+export type AccountingPeriod = {
+  startPeriod?: Date;
+  endPeriod?: Date;
+};
+
 export type CashFlow = {
   type: string;
   period: string;
@@ -19,4 +24,9 @@ export type CashFlowSummaryState = Omit<
 > & {
   startPeriod: string;
   endPeriod: string;
+};
+
+export type CashFlowNodes = {
+  nodes: [];
+  edges: [];
 };
