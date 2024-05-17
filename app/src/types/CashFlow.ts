@@ -27,6 +27,6 @@ export type CashFlowSummaryState = Omit<
 };
 
 export type CashFlowNodes = {
-  nodes: [];
-  edges: [];
+  nodes: any[];
+  edges: any[];
 };

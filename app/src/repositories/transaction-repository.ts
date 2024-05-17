@@ -1,6 +1,6 @@
 import { Transaction } from '@/types/Transaction';
 import { connectMongo } from '@/lib/mongodb';
-import { TransactionModel } from '@/models/transaction-model';
+import {TransactionDocument, TransactionModel} from '@/models/transaction-model';
 
 export class TransactionRepository {
   constructor() {}
@@ -53,7 +53,7 @@ export class TransactionRepository {
       return [] as Transaction[];
     }
     return foundTransactions.map(
-      (transaction) =>
+      (transaction: TransactionDocument) =>
         ({
           id: transaction._id,
           category: transaction.category,
@@ -61,7 +61,7 @@ export class TransactionRepository {
           amount: transaction.amount,
           currency: transaction.currency,
           date: transaction.date,
-          budgetId: transaction.budget?._id ?? '',
+          budgetId:  '',
         }) as Transaction
     );
   }

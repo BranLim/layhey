@@ -9,6 +9,7 @@ import ReactFlow, {
 import { useAppSelector } from '@/lib/hooks';
 import {
   selectAccountingPeriod,
+  selectAllCashFlowsForPeriod,
   selectCashFlowSummary,
 } from '@/slices/cashflow-slice';
 import {
@@ -22,7 +23,7 @@ const initialNodes: Node<CashFlowNodeProps>[] = [
   {
     id: 'node-1',
     type: 'budgetNode',
-    position: { x: 0, y: 0 },
+    position: { x: 200, y: 200 },
     sourcePosition: Position.Top,
     targetPosition: Position.Bottom,
     draggable: true,
@@ -39,11 +40,13 @@ const initialNodes: Node<CashFlowNodeProps>[] = [
 ];
 
 export const CashFlowView = () => {
+  const nodeTypes = useMemo(() => ({ budgetNode: CashFlowSummaryNode }), []);
   const modalClose = useAppSelector(selectIsOpenModal);
   const budgetPeriod = useAppSelector(selectAccountingPeriod);
   const budgetSummary = useAppSelector(selectCashFlowSummary);
+  const allCashFlowsForPeriod = useAppSelector(selectAllCashFlowsForPeriod);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const nodeTypes = useMemo(() => ({ budgetNode: CashFlowSummaryNode }), []);
+
   useEffect(() => {
     if (!budgetPeriod.startPeriod && !budgetPeriod.endPeriod) {
       return;
@@ -62,7 +65,34 @@ export const CashFlowView = () => {
         currency: 'SGD',
       },
     };
-    setNodes([updatedNode]);
+
+    const monthNodes: Node<CashFlowNodeProps>[] = [];
+    let index = 2;
+    let x = 100;
+    for (const cashflow of allCashFlowsForPeriod.nodes) {
+      const node: Node<CashFlowNodeProps> = {
+        id: `node-${index}`,
+        type: 'budgetNode',
+        position: { x: x, y: 450 },
+        sourcePosition: Position.Top,
+        targetPosition: Position.Bottom,
+        draggable: true,
+        focusable: true,
+        data: {
+          startPeriod: cashflow.startPeriod,
+          endPeriod: cashflow.endPeriod,
+          inflow: cashflow.inflow,
+          outflow: cashflow.outflow,
+          difference: cashflow.difference,
+          currency: cashflow.currency,
+        },
+      };
+      monthNodes.push(node);
+      x += 400;
+      index++;
+    }
+
+    setNodes([updatedNode, ...monthNodes]);
   }, [
     modalClose,
     budgetSummary.startPeriod,
@@ -76,7 +106,7 @@ export const CashFlowView = () => {
     <ReactFlow
       nodes={nodes}
       nodeTypes={nodeTypes}
-      fitView={true}
+      fitView={false}
       proOptions={{ hideAttribution: true }}
       onNodesChange={onNodesChange}
       minZoom={0.3}

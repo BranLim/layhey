@@ -4,17 +4,28 @@ import {
   createSlice,
 } from '@reduxjs/toolkit';
 import { TransactionCategory, TransactionResponse } from '@/types/Transaction';
-import { CashFlowSummaryState, CashFlow } from '@/types/CashFlow';
+import {
+  CashFlowSummaryState,
+  CashFlow,
+  CashFlowNodes,
+  CashFlowSummary,
+} from '@/types/CashFlow';
 import {
   isTransactionDateWithin,
   toFormattedDate,
   toAccountingMonth,
+  fromAccountingMonthToDate,
 } from '@/utils/date-utils';
 
 type CashFlowState = {
   cashFlowSummary: CashFlowSummaryState;
-  income: { [key: string]: CashFlow };
-  expense: { [key: string]: CashFlow };
+  cashFlowByMonth: {
+    [key: string]: {
+      income: CashFlow;
+      expense: CashFlow;
+    };
+  };
+
   status: string;
   error?: any;
 };
@@ -28,9 +39,25 @@ const initialState: CashFlowState = {
     difference: 0,
     currency: 'SGD',
   },
-  income: {},
-  expense: {},
+  cashFlowByMonth: {},
   status: 'idle',
+};
+
+const initialiseCashFlowByMonth = (state: any, accountingMonth: string) => {
+  if (!state.cashFlowByMonth[accountingMonth]) {
+    state.cashFlowByMonth[accountingMonth] = {
+      income: {
+        type: 'income',
+        period: accountingMonth,
+        total: 0,
+      },
+      expense: {
+        type: 'expense',
+        period: accountingMonth,
+        total: 0,
+      },
+    };
+  }
 };
 
 export const getTransactions = createAsyncThunk(
@@ -105,44 +132,42 @@ const cashFlowSlice = createSlice({
         )
       ) {
         const accountingMonth = toAccountingMonth(transactionDate);
+        initialiseCashFlowByMonth(state, accountingMonth);
+
+        const cashFlowForPeriod = state.cashFlowByMonth[accountingMonth];
         switch (category) {
           case TransactionCategory.Income:
             console.log('Updating income');
 
-            const currentIncome = state.income[accountingMonth];
-            const updatedIncome: CashFlow = {
-              type: 'income',
-              period: accountingMonth,
-              total: currentIncome ? currentIncome.total + amount : amount,
+            const updatedIncome = {
+              ...cashFlowForPeriod.income,
+              total: cashFlowForPeriod.income.total + amount,
             };
-            state.income[accountingMonth] = updatedIncome;
+            state.cashFlowByMonth[accountingMonth].income = updatedIncome;
             console.log(JSON.stringify(updatedIncome));
 
             let totalIncome = 0;
-            for (const key in state.income) {
-              const income = state.income[key];
-              totalIncome += income.total;
+            for (const key in state.cashFlowByMonth) {
+              const cashFlowForMonth = state.cashFlowByMonth[key];
+              totalIncome += cashFlowForMonth.income.total;
             }
             state.cashFlowSummary.inflow = totalIncome;
             break;
           case TransactionCategory.Expense:
             console.log('Updating expense');
 
-            const currentExpense = state.expense[accountingMonth];
-            const updatedExpense: CashFlow = {
-              type: 'expense',
-              period: accountingMonth,
-              total: currentExpense ? currentExpense.total + amount : amount,
+            const updatedExpense = {
+              ...cashFlowForPeriod.expense,
+              total: cashFlowForPeriod.expense.total + amount,
             };
-            state.expense[accountingMonth] = updatedExpense;
+            state.cashFlowByMonth[accountingMonth].expense = updatedExpense;
             console.log(JSON.stringify(updatedExpense));
 
             let totalExpense = 0;
-            for (const expenseMonth in state.expense) {
-              const expense = state.expense[expenseMonth];
-              totalExpense += expense.total;
+            for (const key in state.cashFlowByMonth) {
+              const cashFlowForMonth = state.cashFlowByMonth[key];
+              totalExpense += cashFlowForMonth.expense.total;
             }
-            console.log(`Total Expense: ${totalExpense}`);
             state.cashFlowSummary.outflow = totalExpense;
             break;
         }
@@ -155,8 +180,7 @@ const cashFlowSlice = createSlice({
     builder
       .addCase(getTransactions.pending, (state, action) => {
         state.status = 'loading';
-        state.income = {};
-        state.expense = {};
+        state.cashFlowByMonth = {};
         if (state.error) {
           state.error = undefined;
         }
@@ -168,35 +192,30 @@ const cashFlowSlice = createSlice({
         let totalExpense = 0;
         try {
           transactionDtos?.forEach((transaction) => {
-            const transactionMonth = toAccountingMonth(
+            const accountingMonth = toAccountingMonth(
               new Date(transaction.date)
             );
 
+            initialiseCashFlowByMonth(state, accountingMonth);
+
+            const cashFlowForPeriod = state.cashFlowByMonth[accountingMonth];
+
             switch (transaction.category) {
               case TransactionCategory.Income:
-                if (!state.income[transactionMonth]) {
-                  state.income[transactionMonth] = {
-                    type: 'income',
-                    period: transactionMonth,
-                    total: transaction.amount,
-                  };
-                } else {
-                  state.income[transactionMonth].total =
-                    state.income[transactionMonth].total + transaction.amount;
-                }
+                const updatedIncome = {
+                  ...cashFlowForPeriod.income,
+                  total: cashFlowForPeriod.income.total + transaction.amount,
+                };
+                state.cashFlowByMonth[accountingMonth].income = updatedIncome;
+
                 totalIncome += transaction.amount;
                 break;
               case TransactionCategory.Expense:
-                if (!state.expense[transactionMonth]) {
-                  state.expense[transactionMonth] = {
-                    type: 'expense',
-                    period: transactionMonth,
-                    total: transaction.amount,
-                  };
-                } else {
-                  state.expense[transactionMonth].total =
-                    state.expense[transactionMonth].total + transaction.amount;
-                }
+                const updatedExpense = {
+                  ...cashFlowForPeriod.expense,
+                  total: cashFlowForPeriod.expense.total + transaction.amount,
+                };
+                state.cashFlowByMonth[accountingMonth].expense = updatedExpense;
 
                 totalExpense += transaction.amount;
                 break;
@@ -227,8 +246,10 @@ export const selectAccountingPeriod = createSelector(
     endPeriod: cashFlowSummary.endPeriod,
   })
 );
-export const selectCashInflow = (state: any) => state.cashflow.inflow;
-export const selectCashOutflow = (state: any) => state.cashflow.outflow;
+export const selectCashInflow = (state: any) =>
+  state.cashflow.cashFlowSummary.inflow;
+export const selectCashOutflow = (state: any) =>
+  state.cashflow.cashFlowSummary.outflow;
 export const selectCashFlowSummary = createSelector(
   (state: any) => state.cashflow.cashFlowSummary,
   (cashFlowSummary) => ({
@@ -238,6 +259,41 @@ export const selectCashFlowSummary = createSelector(
     outflow: cashFlowSummary.outflow,
     difference: cashFlowSummary.difference,
   })
+);
+
+export const selectAllCashFlowsForPeriod = createSelector(
+  (state: any) => state.cashflow,
+  (cashflow): CashFlowNodes => {
+    const cashFlows = cashflow.cashFlowByMonth;
+
+    const summaryNodes: any[] = [];
+    for (const accountingMonth in cashFlows) {
+      const cashflowByMonth = cashFlows[accountingMonth];
+      const accountingPeriod = fromAccountingMonthToDate(accountingMonth);
+
+      const cashFlow: CashFlowSummary = {
+        startPeriod: new Date(
+          accountingPeriod.getFullYear(),
+          accountingPeriod.getMonth(),
+          1
+        ),
+        endPeriod: new Date(
+          accountingPeriod.getFullYear(),
+          accountingPeriod.getMonth() + 1,
+          0
+        ),
+        inflow: cashflowByMonth.income.total,
+        outflow: cashflowByMonth.expense.total,
+        difference:
+          cashflowByMonth.income.total - cashflowByMonth.expense.total,
+        currency: 'SGD',
+      };
+
+      summaryNodes.push(cashFlow);
+    }
+
+    return { nodes: summaryNodes, edges: [] };
+  }
 );
 
 export default cashFlowSlice.reducer;

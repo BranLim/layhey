@@ -23,7 +23,7 @@ export const getCurrentDate = (): Date => {
   return new Date();
 };
 
-export const fromTransactionPeriodToDate = (formattedDate: string): Date => {
+export const fromAccountingMonthToDate = (formattedDate: string): Date => {
   const [year, month] = formattedDate.split('-').map(Number);
   return new Date(year, month - 1);
 };
@@ -32,7 +32,12 @@ export const toFormattedDate = (date: Date, dateFormat: string): string => {
   if (!date) {
     return '';
   }
-  return format(date, dateFormat);
+  let formattedDate = '';
+  try {
+    formattedDate = format(date, dateFormat);
+  } catch (error) {}
+
+  return formattedDate;
 };
 
 export const toAccountingMonth = (date: Date) => {

@@ -1,4 +1,7 @@
+import {Transaction} from '@/types/Transaction';
 import mongoose, { Schema, models } from 'mongoose';
+
+export type TransactionDocument = Transaction & mongoose.Document;
 
 const budgetSchema = new Schema({
   periodStart: String,
