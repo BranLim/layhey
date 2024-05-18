@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
-import ReactFlow, { Background, BackgroundVariant, Node } from 'reactflow';
+import ReactFlow, {
+  Background,
+  BackgroundVariant,
+  NodeChange,
+} from 'reactflow';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
   selectAccountingPeriod,
@@ -11,13 +15,12 @@ import { selectIsOpenModal } from '@/states/common/modal-slice';
 import 'reactflow/dist/style.css';
 import {
   FlowPayload,
+  handleNodeMove,
+  handleNodeSelection,
   selectFlowEdges,
   selectFlowNodes,
   setCashFlows,
 } from '@/states/features/cashflow/flow-slice';
-import { CashFlowNodeData } from '@/types/CashFlow';
-
-const initialNodes: Node<CashFlowNodeData>[] = [];
 
 export const CashFlowView = () => {
   const dispatch = useAppDispatch();
@@ -53,6 +56,19 @@ export const CashFlowView = () => {
     cashFlowSummary.difference,
   ]);
 
+  const handleNodesChange = (changes: NodeChange[]) => {
+    changes.forEach((change) => {
+      switch (change.type) {
+        case 'select':
+          dispatch(handleNodeSelection(change));
+          break;
+        case 'position':
+          dispatch(handleNodeMove(change));
+          break;
+      }
+    });
+  };
+
   return (
     <ReactFlow
       nodes={nodes}
@@ -60,6 +76,7 @@ export const CashFlowView = () => {
       nodeTypes={nodeTypes}
       fitView={false}
       proOptions={{ hideAttribution: true }}
+      onNodesChange={handleNodesChange}
       minZoom={0.3}
       maxZoom={1.2}
     >

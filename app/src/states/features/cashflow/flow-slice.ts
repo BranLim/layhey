@@ -5,6 +5,8 @@ import {
   Edge,
   Node,
   NodeChange,
+  NodePositionChange,
+  NodeSelectionChange,
   OnNodesChange,
   Position,
 } from 'reactflow';
@@ -89,10 +91,28 @@ const flowSlice = createSlice({
       state.nodes.push(...cashFlowNodes);
       state.edges.push(...cashFlowEdges);
     },
+    handleNodeSelection: (
+      state,
+      action: PayloadAction<NodeSelectionChange>
+    ) => {
+      const changeEvent = action.payload;
+      const foundNode = state.nodes.find((node) => node.id === changeEvent.id);
+      if (foundNode) {
+        foundNode.selected = changeEvent.selected;
+      }
+    },
+    handleNodeMove: (state, action: PayloadAction<NodePositionChange>) => {
+      const changeEvent = action.payload;
+      const foundNode = state.nodes.find((node) => node.id === changeEvent.id);
+      if (foundNode && changeEvent.position) {
+        foundNode.position = changeEvent.position;
+      }
+    },
   },
 });
 
-export const { setCashFlows } = flowSlice.actions;
+export const { setCashFlows, handleNodeSelection, handleNodeMove } =
+  flowSlice.actions;
 export const selectFlowNodes = (state: any) => state.flow.nodes;
 export const selectFlowEdges = (state: any) => state.flow.edges;
 
