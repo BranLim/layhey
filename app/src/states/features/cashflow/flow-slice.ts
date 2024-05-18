@@ -1,6 +1,18 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { CashFlowNodeData } from '@/types/CashFlow';
-import { Edge, Node } from 'reactflow';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { CashFlowNodeData, CashFlowSummary } from '@/types/CashFlow';
+import {
+  applyNodeChanges,
+  Edge,
+  Node,
+  NodeChange,
+  OnNodesChange,
+  Position,
+} from 'reactflow';
+
+export type FlowPayload = {
+  rootCashFlowSummary: CashFlowSummary;
+  cashFlowSummaries: CashFlowSummary[];
+};
 
 export type FlowViewState = {
   nodes: Node<CashFlowNodeData>[];
@@ -15,7 +27,73 @@ const initialState: FlowViewState = {
 const flowSlice = createSlice({
   name: 'flow',
   initialState: initialState,
-  reducers: {},
+  reducers: {
+    setCashFlows: (state, action: PayloadAction<FlowPayload>) => {
+      const { rootCashFlowSummary, cashFlowSummaries } = action.payload;
+
+      const cashFlowNodes: Node<CashFlowNodeData>[] = [];
+      const cashFlowEdges: Edge[] = [];
+
+      const rootNode: Node<CashFlowNodeData> = {
+        id: 'node-1',
+        type: 'budgetNode',
+        position: { x: 200, y: 200 },
+        sourcePosition: Position.Bottom,
+        targetPosition: Position.Top,
+        draggable: true,
+        focusable: true,
+        data: {
+          startPeriod: rootCashFlowSummary.startPeriod,
+          endPeriod: rootCashFlowSummary.endPeriod,
+          inflow: rootCashFlowSummary.inflow,
+          outflow: rootCashFlowSummary.outflow,
+          difference: rootCashFlowSummary.difference,
+          currency: 'SGD',
+        },
+      };
+      cashFlowNodes.push(rootNode);
+
+      let index = 2;
+      let x = 100;
+      for (const cashFlowSummary of cashFlowSummaries) {
+        const node: Node<CashFlowNodeData> = {
+          id: `node-${index}`,
+          type: 'budgetNode',
+          position: { x: x, y: 450 },
+          sourcePosition: Position.Bottom,
+          targetPosition: Position.Top,
+          draggable: true,
+          focusable: true,
+          data: {
+            startPeriod: cashFlowSummary.startPeriod,
+            endPeriod: cashFlowSummary.endPeriod,
+            inflow: cashFlowSummary.inflow,
+            outflow: cashFlowSummary.outflow,
+            difference: cashFlowSummary.difference,
+            currency: cashFlowSummary.currency,
+          },
+        };
+        cashFlowNodes.push(node);
+        x += 400;
+
+        const edge: Edge = {
+          type: 'default',
+          target: 'node-1',
+          source: node.id,
+          id: `edge-${index}`,
+        };
+        cashFlowEdges.push(edge);
+
+        index++;
+      }
+      state.nodes.push(...cashFlowNodes);
+      state.edges.push(...cashFlowEdges);
+    },
+  },
 });
+
+export const { setCashFlows } = flowSlice.actions;
+export const selectFlowNodes = (state: any) => state.flow.nodes;
+export const selectFlowEdges = (state: any) => state.flow.edges;
 
 export default flowSlice.reducer;

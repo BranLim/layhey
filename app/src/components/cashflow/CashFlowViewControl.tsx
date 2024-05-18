@@ -40,7 +40,6 @@ export const CashFlowViewControl = () => {
   const accountingPeriod = useAppSelector(selectAccountingPeriod);
   const cashFlowSummary = useAppSelector(selectCashFlowSummary);
   const {
-    register,
     handleSubmit,
     setValue,
     getValues,
