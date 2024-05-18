@@ -34,7 +34,10 @@ export const CashFlowSummaryNode = (props: NodeProps<CashFlowNodeData>) => {
               </Text>
               <Text fontSize='md' align='center'>
                 {props.data.startPeriod &&
-                  toFormattedDate(props.data.startPeriod, 'dd-MMM-yyyy')}
+                  toFormattedDate(
+                    new Date(props.data.startPeriod),
+                    'dd-MMM-yyyy'
+                  )}
               </Text>
             </Box>
             <Spacer />
@@ -44,7 +47,10 @@ export const CashFlowSummaryNode = (props: NodeProps<CashFlowNodeData>) => {
               </Text>
               <Text fontSize='md' align='center'>
                 {props.data.endPeriod &&
-                  toFormattedDate(props.data.endPeriod, 'dd-MMM-yyyy')}
+                  toFormattedDate(
+                    new Date(props.data.endPeriod),
+                    'dd-MMM-yyyy'
+                  )}
               </Text>
             </Box>
           </Flex>

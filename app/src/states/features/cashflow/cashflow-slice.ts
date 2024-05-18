@@ -10,16 +10,15 @@ import {
   TransactionResponse,
 } from '@/types/Transaction';
 import {
-  CashFlowSummaryState,
   CashFlow,
-  CashFlowNodes,
   CashFlowSummary,
+  CashFlowSummaryState,
 } from '@/types/CashFlow';
 import {
-  isTransactionDateWithin,
-  toFormattedDate,
-  toAccountingMonth,
   fromAccountingMonthToDate,
+  isTransactionDateWithin,
+  toAccountingMonth,
+  toFormattedDate,
 } from '@/utils/date-utils';
 
 type CashFlowState = {
@@ -113,7 +112,10 @@ const cashFlowSlice = createSlice({
   name: 'cashflow',
   initialState,
   reducers: {
-    setAccountingPeriod: (state, action) => {
+    setAccountingPeriod: (
+      state,
+      action: PayloadAction<{ startPeriod: string; endPeriod: string }>
+    ) => {
       const { startPeriod, endPeriod } = action.payload;
       state.overallCashFlowForPeriod.startPeriod = new Date(
         startPeriod
@@ -264,10 +266,10 @@ export const selectAccountingPeriod = createSelector(
 );
 export const selectCashFlowSummary = createSelector(
   (state: any) => state.cashflow.overallCashFlowForPeriod,
-  (cashFlowSummary) =>
+  (cashFlowSummary: CashFlowSummaryState) =>
     ({
-      startPeriod: cashFlowSummary.startPeriod,
-      endPeriod: cashFlowSummary.endPeriod,
+      startPeriod: new Date(cashFlowSummary.startPeriod),
+      endPeriod: new Date(cashFlowSummary.endPeriod),
       inflow: cashFlowSummary.inflow,
       outflow: cashFlowSummary.outflow,
       difference: cashFlowSummary.difference,

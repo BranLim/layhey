@@ -1,19 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CashFlowNodeData, CashFlowSummary } from '@/types/CashFlow';
+import { CashFlowNodeData, CashFlowSummaryState } from '@/types/CashFlow';
 import {
-  applyNodeChanges,
   Edge,
   Node,
-  NodeChange,
   NodePositionChange,
   NodeSelectionChange,
-  OnNodesChange,
   Position,
 } from 'reactflow';
 
 export type FlowPayload = {
-  rootCashFlowSummary: CashFlowSummary;
-  cashFlowSummaries: CashFlowSummary[];
+  rootCashFlowSummary: CashFlowSummaryState;
+  cashFlowSummaries: CashFlowSummaryState[];
 };
 
 export type FlowViewState = {
@@ -88,8 +85,8 @@ const flowSlice = createSlice({
 
         index++;
       }
-      state.nodes.push(...cashFlowNodes);
-      state.edges.push(...cashFlowEdges);
+      state.nodes = cashFlowNodes;
+      state.edges = cashFlowEdges;
     },
     handleNodeSelection: (
       state,
@@ -104,8 +101,10 @@ const flowSlice = createSlice({
     handleNodeMove: (state, action: PayloadAction<NodePositionChange>) => {
       const changeEvent = action.payload;
       const foundNode = state.nodes.find((node) => node.id === changeEvent.id);
-      if (foundNode && changeEvent.position) {
-        foundNode.position = changeEvent.position;
+      if (foundNode) {
+        if (changeEvent.position) {
+          foundNode.position = changeEvent.position;
+        }
       }
     },
   },

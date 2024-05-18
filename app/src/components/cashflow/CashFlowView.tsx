@@ -43,8 +43,16 @@ export const CashFlowView = () => {
     }
     console.log(`Updating Budget Summary: ${JSON.stringify(cashFlowSummary)}`);
     const payload: FlowPayload = {
-      rootCashFlowSummary: cashFlowSummary,
-      cashFlowSummaries: allCashFlowsForPeriod,
+      rootCashFlowSummary: {
+        ...cashFlowSummary,
+        startPeriod: cashFlowSummary.startPeriod?.toISOString() ?? '',
+        endPeriod: cashFlowSummary.endPeriod?.toISOString() ?? '',
+      },
+      cashFlowSummaries: allCashFlowsForPeriod.map((cashFlowForPeriod) => ({
+        ...cashFlowForPeriod,
+        startPeriod: cashFlowForPeriod.startPeriod?.toISOString() ?? '',
+        endPeriod: cashFlowForPeriod.endPeriod?.toISOString() ?? '',
+      })),
     };
     dispatch(setCashFlows(payload));
   }, [

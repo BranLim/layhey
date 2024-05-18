@@ -31,6 +31,6 @@ export type CashFlowNodes = {
   edges: any[];
 };
 
-export type CashFlowNodeData = CashFlowSummary & {
+export type CashFlowNodeData = CashFlowSummaryState & {
   rootNode?: boolean;
 };

@@ -38,7 +38,6 @@ const defaultViewOptionValues: Input = {
 export const CashFlowViewControl = () => {
   const dispatch = useAppDispatch();
   const accountingPeriod = useAppSelector(selectAccountingPeriod);
-  const cashFlowSummary = useAppSelector(selectCashFlowSummary);
   const {
     handleSubmit,
     setValue,
@@ -58,9 +57,6 @@ export const CashFlowViewControl = () => {
       );
       return;
     }
-    console.log(
-      `Updating Accounting Period: ${JSON.stringify(cashFlowSummary)}`
-    );
     dispatch(
       getTransactions({
         startPeriod: accountingPeriod.startPeriod,
@@ -84,8 +80,8 @@ export const CashFlowViewControl = () => {
     setValue('endPeriod', endOfYear);
     dispatch(
       setAccountingPeriod({
-        startPeriod: startOfYear,
-        endPeriod: endOfYear,
+        startPeriod: startOfYear.toISOString(),
+        endPeriod: endOfYear.toISOString(),
       })
     );
   };
