@@ -6,17 +6,17 @@ import ReactFlow, {
   Position,
   useNodesState,
 } from 'reactflow';
-import { useAppSelector } from '@/lib/hooks';
+import { useAppSelector } from '@/states/hooks';
 import {
   selectAccountingPeriod,
-  selectAllCashFlowsForPeriod,
+  selectAllCashFlowSummaryByMonthWithinAccountingPeriod,
   selectCashFlowSummary,
-} from '@/slices/cashflow-slice';
+} from '@/states/features/cashflow/cashflow-slice';
 import {
   CashFlowSummaryNode,
   CashFlowNodeProps,
-} from '@/components/budget/CashFlowSummaryNode';
-import { selectIsOpenModal } from '@/slices/modal-slice';
+} from '@/components/cashflow/CashFlowSummaryNode';
+import { selectIsOpenModal } from '@/states/common/modal-slice';
 import 'reactflow/dist/style.css';
 
 const initialNodes: Node<CashFlowNodeProps>[] = [
@@ -44,7 +44,9 @@ export const CashFlowView = () => {
   const modalClose = useAppSelector(selectIsOpenModal);
   const budgetPeriod = useAppSelector(selectAccountingPeriod);
   const budgetSummary = useAppSelector(selectCashFlowSummary);
-  const allCashFlowsForPeriod = useAppSelector(selectAllCashFlowsForPeriod);
+  const allCashFlowsForPeriod = useAppSelector(
+    selectAllCashFlowSummaryByMonthWithinAccountingPeriod
+  );
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export const CashFlowView = () => {
     const monthNodes: Node<CashFlowNodeProps>[] = [];
     let index = 2;
     let x = 100;
-    for (const cashflow of allCashFlowsForPeriod.nodes) {
+    for (const cashflow of allCashFlowsForPeriod) {
       const node: Node<CashFlowNodeProps> = {
         id: `node-${index}`,
         type: 'budgetNode',

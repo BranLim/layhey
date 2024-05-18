@@ -1,6 +1,9 @@
 import { Transaction } from '@/types/Transaction';
-import { connectMongo } from '@/lib/mongodb';
-import {TransactionDocument, TransactionModel} from '@/models/transaction-model';
+import { connectMongo } from '@/database/mongodb';
+import {
+  TransactionDocument,
+  TransactionModel,
+} from '@/models/transaction-model';
 
 export class TransactionRepository {
   constructor() {}
@@ -61,7 +64,7 @@ export class TransactionRepository {
           amount: transaction.amount,
           currency: transaction.currency,
           date: transaction.date,
-          budgetId:  '',
+          budgetId: '',
         }) as Transaction
     );
   }

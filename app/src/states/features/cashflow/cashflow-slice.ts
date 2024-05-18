@@ -246,10 +246,6 @@ export const selectAccountingPeriod = createSelector(
     endPeriod: cashFlowSummary.endPeriod,
   })
 );
-export const selectCashInflow = (state: any) =>
-  state.cashflow.cashFlowSummary.inflow;
-export const selectCashOutflow = (state: any) =>
-  state.cashflow.cashFlowSummary.outflow;
 export const selectCashFlowSummary = createSelector(
   (state: any) => state.cashflow.cashFlowSummary,
   (cashFlowSummary) => ({
@@ -261,39 +257,40 @@ export const selectCashFlowSummary = createSelector(
   })
 );
 
-export const selectAllCashFlowsForPeriod = createSelector(
-  (state: any) => state.cashflow,
-  (cashflow): CashFlowNodes => {
-    const cashFlows = cashflow.cashFlowByMonth;
+export const selectAllCashFlowSummaryByMonthWithinAccountingPeriod =
+  createSelector(
+    (state: any) => state.cashflow,
+    (cashflow): CashFlowSummary[] => {
+      const cashFlows = cashflow.cashFlowByMonth;
 
-    const summaryNodes: any[] = [];
-    for (const accountingMonth in cashFlows) {
-      const cashflowByMonth = cashFlows[accountingMonth];
-      const accountingPeriod = fromAccountingMonthToDate(accountingMonth);
+      const summaryNodes: CashFlowSummary[] = [];
+      for (const accountingMonth in cashFlows) {
+        const cashflowByMonth = cashFlows[accountingMonth];
+        const accountingPeriod = fromAccountingMonthToDate(accountingMonth);
 
-      const cashFlow: CashFlowSummary = {
-        startPeriod: new Date(
-          accountingPeriod.getFullYear(),
-          accountingPeriod.getMonth(),
-          1
-        ),
-        endPeriod: new Date(
-          accountingPeriod.getFullYear(),
-          accountingPeriod.getMonth() + 1,
-          0
-        ),
-        inflow: cashflowByMonth.income.total,
-        outflow: cashflowByMonth.expense.total,
-        difference:
-          cashflowByMonth.income.total - cashflowByMonth.expense.total,
-        currency: 'SGD',
-      };
+        const cashFlow: CashFlowSummary = {
+          startPeriod: new Date(
+            accountingPeriod.getFullYear(),
+            accountingPeriod.getMonth(),
+            1
+          ),
+          endPeriod: new Date(
+            accountingPeriod.getFullYear(),
+            accountingPeriod.getMonth() + 1,
+            0
+          ),
+          inflow: cashflowByMonth.income.total,
+          outflow: cashflowByMonth.expense.total,
+          difference:
+            cashflowByMonth.income.total - cashflowByMonth.expense.total,
+          currency: 'SGD',
+        };
 
-      summaryNodes.push(cashFlow);
+        summaryNodes.push(cashFlow);
+      }
+
+      return summaryNodes;
     }
-
-    return { nodes: summaryNodes, edges: [] };
-  }
-);
+  );
 
 export default cashFlowSlice.reducer;

@@ -12,8 +12,8 @@ import {
   Textarea,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { useAppDispatch } from '@/lib/hooks';
-import { closeModal } from '@/slices/modal-slice';
+import { useAppDispatch } from '@/states/hooks';
+import { closeModal } from '@/states/common/modal-slice';
 
 type FormData = {
   name: string;

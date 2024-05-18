@@ -3,7 +3,7 @@
 
 import { ChakraProvider } from '@chakra-ui/react';
 import { useRef } from 'react';
-import { AppStore, makeStore } from '@/lib/store';
+import { AppStore, makeStore } from '@/states/store';
 import { Provider } from 'react-redux';
 
 export function Providers({ children }: { children: React.ReactNode }) {

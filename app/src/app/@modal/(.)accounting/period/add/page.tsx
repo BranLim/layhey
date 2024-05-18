@@ -9,10 +9,10 @@ import {
   ModalOverlay,
 } from '@chakra-ui/modal';
 import { Divider, Text } from '@chakra-ui/react';
-import { closeModal, selectIsOpenModal } from '@/slices/modal-slice';
+import { closeModal, selectIsOpenModal } from '@/states/common/modal-slice';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import AddAccountingPeriod from '@/app/accounting/period/add/page';
 
 export default function AddTransactionModal() {

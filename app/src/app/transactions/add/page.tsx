@@ -32,9 +32,9 @@ import {
   transactionTypeFromValue,
 } from '@/types/Transaction';
 import { NumericFormat } from 'react-number-format';
-import { closeModal } from '@/slices/modal-slice';
-import { addTransaction } from '@/slices/cashflow-slice';
-import { useAppDispatch } from '@/lib/hooks';
+import { closeModal } from '@/states/common/modal-slice';
+import { addTransaction } from '@/states/features/cashflow/cashflow-slice';
+import { useAppDispatch } from '@/states/hooks';
 import { getCurrentDate, toFormattedDate } from '@/utils/date-utils';
 import { RepeatRule, Rule, SplitRule } from '@/types/Rule';
 

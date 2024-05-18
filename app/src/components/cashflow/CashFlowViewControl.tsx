@@ -10,13 +10,13 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
   getTransactions,
   selectAccountingPeriod,
   selectCashFlowSummary,
   setAccountingPeriod,
-} from '@/slices/cashflow-slice';
+} from '@/states/features/cashflow/cashflow-slice';
 import { getCurrentYear, toFormattedDate } from '@/utils/date-utils';
 import { useEffect } from 'react';
 
@@ -50,7 +50,7 @@ export const CashFlowViewControl = () => {
 
   useEffect(() => {
     if (!accountingPeriod.startPeriod && !accountingPeriod.endPeriod) {
-      console.log('Setting budget period');
+      console.log('Setting cashflow period');
       dispatch(
         setAccountingPeriod({
           startPeriod: startOfYear.toISOString(),

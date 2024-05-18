@@ -12,8 +12,8 @@ import * as React from 'react';
 import { useRef, useState } from 'react';
 import { AddIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import NextLink from 'next/link';
-import { openModal } from '@/slices/modal-slice';
-import { useAppDispatch } from '@/lib/hooks';
+import { openModal } from '@/states/common/modal-slice';
+import { useAppDispatch } from '@/states/hooks';
 
 export const ActionMenu = () => {
   const buttonRef = useRef<HTMLButtonElement>(null);

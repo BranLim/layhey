@@ -1,8 +1,8 @@
 'use client';
 
 import { ActionMenu } from '@/components/ActionMenu';
-import { CashFlowView } from '@/components/CashFlowView';
-import { CashFlowViewControl } from '@/components/budget/CashFlowViewControl';
+import { CashFlowView } from '@/components/cashflow/CashFlowView';
+import { CashFlowViewControl } from '@/components/cashflow/CashFlowViewControl';
 import { Flex } from '@chakra-ui/react';
 
 export default function Home() {

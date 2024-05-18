@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
-import modalReducer from '../slices/modal-slice';
-import cashflowReducer from '../slices/cashflow-slice';
-import flowReducer from '../slices/flow-slice';
+import modalReducer from '@/states/common/modal-slice';
+import cashflowReducer from '@/states/features/cashflow/cashflow-slice';
+import flowReducer from './common/flow-slice';
 
 export const makeStore = () => {
   return configureStore({
