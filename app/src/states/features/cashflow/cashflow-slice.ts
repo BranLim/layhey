@@ -23,7 +23,7 @@ import {
 
 type CashFlowState = {
   overallCashFlowForPeriod: CashFlowSummaryState;
-  cashFlowByMonth: {
+  cashFlows: {
     [key: string]: {
       income: CashFlow;
       expense: CashFlow;
@@ -43,13 +43,13 @@ const initialState: CashFlowState = {
     difference: 0,
     currency: 'SGD',
   },
-  cashFlowByMonth: {},
+  cashFlows: {},
   status: 'idle',
 };
 
 const initialiseCashFlowByMonth = (state: any, accountingMonth: string) => {
-  if (!state.cashFlowByMonth[accountingMonth]) {
-    state.cashFlowByMonth[accountingMonth] = {
+  if (!state.cashFlows[accountingMonth]) {
+    state.cashFlows[accountingMonth] = {
       income: {
         type: 'income',
         period: accountingMonth,
@@ -146,7 +146,7 @@ const cashFlowSlice = createSlice({
         const accountingMonth = toAccountingMonth(transactionDate);
         initialiseCashFlowByMonth(state, accountingMonth);
 
-        const cashFlowForPeriod = state.cashFlowByMonth[accountingMonth];
+        const cashFlowForPeriod = state.cashFlows[accountingMonth];
         switch (category) {
           case TransactionCategory.Income:
             console.log('Updating income');
@@ -155,12 +155,12 @@ const cashFlowSlice = createSlice({
               ...cashFlowForPeriod.income,
               total: cashFlowForPeriod.income.total + amount,
             };
-            state.cashFlowByMonth[accountingMonth].income = updatedIncome;
+            state.cashFlows[accountingMonth].income = updatedIncome;
             console.log(JSON.stringify(updatedIncome));
 
             let totalIncome = 0;
-            for (const key in state.cashFlowByMonth) {
-              const cashFlowForMonth = state.cashFlowByMonth[key];
+            for (const key in state.cashFlows) {
+              const cashFlowForMonth = state.cashFlows[key];
               totalIncome += cashFlowForMonth.income.total;
             }
             state.overallCashFlowForPeriod.inflow = totalIncome;
@@ -172,12 +172,12 @@ const cashFlowSlice = createSlice({
               ...cashFlowForPeriod.expense,
               total: cashFlowForPeriod.expense.total + amount,
             };
-            state.cashFlowByMonth[accountingMonth].expense = updatedExpense;
+            state.cashFlows[accountingMonth].expense = updatedExpense;
             console.log(JSON.stringify(updatedExpense));
 
             let totalExpense = 0;
-            for (const key in state.cashFlowByMonth) {
-              const cashFlowForMonth = state.cashFlowByMonth[key];
+            for (const key in state.cashFlows) {
+              const cashFlowForMonth = state.cashFlows[key];
               totalExpense += cashFlowForMonth.expense.total;
             }
             state.overallCashFlowForPeriod.outflow = totalExpense;
@@ -193,7 +193,7 @@ const cashFlowSlice = createSlice({
     builder
       .addCase(getTransactions.pending, (state, action) => {
         state.status = 'loading';
-        state.cashFlowByMonth = {};
+        state.cashFlows = {};
         if (state.error) {
           state.error = undefined;
         }
@@ -206,14 +206,14 @@ const cashFlowSlice = createSlice({
           let totalIncome = 0;
           let totalExpense = 0;
           try {
-            transactionDtos?.forEach((transaction) => {
+            transactionDtos?.forEach((transaction: TransactionRequest) => {
               const accountingMonth = toAccountingMonth(
                 new Date(transaction.date)
               );
 
               initialiseCashFlowByMonth(state, accountingMonth);
 
-              const cashFlowForPeriod = state.cashFlowByMonth[accountingMonth];
+              const cashFlowForPeriod = state.cashFlows[accountingMonth];
 
               switch (transaction.category) {
                 case TransactionCategory.Income:
@@ -221,7 +221,7 @@ const cashFlowSlice = createSlice({
                     ...cashFlowForPeriod.income,
                     total: cashFlowForPeriod.income.total + transaction.amount,
                   };
-                  state.cashFlowByMonth[accountingMonth].income = updatedIncome;
+                  state.cashFlows[accountingMonth].income = updatedIncome;
 
                   totalIncome += transaction.amount;
                   break;
@@ -230,8 +230,7 @@ const cashFlowSlice = createSlice({
                     ...cashFlowForPeriod.expense,
                     total: cashFlowForPeriod.expense.total + transaction.amount,
                   };
-                  state.cashFlowByMonth[accountingMonth].expense =
-                    updatedExpense;
+                  state.cashFlows[accountingMonth].expense = updatedExpense;
 
                   totalExpense += transaction.amount;
                   break;
@@ -280,7 +279,7 @@ export const selectAllCashFlowSummaryByMonthWithinAccountingPeriod =
   createSelector(
     (state: any) => state.cashflow,
     (cashflow): CashFlowSummary[] => {
-      const cashFlows = cashflow.cashFlowByMonth;
+      const cashFlows = cashflow.cashFlows;
 
       const summaryNodes: CashFlowSummary[] = [];
       for (const accountingMonth in cashFlows) {
