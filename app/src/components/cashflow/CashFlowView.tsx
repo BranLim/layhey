@@ -3,6 +3,7 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
   NodeChange,
+  Node,
 } from 'reactflow';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
@@ -10,11 +11,13 @@ import {
   selectAllCashFlowSummaryByMonthWithinAccountingPeriod,
   selectCashFlowSummary,
 } from '@/states/features/cashflow/cashflow-slice';
-import { CashFlowSummaryNode } from '@/components/cashflow/CashFlowSummaryNode';
+import { CashFlowNode } from '@/components/cashflow/CashFlowNode';
 import { selectIsOpenModal } from '@/states/common/modal-slice';
 import 'reactflow/dist/style.css';
 import {
   FlowPayload,
+  handleNodeMouseEnter,
+  handleNodeMouseLeave,
   handleNodeMove,
   handleNodeSelection,
   selectFlowEdges,
@@ -22,9 +25,11 @@ import {
   setCashFlows,
 } from '@/states/features/cashflow/flow-slice';
 
+const nodeDragThreshold = 4;
+
 export const CashFlowView = () => {
   const dispatch = useAppDispatch();
-  const nodeTypes = useMemo(() => ({ budgetNode: CashFlowSummaryNode }), []);
+  const nodeTypes = useMemo(() => ({ budgetNode: CashFlowNode }), []);
   const modalClose = useAppSelector(selectIsOpenModal);
   const cashFlowAccountingPeriod = useAppSelector(selectAccountingPeriod);
   const cashFlowSummary = useAppSelector(selectCashFlowSummary);
@@ -77,6 +82,14 @@ export const CashFlowView = () => {
     });
   };
 
+  const handleMouseLeave = (event: React.MouseEvent, node: Node) => {
+    dispatch(handleNodeMouseLeave(node));
+  };
+
+  const handleMouseEnter = (event: React.MouseEvent, node: Node) => {
+    dispatch(handleNodeMouseEnter(node));
+  };
+
   return (
     <ReactFlow
       nodes={nodes}
@@ -85,6 +98,9 @@ export const CashFlowView = () => {
       fitView={false}
       proOptions={{ hideAttribution: true }}
       onNodesChange={handleNodesChange}
+      onNodeMouseEnter={handleMouseEnter}
+      onNodeMouseLeave={handleMouseLeave}
+      nodeDragThreshold={nodeDragThreshold}
       minZoom={0.3}
       maxZoom={1.2}
     >

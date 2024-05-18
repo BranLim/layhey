@@ -5,7 +5,7 @@ import { Box, Flex, SimpleGrid, Spacer, Text, VStack } from '@chakra-ui/react';
 import { CashFlowNodeData } from '@/types/CashFlow';
 import { toFormattedDate } from '@/utils/date-utils';
 
-export const CashFlowSummaryNode = (props: NodeProps<CashFlowNodeData>) => {
+export const CashFlowNode = (props: NodeProps<CashFlowNodeData>) => {
   const numberFormatter = new Intl.NumberFormat('en-SG', {
     style: 'currency',
     currency: 'SGD',

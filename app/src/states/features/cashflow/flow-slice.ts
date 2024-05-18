@@ -16,6 +16,7 @@ export type FlowPayload = {
 export type FlowViewState = {
   nodes: Node<CashFlowNodeData>[];
   edges: Edge[];
+  selectedNode?: Node<CashFlowNodeData>;
 };
 
 const initialState: FlowViewState = {
@@ -48,6 +49,7 @@ const flowSlice = createSlice({
           outflow: rootCashFlowSummary.outflow,
           difference: rootCashFlowSummary.difference,
           currency: 'SGD',
+          rootNode: true,
         },
       };
       cashFlowNodes.push(rootNode);
@@ -88,6 +90,24 @@ const flowSlice = createSlice({
       state.nodes = cashFlowNodes;
       state.edges = cashFlowEdges;
     },
+    handleNodeMouseEnter: (state, action: PayloadAction<Node>) => {
+      const mouseEnteredNode = action.payload;
+      const foundNode = state.nodes.find(
+        (node) => node.id === mouseEnteredNode.id
+      );
+      if (foundNode) {
+        foundNode.style = { borderColor: 'red' };
+      }
+    },
+    handleNodeMouseLeave: (state, action: PayloadAction<Node>) => {
+      const mouseLeaveNode = action.payload;
+      const foundNode = state.nodes.find(
+        (node) => node.id === mouseLeaveNode.id
+      );
+      if (foundNode) {
+        foundNode.style = { borderColor: 'black' };
+      }
+    },
     handleNodeSelection: (
       state,
       action: PayloadAction<NodeSelectionChange>
@@ -96,6 +116,7 @@ const flowSlice = createSlice({
       const foundNode = state.nodes.find((node) => node.id === changeEvent.id);
       if (foundNode) {
         foundNode.selected = changeEvent.selected;
+        state.selectedNode = foundNode;
       }
     },
     handleNodeMove: (state, action: PayloadAction<NodePositionChange>) => {
@@ -104,14 +125,20 @@ const flowSlice = createSlice({
       if (foundNode) {
         if (changeEvent.position) {
           foundNode.position = changeEvent.position;
+          foundNode.positionAbsolute = changeEvent.positionAbsolute;
         }
       }
     },
   },
 });
 
-export const { setCashFlows, handleNodeSelection, handleNodeMove } =
-  flowSlice.actions;
+export const {
+  setCashFlows,
+  handleNodeSelection,
+  handleNodeMove,
+  handleNodeMouseEnter,
+  handleNodeMouseLeave,
+} = flowSlice.actions;
 export const selectFlowNodes = (state: any) => state.flow.nodes;
 export const selectFlowEdges = (state: any) => state.flow.edges;
 
