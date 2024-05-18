@@ -1,10 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import ReactFlow, {
-  Background,
-  BackgroundVariant,
-  useNodesState,
-  Node,
-} from 'reactflow';
+import ReactFlow, { Background, BackgroundVariant, Node } from 'reactflow';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
   selectAccountingPeriod,
@@ -18,7 +13,6 @@ import {
   FlowPayload,
   selectFlowEdges,
   selectFlowNodes,
-  selectOnNodesChange,
   setCashFlows,
 } from '@/states/features/cashflow/flow-slice';
 import { CashFlowNodeData } from '@/types/CashFlow';
