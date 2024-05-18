@@ -12,14 +12,12 @@ import {
   selectAllCashFlowSummaryByMonthWithinAccountingPeriod,
   selectCashFlowSummary,
 } from '@/states/features/cashflow/cashflow-slice';
-import {
-  CashFlowSummaryNode,
-  CashFlowNodeProps,
-} from '@/components/cashflow/CashFlowSummaryNode';
+import { CashFlowSummaryNode } from '@/components/cashflow/CashFlowSummaryNode';
 import { selectIsOpenModal } from '@/states/common/modal-slice';
 import 'reactflow/dist/style.css';
+import { CashFlowNodeData } from '@/types/CashFlow';
 
-const initialNodes: Node<CashFlowNodeProps>[] = [
+const initialNodes: Node<CashFlowNodeData>[] = [
   {
     id: 'node-1',
     type: 'budgetNode',
@@ -55,7 +53,7 @@ export const CashFlowView = () => {
     }
     console.log(`Updating Budget Summary: ${JSON.stringify(budgetSummary)}`);
     const firstNode = nodes[0];
-    const updatedNode: Node<CashFlowNodeProps> = {
+    const updatedNode: Node<CashFlowNodeData> = {
       ...firstNode,
       data: {
         rootNode: true,
@@ -68,11 +66,11 @@ export const CashFlowView = () => {
       },
     };
 
-    const monthNodes: Node<CashFlowNodeProps>[] = [];
+    const monthNodes: Node<CashFlowNodeData>[] = [];
     let index = 2;
     let x = 100;
     for (const cashflow of allCashFlowsForPeriod) {
-      const node: Node<CashFlowNodeProps> = {
+      const node: Node<CashFlowNodeData> = {
         id: `node-${index}`,
         type: 'budgetNode',
         position: { x: x, y: 450 },

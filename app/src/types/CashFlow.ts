@@ -30,3 +30,7 @@ export type CashFlowNodes = {
   nodes: any[];
   edges: any[];
 };
+
+export type CashFlowNodeData = CashFlowSummary & {
+  rootNode?: boolean;
+};

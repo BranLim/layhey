@@ -2,14 +2,10 @@ import React from 'react';
 
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Box, Flex, SimpleGrid, Spacer, Text, VStack } from '@chakra-ui/react';
-import { CashFlowSummary } from '@/types/CashFlow';
+import { CashFlowNodeData } from '@/types/CashFlow';
 import { toFormattedDate } from '@/utils/date-utils';
 
-export type CashFlowNodeProps = CashFlowSummary & {
-  rootNode?: boolean;
-};
-
-export const CashFlowSummaryNode = (props: NodeProps<CashFlowNodeProps>) => {
+export const CashFlowSummaryNode = (props: NodeProps<CashFlowNodeData>) => {
   const numberFormatter = new Intl.NumberFormat('en-SG', {
     style: 'currency',
     currency: 'SGD',
