@@ -4,23 +4,28 @@ import { Handle, NodeProps, Position } from 'reactflow';
 import { Box, Flex, SimpleGrid, Spacer, Text, VStack } from '@chakra-ui/react';
 import { CashFlowNodeData } from '@/types/CashFlow';
 import { toFormattedDate } from '@/utils/date-utils';
+import { useAppSelector } from '@/states/hooks';
+import { selectNodeStyle } from '@/states/features/cashflow/flow-slice';
 
 export const CashFlowNode = (props: NodeProps<CashFlowNodeData>) => {
+  const nodeStyle = useAppSelector((state) => selectNodeStyle(state, props.id));
   const numberFormatter = new Intl.NumberFormat('en-SG', {
     style: 'currency',
     currency: 'SGD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+
   return (
     <>
       <Box
-        bg='white'
+        style={{ ...nodeStyle }}
+        bg='ghostwhite'
         width='sm'
         border='2px'
-        borderColor='black'
+        borderColor='darkslategray'
         borderRadius='12px'
-        boxShadow='0px 0px 10px gray'
+        boxShadow='0px 0px 10px darkslategray'
         zIndex={999}
       >
         {!props.data.rootNode && (

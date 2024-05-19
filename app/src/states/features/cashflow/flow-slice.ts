@@ -17,11 +17,13 @@ export type FlowViewState = {
   nodes: Node<CashFlowNodeData>[];
   edges: Edge[];
   selectedNode?: Node<CashFlowNodeData>;
+  nodeStyles: Record<string, any>;
 };
 
 const initialState: FlowViewState = {
   nodes: [],
   edges: [],
+  nodeStyles: {},
 };
 
 const flowSlice = createSlice({
@@ -52,6 +54,9 @@ const flowSlice = createSlice({
           rootNode: true,
         },
       };
+      state.nodeStyles[rootNode.id] = {
+        borderColor: 'black',
+      };
       cashFlowNodes.push(rootNode);
 
       let index = 2;
@@ -75,6 +80,9 @@ const flowSlice = createSlice({
           },
         };
         cashFlowNodes.push(node);
+        state.nodeStyles[node.id] = {
+          borderColor: 'black',
+        };
         x += 400;
 
         const edge: Edge = {
@@ -92,20 +100,18 @@ const flowSlice = createSlice({
     },
     handleNodeMouseEnter: (state, action: PayloadAction<Node>) => {
       const mouseEnteredNode = action.payload;
-      const foundNode = state.nodes.find(
-        (node) => node.id === mouseEnteredNode.id
-      );
-      if (foundNode) {
-        foundNode.style = { borderColor: 'red' };
+      const foundNodeStyle = state.nodeStyles[mouseEnteredNode.id];
+      if (foundNodeStyle) {
+        foundNodeStyle['borderColor'] = 'darkslategray';
+        foundNodeStyle['boxShadow'] = '0px 0px 12px darkgray';
       }
     },
     handleNodeMouseLeave: (state, action: PayloadAction<Node>) => {
       const mouseLeaveNode = action.payload;
-      const foundNode = state.nodes.find(
-        (node) => node.id === mouseLeaveNode.id
-      );
-      if (foundNode) {
-        foundNode.style = { borderColor: 'black' };
+      const foundNodeStyle = state.nodeStyles[mouseLeaveNode.id];
+      if (foundNodeStyle) {
+        foundNodeStyle['borderColor'] = 'black';
+        foundNodeStyle['boxShadow'] = '0px 0px 10px darkslategray';
       }
     },
     handleNodeSelection: (
@@ -141,5 +147,7 @@ export const {
 } = flowSlice.actions;
 export const selectFlowNodes = (state: any) => state.flow.nodes;
 export const selectFlowEdges = (state: any) => state.flow.edges;
+export const selectNodeStyle = (state: any, nodeId: string) =>
+  state.flow.nodeStyles[nodeId];
 
 export default flowSlice.reducer;
