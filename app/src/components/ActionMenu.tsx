@@ -27,8 +27,8 @@ export const ActionMenu = () => {
     <>
       <Box
         position='absolute'
-        top='120px'
-        left='46%'
+        bottom='80px'
+        left='24px'
         zIndex='10'
         onMouseEnter={() => setIsExpanded(!isExpanded)}
         onMouseLeave={() => setIsExpanded(!isExpanded)}

@@ -93,7 +93,7 @@ export const CashFlowViewControl = () => {
         bottom='80px'
         right='20px'
         zIndex='10'
-        bg='#fdfdfd'
+        bg='white'
         border='2px'
         borderRadius='8px'
         boxShadow='0px 4px 6px 1px black'

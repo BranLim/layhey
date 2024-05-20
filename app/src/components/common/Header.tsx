@@ -8,12 +8,12 @@ export const Header = () => {
       top='0'
       align='center'
       justify='space-between'
-      padding='1rem'
+      padding='0.4rem'
       boxShadow='md'
       bg='white'
     >
       <Stack ml={4}>
-        <Heading as={NextLink} size='xl' color='gray.500' href='/'>
+        <Heading as={NextLink} size='lg' color='gray.500' href='/'>
           Layhey
         </Heading>
         <Heading size='sm'>Budgeting Made Simple</Heading>

@@ -2,11 +2,27 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CashFlowNodeData, CashFlowSummaryState } from '@/types/CashFlow';
 import {
   Edge,
+  MarkerType,
   Node,
   NodePositionChange,
   NodeSelectionChange,
   Position,
+  Viewport,
 } from 'reactflow';
+
+const edgeColor = 'lightgray';
+
+const edgeStyle = {
+  strokeWidth: 2,
+  stroke: edgeColor,
+};
+
+const edgeMarkerEnd = {
+  type: MarkerType.ArrowClosed,
+  width: 20,
+  height: 20,
+  color: edgeColor,
+};
 
 export type FlowPayload = {
   rootCashFlowSummary: CashFlowSummaryState;
@@ -38,10 +54,10 @@ const flowSlice = createSlice({
 
       const rootNode: Node<CashFlowNodeData> = {
         id: 'node-1',
-        type: 'budgetNode',
-        position: { x: 200, y: 200 },
-        sourcePosition: Position.Bottom,
-        targetPosition: Position.Top,
+        type: 'cashFlowNode',
+        position: { x: 0, y: 10 },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
         draggable: true,
         focusable: true,
         data: {
@@ -60,14 +76,14 @@ const flowSlice = createSlice({
       cashFlowNodes.push(rootNode);
 
       let index = 2;
-      let x = 100;
+      let y = 10;
       for (const cashFlowSummary of cashFlowSummaries) {
         const node: Node<CashFlowNodeData> = {
           id: `node-${index}`,
-          type: 'budgetNode',
-          position: { x: x, y: 450 },
-          sourcePosition: Position.Bottom,
-          targetPosition: Position.Top,
+          type: 'cashFlowNode',
+          position: { x: 480, y: y },
+          sourcePosition: Position.Right,
+          targetPosition: Position.Left,
           draggable: true,
           focusable: true,
           data: {
@@ -83,13 +99,15 @@ const flowSlice = createSlice({
         state.nodeStyles[node.id] = {
           borderColor: 'black',
         };
-        x += 400;
+        y += 180;
 
         const edge: Edge = {
-          type: 'default',
+          type: 'smoothstep',
           target: 'node-1',
           source: node.id,
           id: `edge-${index}`,
+          markerEnd: edgeMarkerEnd,
+          style: edgeStyle,
         };
         cashFlowEdges.push(edge);
 
@@ -149,5 +167,5 @@ export const selectFlowNodes = (state: any) => state.flow.nodes;
 export const selectFlowEdges = (state: any) => state.flow.edges;
 export const selectNodeStyle = (state: any, nodeId: string) =>
   state.flow.nodeStyles[nodeId];
-
+export const selectDefaultViewPort = (state: any) => state.flow.defaultViewport;
 export default flowSlice.reducer;

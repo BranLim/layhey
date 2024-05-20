@@ -4,6 +4,7 @@ import ReactFlow, {
   BackgroundVariant,
   NodeChange,
   Node,
+  useReactFlow,
 } from 'reactflow';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
@@ -20,16 +21,18 @@ import {
   handleNodeMouseLeave,
   handleNodeMove,
   handleNodeSelection,
+  selectDefaultViewPort,
   selectFlowEdges,
   selectFlowNodes,
   setCashFlows,
 } from '@/states/features/cashflow/flow-slice';
 
-const nodeDragThreshold = 4;
+const nodeDragThreshold = 6;
+const defaultViewPort = { x: 0, y: 20, zoom: 0.8 };
 
 export const CashFlowView = () => {
   const dispatch = useAppDispatch();
-  const nodeTypes = useMemo(() => ({ budgetNode: CashFlowNode }), []);
+  const nodeTypes = useMemo(() => ({ cashFlowNode: CashFlowNode }), []);
   const modalClose = useAppSelector(selectIsOpenModal);
   const cashFlowAccountingPeriod = useAppSelector(selectAccountingPeriod);
   const cashFlowSummary = useAppSelector(selectCashFlowSummary);
@@ -38,6 +41,7 @@ export const CashFlowView = () => {
   );
   const nodes = useAppSelector(selectFlowNodes);
   const edges = useAppSelector(selectFlowEdges);
+  const viewport = useAppSelector(selectDefaultViewPort);
 
   useEffect(() => {
     if (
@@ -95,14 +99,14 @@ export const CashFlowView = () => {
       nodes={nodes}
       edges={edges}
       nodeTypes={nodeTypes}
-      fitView={false}
       proOptions={{ hideAttribution: true }}
       onNodesChange={handleNodesChange}
       onNodeMouseEnter={handleMouseEnter}
       onNodeMouseLeave={handleMouseLeave}
       nodeDragThreshold={nodeDragThreshold}
-      minZoom={0.3}
-      maxZoom={1.2}
+      minZoom={0.1}
+      maxZoom={5.0}
+      defaultViewport={defaultViewPort}
     >
       <Background
         color='lightgray'

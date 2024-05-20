@@ -20,7 +20,7 @@ export const CashFlowNode = (props: NodeProps<CashFlowNodeData>) => {
     <>
       <Box
         style={{ ...nodeStyle }}
-        bg='ghostwhite'
+        bg='whitesmoke'
         width='sm'
         border='2px'
         borderColor='darkslategray'
@@ -29,7 +29,7 @@ export const CashFlowNode = (props: NodeProps<CashFlowNodeData>) => {
         zIndex={999}
       >
         {!props.data.rootNode && (
-          <Handle type='source' position={Position.Top} />
+          <Handle type='source' position={Position.Left} />
         )}
         <VStack width='sm'>
           <Flex width='2xs' alignItems='flex-start'>
@@ -63,21 +63,33 @@ export const CashFlowNode = (props: NodeProps<CashFlowNodeData>) => {
           <SimpleGrid
             width='xs'
             columns={2}
-            rowGap={2}
+            rowGap={1}
             columnGap={2}
             padding={2}
           >
             <Text as={'b'} fontSize='md'>
               Income
             </Text>
-            <Text fontSize='md' align='right'>
+            <Text
+              fontSize='md'
+              align='right'
+              color={
+                props.data.inflow >= props.data.outflow ? 'darkgreen' : 'black'
+              }
+            >
               {numberFormatter.format(props.data.inflow)}
             </Text>
 
             <Text as={'b'} fontSize='md'>
               Expense
             </Text>
-            <Text fontSize='md' align='right'>
+            <Text
+              fontSize='md'
+              align='right'
+              color={
+                props.data.inflow < props.data.outflow ? 'maroon' : 'black'
+              }
+            >
               {numberFormatter.format(props.data.outflow)}
             </Text>
 
@@ -90,7 +102,7 @@ export const CashFlowNode = (props: NodeProps<CashFlowNodeData>) => {
           </SimpleGrid>
         </VStack>
 
-        <Handle type='target' position={Position.Bottom} />
+        <Handle type='target' position={Position.Right} />
       </Box>
     </>
   );
