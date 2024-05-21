@@ -2,9 +2,8 @@ import React, { useEffect, useMemo } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
-  NodeChange,
   Node,
-  useReactFlow,
+  NodeChange,
 } from 'reactflow';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
@@ -21,14 +20,13 @@ import {
   handleNodeMouseLeave,
   handleNodeMove,
   handleNodeSelection,
-  selectDefaultViewPort,
   selectFlowEdges,
   selectFlowNodes,
   setCashFlows,
 } from '@/states/features/cashflow/flow-slice';
 
 const nodeDragThreshold = 6;
-const defaultViewPort = { x: 10, y: 20, zoom: 0.8 };
+export const defaultViewPort = { x: 10, y: 20, zoom: 0.8 };
 
 export const CashFlowView = () => {
   const dispatch = useAppDispatch();
@@ -41,7 +39,6 @@ export const CashFlowView = () => {
   );
   const nodes = useAppSelector(selectFlowNodes);
   const edges = useAppSelector(selectFlowEdges);
-  const viewport = useAppSelector(selectDefaultViewPort);
 
   useEffect(() => {
     if (

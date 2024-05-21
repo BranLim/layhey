@@ -187,7 +187,7 @@ const AddTransaction = () => {
             </Select>
           </FormControl>
           <FormControl as={HStack} mt={2} verticalAlign='middle'>
-            <FormLabel htmlFor='additionalRules'>Additional Rules</FormLabel>
+            <FormLabel htmlFor='additionalRules'>Advanced Settings</FormLabel>
             <Switch id='additionalRules' {...register('hasAdditionalRules')} />
           </FormControl>
           {hasAdditionalRules && (

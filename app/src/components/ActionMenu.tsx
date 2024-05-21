@@ -14,6 +14,7 @@ import { AddIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import NextLink from 'next/link';
 import { openModal } from '@/states/common/modal-slice';
 import { useAppDispatch } from '@/states/hooks';
+import AddAccountingPeriodIcon from '@/components/icons/AddAccountingPeriodIcon';
 
 export const ActionMenu = () => {
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -117,7 +118,7 @@ export const ActionMenu = () => {
               <Tooltip label='Add accounting period' openDelay={500}>
                 <IconButton
                   as={NextLink}
-                  icon={<AddIcon />}
+                  icon={<AddAccountingPeriodIcon boxSize={8} />}
                   aria-label='Add Accounting Period'
                   onClick={handleOpenModal}
                   href='/accounting/period/add'

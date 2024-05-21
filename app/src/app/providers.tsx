@@ -5,6 +5,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { useRef } from 'react';
 import { AppStore, makeStore } from '@/states/store';
 import { Provider } from 'react-redux';
+import { ReactFlowProvider } from 'reactflow';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const storeRef = useRef<AppStore>();
@@ -13,7 +14,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }
   return (
     <Provider store={storeRef.current}>
-      <ChakraProvider>{children}</ChakraProvider>
+      <ReactFlowProvider>
+        <ChakraProvider>{children}</ChakraProvider>
+      </ReactFlowProvider>
     </Provider>
   );
 }

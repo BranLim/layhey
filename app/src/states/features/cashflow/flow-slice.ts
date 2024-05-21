@@ -71,7 +71,7 @@ const flowSlice = createSlice({
         },
       };
       state.nodeStyles[rootNode.id] = {
-        'border-color': 'black',
+        border: '3px solid black',
       };
       cashFlowNodes.push(rootNode);
 
@@ -97,7 +97,7 @@ const flowSlice = createSlice({
         };
         cashFlowNodes.push(node);
         state.nodeStyles[node.id] = {
-          'border-color': 'black',
+          border: '3px solid black',
         };
         y += 180;
 
@@ -167,5 +167,5 @@ export const selectFlowNodes = (state: any) => state.flow.nodes;
 export const selectFlowEdges = (state: any) => state.flow.edges;
 export const selectNodeStyle = (state: any, nodeId: string) =>
   state.flow.nodeStyles[nodeId];
-export const selectDefaultViewPort = (state: any) => state.flow.defaultViewport;
+
 export default flowSlice.reducer;

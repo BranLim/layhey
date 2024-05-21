@@ -28,6 +28,8 @@ import {
   toFormattedDate,
 } from '@/utils/date-utils';
 import { useEffect } from 'react';
+import { useReactFlow } from 'reactflow';
+import { defaultViewPort } from '@/components/cashflow/CashFlowView';
 
 type Input = {
   startPeriod: Date;
@@ -56,6 +58,7 @@ export const CashFlowViewControl = () => {
     formState: { errors },
     control,
   } = useForm<Input>({ defaultValues: defaultViewOptionValues });
+  const reactFlow = useReactFlow();
 
   useEffect(() => {
     if (!accountingPeriod.startPeriod && !accountingPeriod.endPeriod) {
@@ -115,7 +118,7 @@ export const CashFlowViewControl = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <VStack alignItems='left' p='0'>
             <Heading pl='2' pt='2' size='xs' justifyContent='left'>
-              Cash Flow View Control
+              Cash Flow View Settings
             </Heading>
             <HStack p='2'>
               <FormControl width='2xs' isInvalid={!!errors.startPeriod}>
@@ -222,6 +225,7 @@ export const CashFlowViewControl = () => {
                 size='md'
                 onClick={() => {
                   onReset();
+                  reactFlow.setViewport(defaultViewPort);
                 }}
               >
                 Reset
