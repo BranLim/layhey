@@ -87,7 +87,13 @@ export const CashFlowNode = (props: NodeProps<CashFlowNodeData>) => {
               as={'b'}
               fontSize='lg'
               align='right'
-              color={props.data.difference > 0 ? 'seagreen' : 'firebrick'}
+              color={
+                props.data.difference > 0
+                  ? 'seagreen'
+                  : props.data.difference < 0
+                    ? 'firebrick'
+                    : 'black'
+              }
             >
               {numberFormatter.format(props.data.difference)}
             </Text>

@@ -9,6 +9,7 @@ import {
   Input,
   Select,
   VStack,
+  Text,
 } from '@chakra-ui/react';
 import {
   Controller,
@@ -30,6 +31,7 @@ import {
 import { useEffect } from 'react';
 import { useReactFlow } from 'reactflow';
 import { defaultViewPort } from '@/components/cashflow/CashFlowView';
+import { error } from '@chakra-ui/utils';
 
 type Input = {
   startPeriod: Date;
@@ -102,20 +104,20 @@ export const CashFlowViewControl = () => {
 
   return (
     <>
-      <Box
-        position='absolute'
-        bottom='80px'
-        right='20px'
-        zIndex='10'
-        bg='white'
-        border='2px'
-        borderRadius='8px'
-        boxShadow='0px 4px 6px 1px black'
-        borderColor='gray'
-        height='140px'
-        minHeight='140px'
-      >
-        <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Box
+          position='absolute'
+          bottom='80px'
+          right='20px'
+          zIndex='10'
+          bg='white'
+          border='2px'
+          borderRadius='8px'
+          boxShadow='0px 4px 6px 1px black'
+          borderColor='gray'
+          height='160px'
+          minHeight='160px'
+        >
           <VStack alignItems='left' p='0'>
             <Heading pl='2' pt='2' size='xs' justifyContent='left'>
               Cash Flow View Settings
@@ -150,9 +152,9 @@ export const CashFlowViewControl = () => {
                       )}
                       onChange={async (event) => {
                         field.onChange(new Date(event.target.value));
-                        const endPeriodValidation =
+                        const startPeriodValidation =
                           await trigger('startPeriod');
-                        if (!endPeriodValidation) {
+                        if (!startPeriodValidation) {
                           setError('startPeriod', {
                             type: 'focus',
                             message: 'At least 7 days apart',
@@ -162,9 +164,6 @@ export const CashFlowViewControl = () => {
                     />
                   )}
                 />
-                <FormErrorMessage>
-                  {errors.startPeriod?.message}
-                </FormErrorMessage>
               </FormControl>
               <FormControl width='2xs' isInvalid={!!errors.endPeriod}>
                 <FormLabel htmlFor='accountingEndPeriod' fontSize='sm'>
@@ -194,9 +193,8 @@ export const CashFlowViewControl = () => {
                       )}
                       onChange={async (event) => {
                         field.onChange(new Date(event.target.value));
-                        const startPeriodValidation =
-                          await trigger('endPeriod');
-                        if (!startPeriodValidation) {
+                        const endPeriodValidation = await trigger('endPeriod');
+                        if (!endPeriodValidation) {
                           setError('endPeriod', {
                             type: 'focus',
                             message: 'At least 7 days apart',
@@ -206,7 +204,6 @@ export const CashFlowViewControl = () => {
                     />
                   )}
                 />
-                <FormErrorMessage>{errors.endPeriod?.message}</FormErrorMessage>
               </FormControl>
               <FormControl width='4xs'>
                 <FormLabel htmlFor='budgetCurrency' fontSize='sm'>
@@ -232,8 +229,13 @@ export const CashFlowViewControl = () => {
               </Button>
             </HStack>
           </VStack>
-        </form>
-      </Box>
+          {(!!errors.startPeriod || !!errors.endPeriod) && (
+            <Text pl={4} color='crimson'>
+              Error: Start and End period should be at least 7 days apart.
+            </Text>
+          )}
+        </Box>
+      </form>
     </>
   );
 };

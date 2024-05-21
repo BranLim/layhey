@@ -16,7 +16,7 @@ export const Header = () => {
         <Heading as={NextLink} size='lg' color='gray.500' href='/'>
           Layhey
         </Heading>
-        <Heading size='sm'>Budgeting Made Simple</Heading>
+        <Heading size='sm'>Personal Finance. Management. Made Simple.</Heading>
       </Stack>
     </Flex>
   );
