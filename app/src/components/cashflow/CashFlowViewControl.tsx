@@ -9,12 +9,16 @@ import {
   Select,
   VStack,
 } from '@chakra-ui/react';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import {
+  Controller,
+  SubmitHandler,
+  useForm,
+  ValidateResult,
+} from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
   getTransactions,
   selectAccountingPeriod,
-  selectCashFlowSummary,
   setAccountingPeriod,
 } from '@/states/features/cashflow/cashflow-slice';
 import { getCurrentYear, toFormattedDate } from '@/utils/date-utils';
@@ -39,6 +43,8 @@ export const CashFlowViewControl = () => {
   const dispatch = useAppDispatch();
   const accountingPeriod = useAppSelector(selectAccountingPeriod);
   const {
+    trigger,
+    setError,
     handleSubmit,
     setValue,
     getValues,
@@ -106,13 +112,24 @@ export const CashFlowViewControl = () => {
               Cash Flow View Control
             </Heading>
             <HStack p='2'>
-              <FormControl width='xs'>
+              <FormControl width='xs' isInvalid={!!errors.startPeriod}>
                 <FormLabel htmlFor='accountingStartPeriod' fontSize='sm'>
                   Start Period
                 </FormLabel>
                 <Controller
                   name='startPeriod'
                   control={control}
+                  rules={{
+                    validate: (value, formValues) => {
+                      const noOfDaysInMillis =
+                        formValues.endPeriod.getTime() - value.getTime();
+                      const noOfDays = noOfDaysInMillis / (1000 * 60 * 60 * 24);
+                      if (noOfDays < 7) {
+                        return false;
+                      }
+                      return true;
+                    },
+                  }}
                   render={({ field }) => (
                     <Input
                       {...field}
@@ -122,20 +139,39 @@ export const CashFlowViewControl = () => {
                         getValues('startPeriod'),
                         'yyyy-MM-dd'
                       )}
-                      onChange={(event) =>
-                        field.onChange(new Date(event.target.value))
-                      }
+                      onChange={async (event) => {
+                        field.onChange(new Date(event.target.value));
+                        const endPeriodValidation = await trigger('endPeriod');
+                        if (!endPeriodValidation) {
+                          setError('endPeriod', {
+                            type: 'focus',
+                            message:
+                              'Start and End Period should not be lesser than 7 days',
+                          });
+                        }
+                      }}
                     />
                   )}
                 />
               </FormControl>
-              <FormControl width='xs'>
+              <FormControl width='xs' isInvalid={!!errors.endPeriod}>
                 <FormLabel htmlFor='accountingEndPeriod' fontSize='sm'>
                   End Period
                 </FormLabel>
                 <Controller
                   name='endPeriod'
                   control={control}
+                  rules={{
+                    validate: (value, formValues): ValidateResult => {
+                      const noOfDaysInMillis =
+                        value.getTime() - formValues.startPeriod.getTime();
+                      const noOfDays = noOfDaysInMillis / (1000 * 60 * 60 * 24);
+                      if (noOfDays < 7) {
+                        return false;
+                      }
+                      return true;
+                    },
+                  }}
                   render={({ field }) => (
                     <Input
                       {...field}
@@ -145,9 +181,17 @@ export const CashFlowViewControl = () => {
                         getValues('endPeriod'),
                         'yyyy-MM-dd'
                       )}
-                      onChange={(event) =>
-                        field.onChange(new Date(event.target.value))
-                      }
+                      onChange={async (event) => {
+                        field.onChange(new Date(event.target.value));
+                        const endPeriodValidation = await trigger('endPeriod');
+                        if (!endPeriodValidation) {
+                          setError('endPeriod', {
+                            type: 'focus',
+                            message:
+                              'Start and End Period should not be lesser than 7 days',
+                          });
+                        }
+                      }}
                     />
                   )}
                 />
