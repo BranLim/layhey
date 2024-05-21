@@ -71,7 +71,7 @@ const flowSlice = createSlice({
         },
       };
       state.nodeStyles[rootNode.id] = {
-        borderColor: 'black',
+        'border-color': 'black',
       };
       cashFlowNodes.push(rootNode);
 
