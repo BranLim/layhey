@@ -30,7 +30,7 @@ type CashFlowState = {
     };
   };
 
-  status: string;
+  status: 'idle' | 'loading' | 'succeeded' | 'error';
   error?: any;
 };
 
@@ -47,17 +47,17 @@ const initialState: CashFlowState = {
   status: 'idle',
 };
 
-const initialiseCashFlowByMonth = (state: any, accountingMonth: string) => {
-  if (!state.cashFlows[accountingMonth]) {
-    state.cashFlows[accountingMonth] = {
+const initialiseCashFlowByPeriod = (state: any, accountingPeriod: string) => {
+  if (!state.cashFlows[accountingPeriod]) {
+    state.cashFlows[accountingPeriod] = {
       income: {
         type: 'income',
-        period: accountingMonth,
+        period: accountingPeriod,
         total: 0,
       },
       expense: {
         type: 'expense',
-        period: accountingMonth,
+        period: accountingPeriod,
         total: 0,
       },
     };
@@ -85,6 +85,7 @@ export const getTransactions = createAsyncThunk(
         new Date(endPeriod),
         'yyyy-MM-dd'
       );
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${formattedStartPeriod}&endPeriod=${formattedEndPeriod}`,
         {
@@ -144,7 +145,7 @@ const cashFlowSlice = createSlice({
         )
       ) {
         const accountingMonth = toAccountingMonth(transactionDate);
-        initialiseCashFlowByMonth(state, accountingMonth);
+        initialiseCashFlowByPeriod(state, accountingMonth);
 
         const cashFlowForPeriod = state.cashFlows[accountingMonth];
         switch (category) {
@@ -211,7 +212,7 @@ const cashFlowSlice = createSlice({
                 new Date(transaction.date)
               );
 
-              initialiseCashFlowByMonth(state, accountingMonth);
+              initialiseCashFlowByPeriod(state, accountingMonth);
 
               const cashFlowForPeriod = state.cashFlows[accountingMonth];
 
@@ -244,6 +245,7 @@ const cashFlowSlice = createSlice({
           state.overallCashFlowForPeriod.outflow = totalExpense;
           state.overallCashFlowForPeriod.difference =
             totalIncome - totalExpense;
+          state.status = 'succeeded';
         }
       )
       .addCase(getTransactions.rejected, (state, action) => {
@@ -254,6 +256,7 @@ const cashFlowSlice = createSlice({
 });
 
 export const { setAccountingPeriod, addTransaction } = cashFlowSlice.actions;
+export const selectStatus = (state: any) => state.cashflow.status;
 export const selectHasError = (state: any) => !!state.cashflow.error;
 export const selectError = (state: any) => state.cashflow.error;
 export const selectAccountingPeriod = createSelector(

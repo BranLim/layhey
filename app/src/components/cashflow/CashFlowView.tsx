@@ -10,6 +10,7 @@ import {
   selectAccountingPeriod,
   selectAllCashFlowSummaryByMonthWithinAccountingPeriod,
   selectCashFlowSummary,
+  selectStatus,
 } from '@/states/features/cashflow/cashflow-slice';
 import { CashFlowNode } from '@/components/cashflow/CashFlowNode';
 import { selectIsOpenModal } from '@/states/common/modal-slice';
@@ -24,6 +25,8 @@ import {
   selectFlowNodes,
   setCashFlows,
 } from '@/states/features/cashflow/flow-slice';
+import { Box } from '@chakra-ui/react';
+import { Loading } from '@/components/common/Loading';
 
 const nodeDragThreshold = 6;
 export const defaultViewPort = { x: 10, y: 20, zoom: 0.8 };
@@ -39,6 +42,7 @@ export const CashFlowView = () => {
   );
   const nodes = useAppSelector(selectFlowNodes);
   const edges = useAppSelector(selectFlowEdges);
+  const cashFlowStatus = useAppSelector(selectStatus);
 
   useEffect(() => {
     if (
@@ -47,7 +51,7 @@ export const CashFlowView = () => {
     ) {
       return;
     }
-    console.log(`Updating Budget Summary: ${JSON.stringify(cashFlowSummary)}`);
+
     const payload: FlowPayload = {
       rootCashFlowSummary: {
         ...cashFlowSummary,
@@ -92,25 +96,28 @@ export const CashFlowView = () => {
   };
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      nodeTypes={nodeTypes}
-      proOptions={{ hideAttribution: true }}
-      onNodesChange={handleNodesChange}
-      onNodeMouseEnter={handleMouseEnter}
-      onNodeMouseLeave={handleMouseLeave}
-      nodeDragThreshold={nodeDragThreshold}
-      minZoom={0.1}
-      maxZoom={5.0}
-      defaultViewport={defaultViewPort}
-    >
-      <Background
-        color='snow'
-        variant={BackgroundVariant.Dots}
-        size={1}
-        style={{ background: 'slategrey' }}
-      />
-    </ReactFlow>
+    <>
+      {cashFlowStatus === 'loading' && <Loading />}
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        proOptions={{ hideAttribution: true }}
+        onNodesChange={handleNodesChange}
+        onNodeMouseEnter={handleMouseEnter}
+        onNodeMouseLeave={handleMouseLeave}
+        nodeDragThreshold={nodeDragThreshold}
+        minZoom={0.1}
+        maxZoom={5.0}
+        defaultViewport={defaultViewPort}
+      >
+        <Background
+          color='snow'
+          variant={BackgroundVariant.Dots}
+          size={1}
+          style={{ background: 'slategrey' }}
+        />
+      </ReactFlow>
+    </>
   );
 };
