@@ -43,3 +43,7 @@ export const toFormattedDate = (date: Date, dateFormat: string): string => {
 export const toAccountingMonth = (date: Date) => {
   return `${date.getUTCFullYear()}-${format(date, 'MM')}`;
 };
+
+export const calculateNumberOfDays = (noOfDaysInMillis: number): number => {
+  return noOfDaysInMillis / (1000 * 60 * 60 * 24);
+};
