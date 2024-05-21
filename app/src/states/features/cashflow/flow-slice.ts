@@ -97,7 +97,7 @@ const flowSlice = createSlice({
         };
         cashFlowNodes.push(node);
         state.nodeStyles[node.id] = {
-          borderColor: 'black',
+          'border-color': 'black',
         };
         y += 180;
 
@@ -120,16 +120,16 @@ const flowSlice = createSlice({
       const mouseEnteredNode = action.payload;
       const foundNodeStyle = state.nodeStyles[mouseEnteredNode.id];
       if (foundNodeStyle) {
-        foundNodeStyle['borderColor'] = 'darkslategray';
-        foundNodeStyle['boxShadow'] = '0px 0px 12px darkgray';
+        foundNodeStyle['border'] = '4px solid dimgray';
+        foundNodeStyle['boxShadow'] = '0px 0px 16px lightslategray';
       }
     },
     handleNodeMouseLeave: (state, action: PayloadAction<Node>) => {
       const mouseLeaveNode = action.payload;
       const foundNodeStyle = state.nodeStyles[mouseLeaveNode.id];
       if (foundNodeStyle) {
-        foundNodeStyle['borderColor'] = 'black';
-        foundNodeStyle['boxShadow'] = '0px 0px 10px darkslategray';
+        foundNodeStyle['border'] = '3px solid black';
+        foundNodeStyle['boxShadow'] = '0px 0px 12px darkslategray';
       }
     },
     handleNodeSelection: (

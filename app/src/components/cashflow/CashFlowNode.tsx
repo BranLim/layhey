@@ -22,10 +22,9 @@ export const CashFlowNode = (props: NodeProps<CashFlowNodeData>) => {
         style={{ ...nodeStyle }}
         bg='whitesmoke'
         width='sm'
-        border='2px'
-        borderColor='darkslategray'
+        border='3px solid black'
         borderRadius='12px'
-        boxShadow='0px 0px 10px darkslategray'
+        boxShadow='0px 0px 12px darkslategray'
         zIndex={999}
       >
         {!props.data.rootNode && (
