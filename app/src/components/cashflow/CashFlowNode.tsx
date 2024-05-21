@@ -32,12 +32,12 @@ export const CashFlowNode = (props: NodeProps<CashFlowNodeData>) => {
           <Handle type='source' position={Position.Left} />
         )}
         <VStack width='sm'>
-          <Flex width='2xs' alignItems='flex-start'>
+          <Flex width='2xs'>
             <Box>
-              <Text as={'b'} fontSize='md' align='center'>
+              <Text as={'b'} fontSize='lg' align='center'>
                 Start Period
               </Text>
-              <Text fontSize='md' align='center'>
+              <Text fontSize='lg' align='center'>
                 {props.data.startPeriod &&
                   toFormattedDate(
                     new Date(props.data.startPeriod),
@@ -47,10 +47,10 @@ export const CashFlowNode = (props: NodeProps<CashFlowNodeData>) => {
             </Box>
             <Spacer />
             <Box>
-              <Text as={'b'} fontSize='md' align='center'>
+              <Text as={'b'} fontSize='lg' align='center'>
                 End Period
               </Text>
-              <Text fontSize='md' align='center'>
+              <Text fontSize='lg' align='center'>
                 {props.data.endPeriod &&
                   toFormattedDate(
                     new Date(props.data.endPeriod),
@@ -67,36 +67,29 @@ export const CashFlowNode = (props: NodeProps<CashFlowNodeData>) => {
             columnGap={2}
             padding={2}
           >
-            <Text as={'b'} fontSize='md'>
+            <Text as={'b'} fontSize='lg'>
               Income
             </Text>
-            <Text
-              fontSize='md'
-              align='right'
-              color={
-                props.data.inflow >= props.data.outflow ? 'darkgreen' : 'black'
-              }
-            >
+            <Text fontSize='lg' align='right'>
               {numberFormatter.format(props.data.inflow)}
             </Text>
 
-            <Text as={'b'} fontSize='md'>
+            <Text as={'b'} fontSize='lg'>
               Expense
             </Text>
-            <Text
-              fontSize='md'
-              align='right'
-              color={
-                props.data.inflow < props.data.outflow ? 'maroon' : 'black'
-              }
-            >
+            <Text fontSize='lg' align='right'>
               {numberFormatter.format(props.data.outflow)}
             </Text>
 
-            <Text as={'b'} fontSize='md' fontWeight=''>
+            <Text as={'b'} fontSize='lg'>
               Surplus/Deficit
             </Text>
-            <Text fontSize='md' align='right'>
+            <Text
+              as={'b'}
+              fontSize='lg'
+              align='right'
+              color={props.data.difference > 0 ? 'seagreen' : 'firebrick'}
+            >
               {numberFormatter.format(props.data.difference)}
             </Text>
           </SimpleGrid>

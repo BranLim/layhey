@@ -28,7 +28,7 @@ import {
 } from '@/states/features/cashflow/flow-slice';
 
 const nodeDragThreshold = 6;
-const defaultViewPort = { x: 0, y: 20, zoom: 0.8 };
+const defaultViewPort = { x: 10, y: 20, zoom: 0.8 };
 
 export const CashFlowView = () => {
   const dispatch = useAppDispatch();
@@ -109,10 +109,10 @@ export const CashFlowView = () => {
       defaultViewport={defaultViewPort}
     >
       <Background
-        color='lightgray'
+        color='snow'
         variant={BackgroundVariant.Dots}
         size={1}
-        style={{ background: 'lightslategrey' }}
+        style={{ background: 'slategrey' }}
       />
     </ReactFlow>
   );
