@@ -208,13 +208,13 @@ const cashFlowSlice = createSlice({
           let totalExpense = 0;
           try {
             transactionDtos?.forEach((transaction: TransactionRequest) => {
-              const accountingMonth = toAccountingMonth(
+              const accountingPeriod = toAccountingMonth(
                 new Date(transaction.date)
               );
 
-              initialiseCashFlowByPeriod(state, accountingMonth);
+              initialiseCashFlowByPeriod(state, accountingPeriod);
 
-              const cashFlowForPeriod = state.cashFlows[accountingMonth];
+              const cashFlowForPeriod = state.cashFlows[accountingPeriod];
 
               switch (transaction.category) {
                 case TransactionCategory.Income:
@@ -222,7 +222,7 @@ const cashFlowSlice = createSlice({
                     ...cashFlowForPeriod.income,
                     total: cashFlowForPeriod.income.total + transaction.amount,
                   };
-                  state.cashFlows[accountingMonth].income = updatedIncome;
+                  state.cashFlows[accountingPeriod].income = updatedIncome;
 
                   totalIncome += transaction.amount;
                   break;
@@ -231,7 +231,7 @@ const cashFlowSlice = createSlice({
                     ...cashFlowForPeriod.expense,
                     total: cashFlowForPeriod.expense.total + transaction.amount,
                   };
-                  state.cashFlows[accountingMonth].expense = updatedExpense;
+                  state.cashFlows[accountingPeriod].expense = updatedExpense;
 
                   totalExpense += transaction.amount;
                   break;
