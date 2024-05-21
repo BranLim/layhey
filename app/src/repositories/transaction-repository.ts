@@ -51,7 +51,7 @@ export class TransactionRepository {
         $gte: new Date(startPeriod),
         $lte: new Date(endPeriod),
       },
-    });
+    }).sort({ date: -1 });
     if (!foundTransactions) {
       return [] as Transaction[];
     }
