@@ -3,6 +3,7 @@ import {
   AddTransactionRequest,
   Transaction,
   TransactionDto,
+  TransactionResponse,
 } from '@/types/Transaction';
 import { Option } from '@/types/Option';
 
@@ -16,18 +17,25 @@ export class TransactionService {
   async addTransaction(
     addTransactionRequest: AddTransactionRequest,
     option?: Option
-  ): Promise<void> {
+  ): Promise<Transaction[]> {
     try {
+      const transactionsAdded: Transaction[] = [];
+
       const { transaction, hasAdvancedSetting, advancedSetting } =
         addTransactionRequest;
+
       if (hasAdvancedSetting) {
+      } else {
         const transactionToAdd: Transaction = {
           ...transaction,
           date: new Date(transaction.date),
-          budgetId: '',
         };
-        await this.transactionRepository.add(transactionToAdd);
+        const newTransaction =
+          await this.transactionRepository.add(transactionToAdd);
+        transactionsAdded.push(newTransaction);
       }
+
+      return transactionsAdded;
     } catch (error) {
       throw error;
     }
@@ -41,7 +49,6 @@ export class TransactionService {
     try {
       const updatedTransaction = await this.transactionRepository.update(id, {
         ...transaction,
-        budgetId: '',
       });
       return updatedTransaction;
     } catch (error) {

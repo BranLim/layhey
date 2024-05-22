@@ -1,16 +1,31 @@
-import mongoose, { Schema, models } from 'mongoose';
+import mongoose, { Schema, models, Model } from 'mongoose';
+import { UserAccountingPeriod } from '@/types/AccountingPeriod';
 
-const accountingPeriodSchema = new Schema({
-  periodStart: String,
-  periodEnd: String,
+export type AccountingPeriodDocument = UserAccountingPeriod & Document;
+
+export type AccountingPeriodModel = Model<AccountingPeriodDocument>;
+
+const accountingPeriodSchema = new Schema<AccountingPeriodDocument>({
+  name: {
+    type: String,
+    required: true,
+  },
   description: String,
+  startPeriod: {
+    type: String,
+    required: true,
+  },
+  endPeriod: {
+    type: String,
+    required: true,
+  },
 });
-const AccountingPeriodModel =
+const AccountingPeriod: AccountingPeriodModel =
   models.AccountingPeriod ||
-  mongoose.model(
+  mongoose.model<AccountingPeriodDocument, AccountingPeriodModel>(
     'AccountingPeriod',
     accountingPeriodSchema,
-    'accounting-periods'
+    'accountingPeriods'
   );
 
-export { AccountingPeriodModel };
+export { AccountingPeriod };

@@ -1,14 +1,11 @@
 import { Transaction } from '@/types/Transaction';
 import { connectMongo } from '@/database/mongodb';
-import {
-  TransactionDocument,
-  TransactionModel,
-} from '@/models/transaction-model';
+import { TransactionDocument, TransactionModel } from '@/models/transaction';
 
 export class TransactionRepository {
   constructor() {}
 
-  async add(transaction: Transaction) {
+  async add(transaction: Transaction): Promise<Transaction> {
     await connectMongo();
 
     const newTransaction = new TransactionModel({
@@ -20,10 +17,14 @@ export class TransactionRepository {
       transactionType: transaction.transactionType,
       budget: undefined,
     });
-    await newTransaction.save();
+    const addedTransaction = await newTransaction.save();
+    return addedTransaction;
   }
 
-  async update(id: string, transaction: Transaction): Promise<Transaction> {
+  async update(
+    id: string,
+    transaction: Transaction
+  ): Promise<Transaction | null> {
     const updatedTransaction = await TransactionModel.findByIdAndUpdate(
       id,
       {
@@ -64,23 +65,23 @@ export class TransactionRepository {
           amount: transaction.amount,
           currency: transaction.currency,
           date: transaction.date,
-          budgetId: '',
         }) as Transaction
     );
   }
 
-  async getTransaction(id: string): Promise<Transaction> {
+  async getTransaction(id: string): Promise<Transaction | null> {
     await connectMongo();
     const foundTransaction = await TransactionModel.findById(id);
+    if (!foundTransaction) {
+      return null;
+    }
     return {
       id: foundTransaction._id,
       category: foundTransaction.category,
       transactionSource: foundTransaction.transactionSource,
       amount: foundTransaction.amount,
       currency: foundTransaction.currency,
-
       date: foundTransaction.date,
-      budgetId: foundTransaction.budget?._id ?? '',
     } as Transaction;
   }
 }

@@ -1,7 +1,9 @@
 import { Transaction } from '@/types/Transaction';
-import mongoose, { Schema, models } from 'mongoose';
+import mongoose, { Model, models, Schema } from 'mongoose';
 
 export type TransactionDocument = Transaction & mongoose.Document;
+
+export type TransactionModel = Model<TransactionDocument>;
 
 const transactionSchema = new Schema<TransactionDocument>({
   category: {
@@ -48,8 +50,12 @@ transactionSchema.pre('updateMany', function (next) {
   next();
 });
 
-const TransactionModel =
+const TransactionModel: TransactionModel =
   models.Transaction ||
-  mongoose.model('Transaction', transactionSchema, 'transactions');
+  mongoose.model<TransactionDocument, TransactionModel>(
+    'Transaction',
+    transactionSchema,
+    'transactions'
+  );
 
 export { TransactionModel };

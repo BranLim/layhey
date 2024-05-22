@@ -23,7 +23,6 @@ export type Transaction = {
   amount: number;
   currency: string;
   date: Date;
-  budgetId: string;
   createdOn?: Date;
   lastModifiedOn?: Date;
 };
