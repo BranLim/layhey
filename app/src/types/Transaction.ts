@@ -29,8 +29,13 @@ export type Transaction = {
 
 export type TransactionDto = Omit<Transaction, 'budgetId'>;
 
-export type TransactionRequest = Omit<TransactionDto, 'date'> & {
+export type TransactionRequest = Omit<
+  TransactionDto,
+  'date' | 'createdOn' | 'lastModifiedOn'
+> & {
   date: string;
+  createdOn?: string;
+  lastModifiedOn?: string;
 };
 
 export type TransactionResponse = TransactionRequest;

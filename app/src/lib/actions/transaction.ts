@@ -38,6 +38,8 @@ const addTransaction = async (
       const transactionToAdd: Transaction = {
         ...transaction,
         date: new Date(transaction.date),
+        createdOn: undefined,
+        lastModifiedOn: undefined,
       };
       const newTransaction = await add(transactionToAdd);
       transactionsAdded.push(newTransaction);

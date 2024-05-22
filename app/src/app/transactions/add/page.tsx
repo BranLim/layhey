@@ -28,6 +28,7 @@ import {
   AddTransactionRequest,
   categoryFromValue,
   TransactionCategory,
+  TransactionResponse,
   TransactionSource,
   transactionTypeFromValue,
 } from '@/types/Transaction';
@@ -114,7 +115,11 @@ const AddTransaction = () => {
     });
     if (response.ok) {
       console.log('Transaction added. Updating state');
-      dispatch(addTransaction(newTransaction.transaction));
+      const transactions = (await response.json()) as TransactionResponse[];
+      for (const transaction of transactions) {
+        dispatch(addTransaction(transaction));
+      }
+
       dispatch(closeModal());
     }
   };

@@ -4,6 +4,7 @@ import {
   TransactionResponse,
 } from '@/types/Transaction';
 import { addTransaction, getTransactions } from '@/lib/actions/transaction';
+import { toTransactionResponse } from '@/lib/mappers/transaction-mapper';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,8 +30,14 @@ export const GET = async (request: NextRequest): Promise<Response> => {
 export const POST = async (request: NextRequest): Promise<Response> => {
   try {
     const transactionRequest: AddTransactionRequest = await request.json();
-    await addTransaction(transactionRequest);
-    return new Response('Transaction created', { status: 201 });
+    const addedTransactions = await addTransaction(transactionRequest);
+    const transactionDtos: TransactionResponse[] = addedTransactions.map(
+      (transaction) => toTransactionResponse(transaction)
+    );
+    return Response.json(transactionDtos, {
+      status: 201,
+      statusText: 'Transaction created',
+    });
   } catch (error) {
     return new Response('Error adding transaction', { status: 500 });
   }
