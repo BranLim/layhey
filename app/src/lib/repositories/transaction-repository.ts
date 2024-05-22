@@ -4,6 +4,7 @@ import {
   TransactionDocument,
   TransactionModel,
 } from '@/lib/models/transaction';
+import { toTransaction } from '@/lib/mappers/transaction-mapper';
 
 const add = async (transaction: Transaction): Promise<Transaction> => {
   await connectMongo();
@@ -17,8 +18,34 @@ const add = async (transaction: Transaction): Promise<Transaction> => {
     transactionType: transaction.transactionType,
     budget: undefined,
   });
-  const addedTransaction = await newTransaction.save();
-  return addedTransaction;
+  const addedTransaction: TransactionDocument = await newTransaction.save();
+  return toTransaction(addedTransaction);
+};
+
+const addAll = async (transactions: Transaction[]): Promise<Transaction[]> => {
+  await connectMongo();
+
+  const transactionDocuments: TransactionDocument[] = [];
+  transactions.forEach((transaction) => {
+    const newTransaction = new TransactionModel({
+      date: transaction.date,
+      amount: transaction.amount,
+      currency: transaction.currency,
+      category: transaction.category,
+      transactionSource: transaction.transactionSource,
+      transactionType: transaction.transactionType,
+    });
+    transactionDocuments.push(newTransaction);
+  });
+
+  const addedTransactions =
+    await TransactionModel.insertMany(transactionDocuments);
+  if (!addedTransactions) {
+    return [] as Transaction[];
+  }
+  return addedTransactions.map((newTransaction: TransactionDocument) =>
+    toTransaction(newTransaction)
+  );
 };
 
 const update = async (
@@ -53,9 +80,11 @@ const findAllMatching = async (
       $lte: new Date(endPeriod),
     },
   }).sort({ date: -1 });
+
   if (!foundTransactions) {
     return [] as Transaction[];
   }
+
   return foundTransactions.map(
     (transaction: TransactionDocument) =>
       ({
@@ -85,4 +114,4 @@ const findOneById = async (id: string): Promise<Transaction | null> => {
   } as Transaction;
 };
 
-export { findAllMatching, findOneById, add, update };
+export { findAllMatching, findOneById, add, addAll, update };

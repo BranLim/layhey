@@ -7,10 +7,12 @@ import {
 } from '@/types/Transaction';
 import {
   add,
+  addAll,
   findAllMatching,
   findOneById,
   update,
 } from '@/lib/repositories/transaction-repository';
+import { splitTransaction } from '@/lib/helpers/transaction-helpers';
 
 const addTransaction = async (
   addTransactionRequest: AddTransactionRequest
@@ -22,6 +24,16 @@ const addTransaction = async (
       addTransactionRequest;
 
     if (hasAdvancedSetting) {
+      const option = advancedSetting?.option;
+      if (option && option.type == 'split') {
+        const splitTransactions: Transaction[] = splitTransaction(
+          transaction,
+          option
+        );
+        const addedTransactions: Transaction[] =
+          await addAll(splitTransactions);
+        transactionsAdded.push(...addedTransactions);
+      }
     } else {
       const transactionToAdd: Transaction = {
         ...transaction,

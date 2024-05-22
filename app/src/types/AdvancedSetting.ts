@@ -10,8 +10,6 @@ export type SplitSetting = Setting & {
   type: 'split';
   frequency: number;
   interval?: Interval;
-  startDate?: Date;
-  endDate?: Date;
 };
 
 export type RepeatSetting = Setting & {

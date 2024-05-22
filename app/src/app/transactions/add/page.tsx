@@ -9,7 +9,6 @@ import {
   HStack,
   Input,
   InputGroup,
-  InputRightAddon,
   InputRightElement,
   Radio,
   RadioGroup,
@@ -22,6 +21,7 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
+  Text,
 } from '@chakra-ui/react';
 import { Controller, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import {
@@ -38,7 +38,6 @@ import { useAppDispatch } from '@/states/hooks';
 import { getCurrentDate, toFormattedDate } from '@/utils/date-utils';
 import {
   AdvancedSetting,
-  Option,
   RepeatSetting,
   SplitSetting,
 } from '@/types/AdvancedSetting';
@@ -62,6 +61,13 @@ const defaultFormValues: FormData = {
   amount: 0,
   currency: 'SGD',
   hasAdvancedSetting: false,
+  advancedSetting: {
+    option: {
+      type: 'split',
+      frequency: 0,
+      interval: 'daily',
+    },
+  },
 };
 
 const AddTransaction = () => {
@@ -98,7 +104,7 @@ const AddTransaction = () => {
         currency: 'SGD',
       },
       hasAdvancedSetting: data.hasAdvancedSetting,
-      advancedSetting: undefined,
+      advancedSetting: data.advancedSetting,
     };
     const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`;
     const response = await fetch(apiPath, {
@@ -214,26 +220,28 @@ const AddTransaction = () => {
                 <Tab>Split</Tab>
                 <Tab>Repeat</Tab>
               </TabList>
-              <TabPanels>
+              <TabPanels border='2px solid #E2E8F0'>
                 <TabPanel>
                   <Stack>
+                    <Text as={'p'} fontSize={'sm'} pb={2}>
+                      Split the above transaction into multiple transactions
+                      equally. This is useful for transactions such as
+                      traditional instalment plans offered by banks or buy-now,
+                      pay-later (BNPL).
+                    </Text>
+
                     <FormControl as='fieldset'>
-                      <FormLabel as='legend'>Frequency</FormLabel>
+                      <FormLabel as='legend'>Split Across</FormLabel>
                       <InputGroup>
                         <Input
                           id='splitFrequency'
-                          width='md'
                           {...register('advancedSetting.option.frequency')}
                         />
-                        <InputRightElement width='2xs'>
-                          <InputRightAddon borderRadius={0}>
-                            per
-                          </InputRightAddon>
+                        <InputRightElement width='4xs'>
                           <Select
                             id='splitInterval'
                             roundedLeft={0}
                             {...register('advancedSetting.option.interval')}
-                            size='md'
                           >
                             <option key='day' value='daily'>
                               Day
@@ -250,52 +258,6 @@ const AddTransaction = () => {
                           </Select>
                         </InputRightElement>
                       </InputGroup>
-                    </FormControl>
-                    <FormControl>
-                      <FormLabel htmlFor='effectiveStartDate'>
-                        Start Date
-                      </FormLabel>
-                      <Controller
-                        name='advancedSetting.option.startDate'
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id='effectiveStartDate'
-                            type='date'
-                            value={toFormattedDate(
-                              getValues('advancedSetting.option.startDate') ??
-                                new Date(),
-                              'yyyy-MM-dd'
-                            )}
-                            onChange={(event) =>
-                              field.onChange(new Date(event.target.value))
-                            }
-                          />
-                        )}
-                      />
-                    </FormControl>
-                    <FormControl>
-                      <FormLabel htmlFor='effectiveEndDate'>End Date</FormLabel>
-                      <Controller
-                        name='advancedSetting.option.endDate'
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id='effectiveEndDate'
-                            type='date'
-                            value={toFormattedDate(
-                              getValues('advancedSetting.option.endDate') ??
-                                new Date(),
-                              'yyyy-MM-dd'
-                            )}
-                            onChange={(event) =>
-                              field.onChange(new Date(event.target.value))
-                            }
-                          />
-                        )}
-                      />
                     </FormControl>
                   </Stack>
                 </TabPanel>
