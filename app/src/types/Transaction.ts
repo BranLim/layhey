@@ -1,4 +1,4 @@
-import { Rule } from '@/types/Rule';
+import { AdvancedSetting } from '@/types/AdvancedSetting';
 
 export enum TransactionCategory {
   Income = 'Income',
@@ -36,8 +36,8 @@ export type TransactionResponse = TransactionRequest;
 
 export type AddTransactionRequest = {
   transaction: TransactionRequest;
-  hasAdditionalRules?: boolean;
-  rules: Rule[];
+  hasAdvancedSetting?: boolean;
+  advancedSetting?: AdvancedSetting;
 };
 
 export const categoryFromValue = (

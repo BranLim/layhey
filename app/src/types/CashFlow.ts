@@ -1,8 +1,3 @@
-export type AccountingPeriod = {
-  startPeriod?: Date;
-  endPeriod?: Date;
-};
-
 export type CashFlow = {
   type: string;
   period: string;

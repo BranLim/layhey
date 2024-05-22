@@ -36,11 +36,12 @@ import { closeModal } from '@/states/common/modal-slice';
 import { addTransaction } from '@/states/features/cashflow/cashflow-slice';
 import { useAppDispatch } from '@/states/hooks';
 import { getCurrentDate, toFormattedDate } from '@/utils/date-utils';
-import { RepeatRule, Rule, SplitRule } from '@/types/Rule';
-
-type AdditionalRules = {
-  rule?: Rule;
-};
+import {
+  AdvancedSetting,
+  Option,
+  RepeatOption,
+  SplitOption,
+} from '@/types/AdvancedSetting';
 
 type FormData = {
   category: string;
@@ -49,8 +50,8 @@ type FormData = {
   type?: string;
   amount: number;
   currency: string;
-  hasAdditionalRules?: boolean;
-  additionalRules: AdditionalRules;
+  hasAdvancedSetting?: boolean;
+  advancedSetting?: AdvancedSetting;
 };
 
 const defaultFormValues: FormData = {
@@ -60,8 +61,12 @@ const defaultFormValues: FormData = {
   type: '',
   amount: 0,
   currency: 'SGD',
-  hasAdditionalRules: false,
-  additionalRules: {},
+  hasAdvancedSetting: false,
+  advancedSetting: {
+    option: {
+      type: 'split',
+    } as Option,
+  },
 };
 
 const AddTransaction = () => {
@@ -75,9 +80,9 @@ const AddTransaction = () => {
     formState: { errors },
   } = useForm<FormData>({ defaultValues: defaultFormValues });
 
-  const hasAdditionalRules = useWatch({
+  const hasAdvancedSettings = useWatch({
     control,
-    name: 'hasAdditionalRules',
+    name: 'hasAdvancedSetting',
     defaultValue: false,
   });
 
@@ -97,8 +102,8 @@ const AddTransaction = () => {
         date: data.date.toISOString(),
         currency: 'SGD',
       },
-      hasAdditionalRules: data.hasAdditionalRules,
-      rules: [] as Rule[],
+      hasAdvancedSetting: data.hasAdvancedSetting,
+      advancedSetting: undefined,
     };
     const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`;
     const response = await fetch(apiPath, {
@@ -188,24 +193,24 @@ const AddTransaction = () => {
           </FormControl>
           <FormControl as={HStack} mt={2} verticalAlign='middle'>
             <FormLabel htmlFor='additionalRules'>Advanced Settings</FormLabel>
-            <Switch id='additionalRules' {...register('hasAdditionalRules')} />
+            <Switch id='additionalRules' {...register('hasAdvancedSetting')} />
           </FormControl>
-          {hasAdditionalRules && (
+          {hasAdvancedSettings && (
             <Tabs
               variant='enclosed'
               onChange={(index) => {
                 switch (index) {
                   case 0:
-                    setValue('additionalRules.rule', {
+                    setValue('advancedSetting.option', {
                       type: 'split',
                       frequency: 0,
-                    } as SplitRule);
+                    } as SplitOption);
                     break;
                   case 1:
-                    setValue('additionalRules.rule', {
+                    setValue('advancedSetting.option', {
                       type: 'repeat',
                       frequency: 0,
-                    } as RepeatRule);
+                    } as RepeatOption);
                     break;
                 }
               }}
@@ -223,7 +228,7 @@ const AddTransaction = () => {
                         <Input
                           id='splitFrequency'
                           width='md'
-                          {...register('additionalRules.rule.frequency')}
+                          {...register('advancedSetting.option.frequency')}
                         />
                         <InputRightElement width='2xs'>
                           <InputRightAddon borderRadius={0}>
@@ -232,7 +237,7 @@ const AddTransaction = () => {
                           <Select
                             id='splitInterval'
                             roundedLeft={0}
-                            {...register('additionalRules.rule.interval')}
+                            {...register('advancedSetting.option.interval')}
                             size='md'
                           >
                             <option key='day' value='daily'>
