@@ -1,8 +1,12 @@
 export type Interval = 'daily' | 'weekly' | 'monthly' | 'yearly';
 
-export type OptionType = 'split' | 'repeat';
+export type SettingType = 'split' | 'repeat';
 
-export type SplitOption = OptionType & {
+export type Setting = {
+  type: SettingType;
+};
+
+export type SplitSetting = Setting & {
   type: 'split';
   frequency: number;
   interval?: Interval;
@@ -10,7 +14,7 @@ export type SplitOption = OptionType & {
   endDate?: Date;
 };
 
-export type RepeatOption = OptionType & {
+export type RepeatSetting = Setting & {
   type: 'repeat';
   frequency: number;
   interval: Interval;
@@ -18,7 +22,7 @@ export type RepeatOption = OptionType & {
   endDate: Date;
 };
 
-export type Option = SplitOption | RepeatOption;
+export type Option = SplitSetting | RepeatSetting;
 
 export type AdvancedSetting = {
   option: Option;

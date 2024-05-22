@@ -18,7 +18,7 @@ export class TransactionService {
     option?: Option
   ): Promise<void> {
     try {
-      const { transaction, hasAdvancedSettings, advancedSettings } =
+      const { transaction, hasAdvancedSetting, advancedSetting } =
         addTransactionRequest;
       const transactionToAdd: Transaction = {
         ...transaction,

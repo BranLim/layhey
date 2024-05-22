@@ -39,8 +39,8 @@ import { getCurrentDate, toFormattedDate } from '@/utils/date-utils';
 import {
   AdvancedSetting,
   Option,
-  RepeatOption,
-  SplitOption,
+  RepeatSetting,
+  SplitSetting,
 } from '@/types/AdvancedSetting';
 
 type FormData = {
@@ -62,11 +62,6 @@ const defaultFormValues: FormData = {
   amount: 0,
   currency: 'SGD',
   hasAdvancedSetting: false,
-  advancedSetting: {
-    option: {
-      type: 'split',
-    } as Option,
-  },
 };
 
 const AddTransaction = () => {
@@ -204,13 +199,13 @@ const AddTransaction = () => {
                     setValue('advancedSetting.option', {
                       type: 'split',
                       frequency: 0,
-                    } as SplitOption);
+                    } as SplitSetting);
                     break;
                   case 1:
                     setValue('advancedSetting.option', {
                       type: 'repeat',
                       frequency: 0,
-                    } as RepeatOption);
+                    } as RepeatSetting);
                     break;
                 }
               }}
