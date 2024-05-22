@@ -24,6 +24,8 @@ export type Transaction = {
   currency: string;
   date: Date;
   budgetId: string;
+  createdOn?: Date;
+  lastModifiedOn?: Date;
 };
 
 export type TransactionDto = Omit<Transaction, 'budgetId'>;

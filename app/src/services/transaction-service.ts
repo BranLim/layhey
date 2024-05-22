@@ -20,12 +20,14 @@ export class TransactionService {
     try {
       const { transaction, hasAdvancedSetting, advancedSetting } =
         addTransactionRequest;
-      const transactionToAdd: Transaction = {
-        ...transaction,
-        date: new Date(transaction.date),
-        budgetId: '',
-      };
-      await this.transactionRepository.add(transactionToAdd);
+      if (hasAdvancedSetting) {
+        const transactionToAdd: Transaction = {
+          ...transaction,
+          date: new Date(transaction.date),
+          budgetId: '',
+        };
+        await this.transactionRepository.add(transactionToAdd);
+      }
     } catch (error) {
       throw error;
     }

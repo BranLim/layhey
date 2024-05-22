@@ -251,7 +251,52 @@ const AddTransaction = () => {
                         </InputRightElement>
                       </InputGroup>
                     </FormControl>
-                    <FormControl></FormControl>
+                    <FormControl>
+                      <FormLabel htmlFor='effectiveStartDate'>
+                        Start Date
+                      </FormLabel>
+                      <Controller
+                        name='advancedSetting.option.startDate'
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id='effectiveStartDate'
+                            type='date'
+                            value={toFormattedDate(
+                              getValues('advancedSetting.option.startDate') ??
+                                new Date(),
+                              'yyyy-MM-dd'
+                            )}
+                            onChange={(event) =>
+                              field.onChange(new Date(event.target.value))
+                            }
+                          />
+                        )}
+                      />
+                    </FormControl>
+                    <FormControl>
+                      <FormLabel htmlFor='effectiveEndDate'>End Date</FormLabel>
+                      <Controller
+                        name='advancedSetting.option.endDate'
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id='effectiveEndDate'
+                            type='date'
+                            value={toFormattedDate(
+                              getValues('advancedSetting.option.endDate') ??
+                                new Date(),
+                              'yyyy-MM-dd'
+                            )}
+                            onChange={(event) =>
+                              field.onChange(new Date(event.target.value))
+                            }
+                          />
+                        )}
+                      />
+                    </FormControl>
                   </Stack>
                 </TabPanel>
                 <TabPanel></TabPanel>
