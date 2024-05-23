@@ -109,7 +109,7 @@ export const getTransactions = createAsyncThunk(
   }
 );
 
-const cashFlowSlice = createSlice({
+const cashflowSlice = createSlice({
   name: 'cashflow',
   initialState,
   reducers: {
@@ -255,7 +255,7 @@ const cashFlowSlice = createSlice({
   },
 });
 
-export const { setAccountingPeriod, addTransaction } = cashFlowSlice.actions;
+export const { setAccountingPeriod, addTransaction } = cashflowSlice.actions;
 export const selectStatus = (state: any) => state.cashflow.status;
 export const selectHasError = (state: any) => !!state.cashflow.error;
 export const selectError = (state: any) => state.cashflow.error;
@@ -314,4 +314,4 @@ export const selectAllCashFlowSummaryByMonthWithinAccountingPeriod =
     }
   );
 
-export default cashFlowSlice.reducer;
+export default cashflowSlice.reducer;

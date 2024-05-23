@@ -11,7 +11,7 @@ import {
   selectAllCashFlowSummaryByMonthWithinAccountingPeriod,
   selectCashFlowSummary,
   selectStatus,
-} from '@/states/features/cashflow/cashflow-slice';
+} from '@/states/features/cashflow/cashflow.slice';
 import { CashFlowNode } from '@/components/cashflow/CashFlowNode';
 import { selectIsOpenModal } from '@/states/common/modal-slice';
 import 'reactflow/dist/style.css';

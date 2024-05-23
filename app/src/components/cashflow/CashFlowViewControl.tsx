@@ -22,7 +22,7 @@ import {
   getTransactions,
   selectAccountingPeriod,
   setAccountingPeriod,
-} from '@/states/features/cashflow/cashflow-slice';
+} from '@/states/features/cashflow/cashflow.slice';
 import {
   calculateNumberOfDays,
   getCurrentYear,
