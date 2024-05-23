@@ -11,7 +11,7 @@ import {
   findAllMatching,
   findOneById,
   update,
-} from '@/lib/repositories/transaction-repository';
+} from '@/lib/repositories/transaction.repository';
 import { splitTransaction } from '@/lib/helpers/transaction.helper';
 
 const addTransaction = async (
