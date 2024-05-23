@@ -5,6 +5,7 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 import {
+  AddTransactionRequest,
   TransactionCategory,
   TransactionRequest,
   TransactionResponse,
@@ -34,19 +35,6 @@ type CashFlowState = {
   error?: any;
 };
 
-const initialState: CashFlowState = {
-  overallCashFlowForPeriod: {
-    startPeriod: '',
-    endPeriod: '',
-    inflow: 0,
-    outflow: 0,
-    difference: 0,
-    currency: 'SGD',
-  },
-  cashFlows: {},
-  status: 'idle',
-};
-
 const initialiseCashFlowByPeriod = (state: any, accountingPeriod: string) => {
   if (!state.cashFlows[accountingPeriod]) {
     state.cashFlows[accountingPeriod] = {
@@ -63,6 +51,29 @@ const initialiseCashFlowByPeriod = (state: any, accountingPeriod: string) => {
     };
   }
 };
+
+export const addTransaction = createAsyncThunk(
+  'cashflow/addTransactions',
+  async (
+    newTransaction: AddTransactionRequest
+  ): Promise<TransactionResponse[]> => {
+    const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`;
+    const response = await fetch(apiPath, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(newTransaction),
+    });
+
+    if (!response.ok) {
+      throw new Error('Error adding new transaction');
+    }
+    const transactions = (await response.json()) as TransactionResponse[];
+    return transactions;
+  }
+);
 
 export const getTransactions = createAsyncThunk(
   'cashflow/getTransactions',
@@ -86,15 +97,13 @@ export const getTransactions = createAsyncThunk(
         'yyyy-MM-dd'
       );
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${formattedStartPeriod}&endPeriod=${formattedEndPeriod}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json;charset=UTF-8',
-          },
-        }
-      );
+      const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${formattedStartPeriod}&endPeriod=${formattedEndPeriod}`;
+      const response = await fetch(apiPath, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+        },
+      });
       if (!response.ok) {
         throw new Error(
           `Error get transactions for the period: ${startPeriod} - ${endPeriod}`
@@ -108,6 +117,94 @@ export const getTransactions = createAsyncThunk(
     }
   }
 );
+
+const addTransactionReducer = (
+  state: any,
+  action: PayloadAction<TransactionResponse[]>
+) => {
+  const transactions = action.payload;
+  if (!transactions) {
+    return;
+  }
+  transactions.forEach((transaction: TransactionResponse) => {
+    const { category, amount, date } = transaction;
+    console.log(`Transaction Detail: ${date}, ${category}, ${amount}`);
+
+    const budgetStartPeriod: string =
+      state.overallCashFlowForPeriod.startPeriod;
+    const budgetEndPeriod: string = state.overallCashFlowForPeriod.endPeriod;
+
+    if (!budgetStartPeriod || !budgetEndPeriod) {
+      return;
+    }
+
+    const transactionDate = new Date(date);
+    if (
+      isTransactionDateWithin(
+        transactionDate,
+        new Date(budgetStartPeriod),
+        new Date(budgetEndPeriod)
+      )
+    ) {
+      const accountingMonth = toAccountingMonth(transactionDate);
+      initialiseCashFlowByPeriod(state, accountingMonth);
+
+      const cashFlowForPeriod = state.cashFlows[accountingMonth];
+      switch (category) {
+        case TransactionCategory.Income:
+          console.log('Updating income');
+
+          const updatedIncome = {
+            ...cashFlowForPeriod.income,
+            total: cashFlowForPeriod.income.total + amount,
+          };
+          state.cashFlows[accountingMonth].income = updatedIncome;
+          console.log(JSON.stringify(updatedIncome));
+
+          let totalIncome = 0;
+          for (const key in state.cashFlows) {
+            const cashFlowForMonth = state.cashFlows[key];
+            totalIncome += cashFlowForMonth.income.total;
+          }
+          state.overallCashFlowForPeriod.inflow = totalIncome;
+          break;
+        case TransactionCategory.Expense:
+          console.log('Updating expense');
+
+          const updatedExpense = {
+            ...cashFlowForPeriod.expense,
+            total: cashFlowForPeriod.expense.total + amount,
+          };
+          state.cashFlows[accountingMonth].expense = updatedExpense;
+          console.log(JSON.stringify(updatedExpense));
+
+          let totalExpense = 0;
+          for (const key in state.cashFlows) {
+            const cashFlowForMonth = state.cashFlows[key];
+            totalExpense += cashFlowForMonth.expense.total;
+          }
+          state.overallCashFlowForPeriod.outflow = totalExpense;
+          break;
+      }
+      state.overallCashFlowForPeriod.difference =
+        state.overallCashFlowForPeriod.inflow -
+        state.overallCashFlowForPeriod.outflow;
+    }
+  });
+};
+
+const initialState: CashFlowState = {
+  overallCashFlowForPeriod: {
+    startPeriod: '',
+    endPeriod: '',
+    inflow: 0,
+    outflow: 0,
+    difference: 0,
+    currency: 'SGD',
+  },
+  cashFlows: {},
+  status: 'idle',
+};
 
 const cashflowSlice = createSlice({
   name: 'cashflow',
@@ -124,70 +221,6 @@ const cashflowSlice = createSlice({
       state.overallCashFlowForPeriod.endPeriod = new Date(
         endPeriod
       ).toISOString();
-    },
-    addTransaction: (state, action: PayloadAction<TransactionRequest>) => {
-      const { date, category, amount } = action.payload;
-      console.log(`Transaction Detail: ${date}, ${category}, ${amount}`);
-      const budgetStartPeriod: string =
-        state.overallCashFlowForPeriod.startPeriod;
-      const budgetEndPeriod: string = state.overallCashFlowForPeriod.endPeriod;
-
-      if (!budgetStartPeriod || !budgetEndPeriod) {
-        return;
-      }
-
-      const transactionDate = new Date(date);
-      if (
-        isTransactionDateWithin(
-          transactionDate,
-          new Date(budgetStartPeriod),
-          new Date(budgetEndPeriod)
-        )
-      ) {
-        const accountingMonth = toAccountingMonth(transactionDate);
-        initialiseCashFlowByPeriod(state, accountingMonth);
-
-        const cashFlowForPeriod = state.cashFlows[accountingMonth];
-        switch (category) {
-          case TransactionCategory.Income:
-            console.log('Updating income');
-
-            const updatedIncome = {
-              ...cashFlowForPeriod.income,
-              total: cashFlowForPeriod.income.total + amount,
-            };
-            state.cashFlows[accountingMonth].income = updatedIncome;
-            console.log(JSON.stringify(updatedIncome));
-
-            let totalIncome = 0;
-            for (const key in state.cashFlows) {
-              const cashFlowForMonth = state.cashFlows[key];
-              totalIncome += cashFlowForMonth.income.total;
-            }
-            state.overallCashFlowForPeriod.inflow = totalIncome;
-            break;
-          case TransactionCategory.Expense:
-            console.log('Updating expense');
-
-            const updatedExpense = {
-              ...cashFlowForPeriod.expense,
-              total: cashFlowForPeriod.expense.total + amount,
-            };
-            state.cashFlows[accountingMonth].expense = updatedExpense;
-            console.log(JSON.stringify(updatedExpense));
-
-            let totalExpense = 0;
-            for (const key in state.cashFlows) {
-              const cashFlowForMonth = state.cashFlows[key];
-              totalExpense += cashFlowForMonth.expense.total;
-            }
-            state.overallCashFlowForPeriod.outflow = totalExpense;
-            break;
-        }
-        state.overallCashFlowForPeriod.difference =
-          state.overallCashFlowForPeriod.inflow -
-          state.overallCashFlowForPeriod.outflow;
-      }
     },
   },
   extraReducers: (builder) => {
@@ -251,11 +284,12 @@ const cashflowSlice = createSlice({
       .addCase(getTransactions.rejected, (state, action) => {
         state.status = 'error';
         state.error = action.error;
-      });
+      })
+      .addCase(addTransaction.fulfilled, addTransactionReducer);
   },
 });
 
-export const { setAccountingPeriod, addTransaction } = cashflowSlice.actions;
+export const { setAccountingPeriod } = cashflowSlice.actions;
 export const selectStatus = (state: any) => state.cashflow.status;
 export const selectHasError = (state: any) => !!state.cashflow.error;
 export const selectError = (state: any) => state.cashflow.error;

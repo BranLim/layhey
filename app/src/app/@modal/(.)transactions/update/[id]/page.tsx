@@ -8,7 +8,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/modal';
-import { closeModal, selectIsOpenModal } from '@/states/common/modal-slice';
+import { closeModal, selectIsOpenModal } from '@/states/common/modal.slice';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
 import UpdateTransaction from '@/app/transactions/update/[id]/page';

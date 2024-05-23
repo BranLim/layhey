@@ -26,7 +26,7 @@ import {
 import { NumericFormat } from 'react-number-format';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { closeModal } from '@/states/common/modal-slice';
+import { closeModal } from '@/states/common/modal.slice';
 
 interface Props {
   params: {

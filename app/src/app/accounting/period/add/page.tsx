@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { useAppDispatch } from '@/states/hooks';
-import { closeModal } from '@/states/common/modal-slice';
+import { closeModal } from '@/states/common/modal.slice';
 
 type FormData = {
   name: string;

@@ -9,7 +9,7 @@ import {
   ModalOverlay,
 } from '@chakra-ui/modal';
 import { Divider, Text } from '@chakra-ui/react';
-import { closeModal, selectIsOpenModal } from '@/states/common/modal-slice';
+import { closeModal, selectIsOpenModal } from '@/states/common/modal.slice';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';

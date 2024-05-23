@@ -13,7 +13,7 @@ import {
   selectStatus,
 } from '@/states/features/cashflow/cashflow.slice';
 import { CashFlowNode } from '@/components/cashflow/CashFlowNode';
-import { selectIsOpenModal } from '@/states/common/modal-slice';
+import { selectIsOpenModal } from '@/states/common/modal.slice';
 import 'reactflow/dist/style.css';
 import {
   FlowPayload,
@@ -24,7 +24,7 @@ import {
   selectFlowEdges,
   selectFlowNodes,
   setCashFlows,
-} from '@/states/features/cashflow/flow-slice';
+} from '@/states/features/cashflow/flow.slice';
 import { Box } from '@chakra-ui/react';
 import { Loading } from '@/components/common/Loading';
 

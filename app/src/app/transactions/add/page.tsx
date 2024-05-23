@@ -33,7 +33,7 @@ import {
   transactionTypeFromValue,
 } from '@/types/Transaction';
 import { NumericFormat } from 'react-number-format';
-import { closeModal } from '@/states/common/modal-slice';
+import { closeModal } from '@/states/common/modal.slice';
 import { addTransaction } from '@/states/features/cashflow/cashflow.slice';
 import { useAppDispatch } from '@/states/hooks';
 import { getCurrentDate, toFormattedDate } from '@/utils/date-utils';
@@ -93,7 +93,7 @@ const AddTransaction = () => {
   };
 
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
-    console.log(`Form Data: ${JSON.stringify(data)}`);
+    console.log(`Submitting Transaction: ${JSON.stringify(data)}`);
     const newTransaction: AddTransactionRequest = {
       transaction: {
         id: '',
@@ -107,21 +107,8 @@ const AddTransaction = () => {
       hasAdvancedSetting: data.hasAdvancedSetting,
       advancedSetting: data.advancedSetting,
     };
-    const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`;
-    const response = await fetch(apiPath, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newTransaction),
-    });
-    if (response.ok) {
-      console.log('Transaction added. Updating state');
-      const transactions = (await response.json()) as TransactionResponse[];
-      for (const transaction of transactions) {
-        dispatch(addTransaction(transaction));
-      }
-
-      dispatch(closeModal());
-    }
+    dispatch(addTransaction(newTransaction));
+    handleCloseModal();
   };
 
   return (

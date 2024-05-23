@@ -12,7 +12,7 @@ import * as React from 'react';
 import { useRef, useState } from 'react';
 import { AddIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import NextLink from 'next/link';
-import { openModal } from '@/states/common/modal-slice';
+import { openModal } from '@/states/common/modal.slice';
 import { useAppDispatch } from '@/states/hooks';
 import AddAccountingPeriodIcon from '@/components/icons/AddAccountingPeriodIcon';
 

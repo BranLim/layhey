@@ -5,7 +5,7 @@ import { Box, Flex, SimpleGrid, Spacer, Text, VStack } from '@chakra-ui/react';
 import { CashFlowNodeData } from '@/types/CashFlow';
 import { toFormattedDate } from '@/utils/date-utils';
 import { useAppSelector } from '@/states/hooks';
-import { selectNodeStyle } from '@/states/features/cashflow/flow-slice';
+import { selectNodeStyle } from '@/states/features/cashflow/flow.slice';
 
 export const CashFlowNode = (props: NodeProps<CashFlowNodeData>) => {
   const nodeStyle = useAppSelector((state) => selectNodeStyle(state, props.id));

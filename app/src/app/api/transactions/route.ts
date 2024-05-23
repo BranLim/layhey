@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import {
   AddTransactionRequest,
+  Transaction,
   TransactionResponse,
 } from '@/types/Transaction';
 import { addTransaction, getTransactions } from '@/lib/actions/transaction';
@@ -31,9 +32,12 @@ export const POST = async (request: NextRequest): Promise<Response> => {
   try {
     const transactionRequest: AddTransactionRequest = await request.json();
     const addedTransactions = await addTransaction(transactionRequest);
-    const transactionDtos: TransactionResponse[] = addedTransactions.map(
-      (transaction) => toTransactionResponse(transaction)
-    );
+    const transactionDtos: TransactionResponse[] = addedTransactions
+      .sort(
+        (transaction1: Transaction, transaction2: Transaction) =>
+          transaction2.date.getTime() - transaction1.date.getTime()
+      )
+      .map((transaction) => toTransactionResponse(transaction));
     return Response.json(transactionDtos, {
       status: 201,
       statusText: 'Transaction created',
