@@ -21,16 +21,18 @@ const getAddDateDuration = (interval: Interval) => {
   return duration;
 };
 
-const generateDateIntervals = (
+const generateSubsequentDates = (
   transactionDate: Date,
   frequency: number,
-  interval: Interval
+  interval: Interval,
+  inclusive: boolean
 ): Date[] => {
   const nextDates: Date[] = [];
   const duration = getAddDateDuration(interval);
 
   let nextDate: Date = new Date(transactionDate.getTime());
-  for (let i = 1; i < frequency; i++) {
+  let i = inclusive ? 1 : 0;
+  for (; i < frequency; i++) {
     nextDate = add(nextDate, duration);
     nextDates.push(nextDate);
   }
@@ -51,10 +53,11 @@ const splitTransaction = (
   if (!interval) {
     throw new Error('Option props cannot be undefined');
   }
-  const dates = generateDateIntervals(
+  const dates = generateSubsequentDates(
     new Date(transaction.date),
     frequency,
-    interval
+    interval,
+    true
   );
 
   const averageTransactionAmount = transaction.amount / (dates.length + 1.0);
@@ -81,7 +84,30 @@ const repeatTransaction = (transaction: TransactionRequest, option: Option) => {
   }
   const transactions: Transaction[] = [];
 
+  const { frequency, interval } = option;
+  if (!interval) {
+    throw new Error('Option props cannot be undefined');
+  }
+  const dates = generateSubsequentDates(
+    new Date(transaction.date),
+    frequency,
+    interval,
+    false
+  );
+
+  transactions.push({
+    ...transaction,
+    date: new Date(transaction.date),
+  } as Transaction);
+
+  for (const date of dates) {
+    transactions.push({
+      ...transaction,
+      date: date,
+    } as Transaction);
+  }
+
   return transactions;
 };
 
-export { splitTransaction };
+export { splitTransaction, repeatTransaction };

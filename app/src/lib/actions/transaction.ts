@@ -12,7 +12,10 @@ import {
   findOneById,
   update,
 } from '@/lib/repositories/transaction.repository';
-import { splitTransaction } from '@/lib/helpers/transaction.helper';
+import {
+  repeatTransaction,
+  splitTransaction,
+} from '@/lib/helpers/transaction.helper';
 
 const addTransaction = async (
   addTransactionRequest: AddTransactionRequest
@@ -23,17 +26,20 @@ const addTransaction = async (
     const { transaction, hasAdvancedSetting, advancedSetting } =
       addTransactionRequest;
 
-    if (hasAdvancedSetting) {
-      const option = advancedSetting?.option;
-      if (option && option.type == 'split') {
-        const splitTransactions: Transaction[] = splitTransaction(
-          transaction,
-          option
-        );
-        const addedTransactions: Transaction[] =
-          await addAll(splitTransactions);
-        transactionsAdded.push(...addedTransactions);
+    const option = advancedSetting?.option;
+    if (hasAdvancedSetting && option) {
+      let transactionsToInsert: Transaction[];
+      switch (option.type) {
+        case 'split':
+          transactionsToInsert = splitTransaction(transaction, option);
+          break;
+        case 'repeat':
+          transactionsToInsert = repeatTransaction(transaction, option);
+          break;
       }
+      const addedTransactions: Transaction[] =
+        await addAll(transactionsToInsert);
+      transactionsAdded.push(...addedTransactions);
     } else {
       const transactionToAdd: Transaction = {
         ...transaction,

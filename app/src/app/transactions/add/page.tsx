@@ -249,7 +249,9 @@ const AddTransaction = () => {
                       such as receiving salaries, dividends, or paying taxes.
                     </Text>
                     <FormControl as='fieldset'>
-                      <FormLabel as='legend'>Repeat for</FormLabel>
+                      <FormLabel as='legend'>
+                        Create one transaction for next
+                      </FormLabel>
                       <Controller
                         name='advancedSetting.option.frequency'
                         control={control}
