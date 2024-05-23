@@ -75,4 +75,13 @@ const splitTransaction = (
   return transactions;
 };
 
+const repeatTransaction = (transaction: TransactionRequest, option: Option) => {
+  if (!option || option.type !== 'repeat') {
+    throw new Error('Invalid option parameter');
+  }
+  const transactions: Transaction[] = [];
+
+  return transactions;
+};
+
 export { splitTransaction };

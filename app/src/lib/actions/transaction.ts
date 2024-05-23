@@ -12,7 +12,7 @@ import {
   findOneById,
   update,
 } from '@/lib/repositories/transaction-repository';
-import { splitTransaction } from '@/lib/helpers/transaction-helpers';
+import { splitTransaction } from '@/lib/helpers/transaction.helper';
 
 const addTransaction = async (
   addTransactionRequest: AddTransactionRequest

@@ -42,6 +42,9 @@ import {
   RepeatSetting,
   SplitSetting,
 } from '@/types/AdvancedSetting';
+import { ScheduleRadioGroup } from '@/components/common/ScheduleRadioGroup';
+
+const defaultInterval = 'monthly';
 
 type FormData = {
   category: string;
@@ -66,7 +69,7 @@ const defaultFormValues: FormData = {
     option: {
       type: 'split',
       frequency: 0,
-      interval: 'daily',
+      interval: defaultInterval,
     },
   },
 };
@@ -194,16 +197,10 @@ const AddTransaction = () => {
               onChange={(index) => {
                 switch (index) {
                   case 0:
-                    setValue('advancedSetting.option', {
-                      type: 'split',
-                      frequency: 0,
-                    } as SplitSetting);
+                    setValue('advancedSetting.option.type', 'split');
                     break;
                   case 1:
-                    setValue('advancedSetting.option', {
-                      type: 'repeat',
-                      frequency: 0,
-                    } as RepeatSetting);
+                    setValue('advancedSetting.option.type', 'repeat');
                     break;
                 }
               }}
@@ -215,45 +212,59 @@ const AddTransaction = () => {
               <TabPanels border='2px solid #E2E8F0'>
                 <TabPanel>
                   <Stack>
-                    <Text as={'p'} fontSize={'sm'} pb={2}>
+                    <Text as={'p'} fontSize={'sm'}>
                       Split the above transaction into multiple transactions
-                      equally. This is useful for transactions such as
-                      traditional instalment plans offered by banks or buy-now,
-                      pay-later (BNPL).
+                      equally.
+                    </Text>
+                    <Text as={'p'} fontSize={'sm'} pb={2}>
+                      This is useful for transactions such as traditional
+                      instalment plans offered by banks or buy-now, pay-later
+                      (BNPL).
                     </Text>
 
                     <FormControl as='fieldset'>
                       <FormLabel as='legend'>Split Across</FormLabel>
-                      <InputGroup>
-                        <Input
-                          id='splitFrequency'
-                          {...register('advancedSetting.option.frequency')}
-                        />
-                        <InputRightElement width='4xs'>
-                          <Select
-                            id='splitInterval'
-                            roundedLeft={0}
-                            {...register('advancedSetting.option.interval')}
-                          >
-                            <option key='day' value='daily'>
-                              Day
-                            </option>
-                            <option key='week' value='weekly'>
-                              Week
-                            </option>
-                            <option key='month' value='monthly'>
-                              Month
-                            </option>
-                            <option key='year' value='yearly'>
-                              Year
-                            </option>
-                          </Select>
-                        </InputRightElement>
-                      </InputGroup>
+                      <Controller
+                        name='advancedSetting.option.frequency'
+                        control={control}
+                        render={({ field }) => (
+                          <Input {...field} id='splitFrequency' pb={2} />
+                        )}
+                      />
+                      <ScheduleRadioGroup
+                        register={register}
+                        registerPropPath={'advancedSetting.option.interval'}
+                        defaultValue={defaultInterval}
+                      />
                     </FormControl>
                   </Stack>
                 </TabPanel>
-                <TabPanel></TabPanel>
+                <TabPanel>
+                  <Stack>
+                    <Text as={'p'} fontSize={'sm'}>
+                      Create multiple copies of the above transaction.
+                    </Text>
+                    <Text as={'p'} fontSize={'sm'} pb={2}>
+                      This is useful for transactions that repeat multiple times
+                      such as receiving salaries, dividends, or paying taxes.
+                    </Text>
+                    <FormControl as='fieldset'>
+                      <FormLabel as='legend'>Repeat for</FormLabel>
+                      <Controller
+                        name='advancedSetting.option.frequency'
+                        control={control}
+                        render={({ field }) => (
+                          <Input {...field} id='repeatFrequency' pb={2} />
+                        )}
+                      />
+                      <ScheduleRadioGroup
+                        register={register}
+                        registerPropPath={'advancedSetting.option.interval'}
+                        defaultValue={defaultInterval}
+                      />
+                    </FormControl>
+                  </Stack>
+                </TabPanel>
               </TabPanels>
             </Tabs>
           )}
