@@ -1,16 +1,39 @@
-import { Transaction } from '@/types/Transaction';
+import { Transaction, TransactionCategory } from '@/types/Transaction';
 import mongoose, { Model, models, Schema } from 'mongoose';
 
-export type TransactionDocument = Transaction & mongoose.Document;
+export type TransactionCategoryDocument = Omit<TransactionCategory, 'id'> &
+  mongoose.Document;
+export type TransactionCategoryDocumentModel =
+  Model<TransactionCategoryDocument>;
 
-export type TransactionModel = Model<TransactionDocument>;
+const transactionCategorySchema = new Schema<TransactionCategoryDocument>({
+  name: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: false,
+  },
+});
+
+const TransactionCategoryModel: TransactionCategoryDocumentModel =
+  models.TransactionCategory ||
+  mongoose.model<TransactionCategoryDocument, TransactionCategoryDocumentModel>(
+    'TransactionCategory',
+    transactionCategorySchema,
+    'transactionCategories'
+  );
+
+export type TransactionDocument = Omit<Transaction, 'id'> & mongoose.Document;
+export type TransactionDocumentModel = Model<TransactionDocument>;
 
 const transactionSchema = new Schema<TransactionDocument>({
   mode: {
     type: String,
     required: true,
   },
-  transactionType: String,
+  transactionCategory: String,
   transactionSource: String,
   amount: {
     type: Number,
@@ -55,12 +78,12 @@ transactionSchema.pre('updateMany', function (next) {
   next();
 });
 
-const TransactionModel: TransactionModel =
+const TransactionModel: TransactionDocumentModel =
   models.Transaction ||
-  mongoose.model<TransactionDocument, TransactionModel>(
+  mongoose.model<TransactionDocument, TransactionDocumentModel>(
     'Transaction',
     transactionSchema,
     'transactions'
   );
 
-export { TransactionModel };
+export { TransactionModel, TransactionCategoryModel };

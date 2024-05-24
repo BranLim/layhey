@@ -15,12 +15,18 @@ export enum TransactionSource {
   Salary = 'Salary',
 }
 
-export type TransactionCategory = string;
+export type TransactionCategoryName = string;
+
+export type TransactionCategory = {
+  id: string;
+  name: TransactionCategoryName;
+  description: string;
+};
 
 export type Transaction = {
   id: string;
   transactionSource: TransactionSource;
-  transactionType: TransactionCategory;
+  transactionCategory: TransactionCategoryName;
   mode: TransactionMode;
   amount: number;
   currency: string;

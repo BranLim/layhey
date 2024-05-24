@@ -15,9 +15,11 @@ const add = async (transaction: Transaction): Promise<Transaction> => {
     currency: transaction.currency,
     mode: transaction.mode,
     transactionSource: transaction.transactionSource,
-    transactionType: transaction.transactionType,
+    transactionCategory: transaction.transactionCategory,
   } as TransactionDocument);
+
   const addedTransaction: TransactionDocument = await newTransaction.save();
+
   return toTransaction(addedTransaction);
 };
 
@@ -32,16 +34,18 @@ const addAll = async (transactions: Transaction[]): Promise<Transaction[]> => {
       currency: transaction.currency,
       mode: transaction.mode,
       transactionSource: transaction.transactionSource,
-      transactionType: transaction.transactionType,
+      transactionCategory: transaction.transactionCategory,
     } as TransactionDocument);
     transactionDocuments.push(newTransaction);
   });
 
   const addedTransactions =
     await TransactionModel.insertMany(transactionDocuments);
+
   if (!addedTransactions) {
     return [] as Transaction[];
   }
+
   return addedTransactions.map((newTransaction: TransactionDocument) =>
     toTransaction(newTransaction)
   );
@@ -59,12 +63,16 @@ const update = async (
       currency: transaction.currency,
       mode: transaction.mode,
       transactionSource: transaction.transactionSource,
-      transactionType: transaction.transactionType,
-      budget: undefined,
+      transactionCategory: transaction.transactionCategory,
     },
     { new: true }
   );
-  return updatedTransaction;
+
+  if (!updatedTransaction) {
+    throw new Error(`Error updating Transaction with Id ${id}.`);
+  }
+
+  return toTransaction(updatedTransaction);
 };
 
 const findAllMatching = async (
@@ -99,10 +107,12 @@ const findAllMatching = async (
 
 const findOneById = async (id: string): Promise<Transaction | null> => {
   await connectMongo();
+
   const foundTransaction = await TransactionModel.findById(id);
   if (!foundTransaction) {
     return null;
   }
+
   return {
     id: foundTransaction._id,
     mode: foundTransaction.mode,

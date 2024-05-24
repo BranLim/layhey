@@ -9,5 +9,6 @@ db.createUser({
   roles: [{ role: 'readWrite', db: 'layhey' }],
 });
 
+db.createCollection('transactionCategories');
 db.createCollection('transactions');
 db.createCollection('accountingPeriods');

@@ -11,7 +11,7 @@ const toTransaction = (
     currency: transactionDocument.currency,
     mode: transactionDocument.mode,
     transactionSource: transactionDocument.transactionSource,
-    transactionType: transactionDocument.transactionType,
+    transactionCategory: transactionDocument.transactionCategory,
     createdOn: transactionDocument.createdOn,
     lastModifiedOn: transactionDocument.lastModifiedOn,
   } as Transaction;
@@ -27,7 +27,7 @@ const toTransactionResponse = (
     currency: transaction.currency,
     mode: transaction.mode,
     transactionSource: transaction.transactionSource,
-    transactionType: transaction.transactionType,
+    transactionCategory: transaction.transactionCategory,
     createdOn: transaction.createdOn?.toISOString(),
     lastModifiedOn: transaction.lastModifiedOn?.toISOString() ?? '',
   } as TransactionResponse;
