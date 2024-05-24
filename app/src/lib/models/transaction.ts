@@ -6,7 +6,7 @@ export type TransactionDocument = Transaction & mongoose.Document;
 export type TransactionModel = Model<TransactionDocument>;
 
 const transactionSchema = new Schema<TransactionDocument>({
-  category: {
+  mode: {
     type: String,
     required: true,
   },

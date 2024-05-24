@@ -17,11 +17,11 @@ import {
 } from '@chakra-ui/react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import {
-  categoryFromValue,
-  TransactionCategory,
+  modeFromValue,
+  TransactionMode,
   TransactionDto,
   TransactionSource,
-  transactionTypeFromValue,
+  transactionSourceFromValue,
 } from '@/types/Transaction';
 import { NumericFormat } from 'react-number-format';
 import { useEffect } from 'react';
@@ -68,7 +68,7 @@ const UpdateTransaction = ({ params }: Props) => {
   useEffect(() => {
     (async () => {
       const transaction = await getTransaction(params.id);
-      setValue('category', transaction.category);
+      setValue('category', transaction.mode);
       setValue('amount', transaction.amount);
       setValue('date', transaction.date);
       setValue('currency', transaction.currency);
@@ -83,8 +83,8 @@ const UpdateTransaction = ({ params }: Props) => {
   const onSubmit: SubmitHandler<Input> = async (data: Input) => {
     const newTransaction: TransactionDto = {
       ...getValues(),
-      category: categoryFromValue(data.category),
-      transactionSource: transactionTypeFromValue(data.source),
+      mode: modeFromValue(data.category),
+      transactionSource: transactionSourceFromValue(data.source),
       transactionType: '',
       amount: data.amount,
       date: data.date,
@@ -146,7 +146,7 @@ const UpdateTransaction = ({ params }: Props) => {
               placeholder='Transaction Category'
               {...register('category', { required: true })}
             >
-              {Object.values(TransactionCategory).map((category) => (
+              {Object.values(TransactionMode).map((category) => (
                 <option key={category} value={category}>
                   {category}
                 </option>

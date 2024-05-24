@@ -1,6 +1,6 @@
 import { AdvancedSetting } from '@/types/AdvancedSetting';
 
-export enum TransactionCategory {
+export enum TransactionMode {
   Income = 'Income',
   Expense = 'Expense',
 }
@@ -15,11 +15,15 @@ export enum TransactionSource {
   Salary = 'Salary',
 }
 
+export type TransactionType = {
+  name: string;
+};
+
 export type Transaction = {
   id: string;
   transactionSource: TransactionSource;
   transactionType: string;
-  category: TransactionCategory;
+  mode: TransactionMode;
   amount: number;
   currency: string;
   date: Date;
@@ -46,19 +50,17 @@ export type AddTransactionRequest = {
   advancedSetting?: AdvancedSetting;
 };
 
-export const categoryFromValue = (
-  value: string
-): TransactionCategory | never => {
-  const transactionCategory = (
-    Object.keys(TransactionCategory) as (keyof typeof TransactionCategory)[]
-  ).find((key) => TransactionCategory[key] === value) as TransactionCategory;
-  if (!transactionCategory) {
-    throw new Error('unknown transaction category');
+export const modeFromValue = (value: string): TransactionMode | never => {
+  const mode = (
+    Object.keys(TransactionMode) as (keyof typeof TransactionMode)[]
+  ).find((key) => TransactionMode[key] === value) as TransactionMode;
+  if (!mode) {
+    throw new Error('unknown transaction mode');
   }
-  return transactionCategory;
+  return mode;
 };
 
-export const transactionTypeFromValue = (
+export const transactionSourceFromValue = (
   value: string
 ): TransactionSource | never => {
   const transactionSources = Object.values(TransactionSource);
@@ -66,5 +68,5 @@ export const transactionTypeFromValue = (
   if (transactionSources.includes(value as TransactionSource)) {
     return value as TransactionSource;
   }
-  throw new Error(`Invalid transaction type: ${value}`);
+  throw new Error(`Invalid transaction source: ${value}`);
 };

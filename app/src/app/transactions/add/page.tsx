@@ -27,11 +27,11 @@ import {
 import { Controller, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import {
   AddTransactionRequest,
-  categoryFromValue,
-  TransactionCategory,
+  modeFromValue,
+  TransactionMode,
   TransactionResponse,
   TransactionSource,
-  transactionTypeFromValue,
+  transactionSourceFromValue,
 } from '@/types/Transaction';
 import { NumericFormat } from 'react-number-format';
 import { closeModal } from '@/states/common/modal.slice';
@@ -48,7 +48,7 @@ import { ScheduleRadioGroup } from '@/components/common/ScheduleRadioGroup';
 const defaultInterval = 'monthly';
 
 type FormData = {
-  category: string;
+  mode: string;
   date: Date;
   source: string;
   type?: string;
@@ -59,7 +59,7 @@ type FormData = {
 };
 
 const defaultFormValues: FormData = {
-  category: TransactionCategory.Income,
+  mode: TransactionMode.Income,
   date: getCurrentDate(),
   source: '',
   type: '',
@@ -101,8 +101,8 @@ const AddTransaction = () => {
     const newTransaction: AddTransactionRequest = {
       transaction: {
         id: '',
-        category: categoryFromValue(data.category),
-        transactionSource: transactionTypeFromValue(data.source),
+        mode: modeFromValue(data.mode),
+        transactionSource: transactionSourceFromValue(data.source),
         transactionType: '',
         amount: data.amount,
         date: data.date.toISOString(),
@@ -122,10 +122,10 @@ const AddTransaction = () => {
           <FormControl>
             <RadioGroup defaultValue='Income'>
               <HStack>
-                <Radio value='Income' {...register('category')}>
+                <Radio value='Income' {...register('mode')}>
                   Income
                 </Radio>
-                <Radio value='Expense' {...register('category')}>
+                <Radio value='Expense' {...register('mode')}>
                   Expense
                 </Radio>
               </HStack>

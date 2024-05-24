@@ -19,7 +19,7 @@ export const GET = async (request: NextRequest): Promise<Response> => {
       id: transaction.id,
       date: transaction.date.toISOString(),
       amount: transaction.amount,
-      category: transaction.category,
+      mode: transaction.mode,
       transactionSource: transaction.transactionSource,
       transactionType: transaction.transactionType,
       currency: transaction.currency,

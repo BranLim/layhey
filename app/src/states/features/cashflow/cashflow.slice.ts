@@ -6,7 +6,7 @@ import {
 } from '@reduxjs/toolkit';
 import {
   AddTransactionRequest,
-  TransactionCategory,
+  TransactionMode,
   TransactionRequest,
   TransactionResponse,
 } from '@/types/Transaction';
@@ -127,8 +127,8 @@ const addTransactionReducer = (
     return;
   }
   transactions.forEach((transaction: TransactionResponse) => {
-    const { category, amount, date } = transaction;
-    console.log(`Transaction Detail: ${date}, ${category}, ${amount}`);
+    const { mode, amount, date } = transaction;
+    console.log(`Transaction Detail: ${date}, ${mode}, ${amount}`);
 
     const budgetStartPeriod: string =
       state.overallCashFlowForPeriod.startPeriod;
@@ -150,8 +150,8 @@ const addTransactionReducer = (
       initialiseCashFlowByPeriod(state, accountingMonth);
 
       const cashFlowForPeriod = state.cashFlows[accountingMonth];
-      switch (category) {
-        case TransactionCategory.Income:
+      switch (mode) {
+        case TransactionMode.Income:
           console.log('Updating income');
 
           const updatedIncome = {
@@ -168,7 +168,7 @@ const addTransactionReducer = (
           }
           state.overallCashFlowForPeriod.inflow = totalIncome;
           break;
-        case TransactionCategory.Expense:
+        case TransactionMode.Expense:
           console.log('Updating expense');
 
           const updatedExpense = {
@@ -249,8 +249,8 @@ const cashflowSlice = createSlice({
 
               const cashFlowForPeriod = state.cashFlows[accountingPeriod];
 
-              switch (transaction.category) {
-                case TransactionCategory.Income:
+              switch (transaction.mode) {
+                case TransactionMode.Income:
                   const updatedIncome = {
                     ...cashFlowForPeriod.income,
                     total: cashFlowForPeriod.income.total + transaction.amount,
@@ -259,7 +259,7 @@ const cashflowSlice = createSlice({
 
                   totalIncome += transaction.amount;
                   break;
-                case TransactionCategory.Expense:
+                case TransactionMode.Expense:
                   const updatedExpense = {
                     ...cashFlowForPeriod.expense,
                     total: cashFlowForPeriod.expense.total + transaction.amount,

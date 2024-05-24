@@ -13,11 +13,10 @@ const add = async (transaction: Transaction): Promise<Transaction> => {
     date: transaction.date,
     amount: transaction.amount,
     currency: transaction.currency,
-    category: transaction.category,
+    mode: transaction.mode,
     transactionSource: transaction.transactionSource,
     transactionType: transaction.transactionType,
-    budget: undefined,
-  });
+  } as TransactionDocument);
   const addedTransaction: TransactionDocument = await newTransaction.save();
   return toTransaction(addedTransaction);
 };
@@ -31,10 +30,10 @@ const addAll = async (transactions: Transaction[]): Promise<Transaction[]> => {
       date: transaction.date,
       amount: transaction.amount,
       currency: transaction.currency,
-      category: transaction.category,
+      mode: transaction.mode,
       transactionSource: transaction.transactionSource,
       transactionType: transaction.transactionType,
-    });
+    } as TransactionDocument);
     transactionDocuments.push(newTransaction);
   });
 
@@ -58,7 +57,7 @@ const update = async (
       date: transaction.date,
       amount: transaction.amount,
       currency: transaction.currency,
-      category: transaction.category,
+      mode: transaction.mode,
       transactionSource: transaction.transactionSource,
       transactionType: transaction.transactionType,
       budget: undefined,
@@ -89,7 +88,7 @@ const findAllMatching = async (
     (transaction: TransactionDocument) =>
       ({
         id: transaction._id,
-        category: transaction.category,
+        mode: transaction.mode,
         transactionSource: transaction.transactionSource,
         amount: transaction.amount,
         currency: transaction.currency,
@@ -106,7 +105,7 @@ const findOneById = async (id: string): Promise<Transaction | null> => {
   }
   return {
     id: foundTransaction._id,
-    category: foundTransaction.category,
+    mode: foundTransaction.mode,
     transactionSource: foundTransaction.transactionSource,
     amount: foundTransaction.amount,
     currency: foundTransaction.currency,

@@ -120,7 +120,7 @@ export const CashFlowViewControl = () => {
         >
           <VStack alignItems='left' p='0'>
             <Heading pl='2' pt='2' size='xs' justifyContent='left'>
-              Cash Flow View Settings
+              Cash Flow View
             </Heading>
             <HStack p='2'>
               <FormControl width='2xs' isInvalid={!!errors.startPeriod}>
