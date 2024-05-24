@@ -32,6 +32,11 @@ const transactionSchema = new Schema<TransactionDocument>({
   },
 });
 
+transactionSchema.pre<TransactionDocument>('insertMany', function (next) {
+  this.set({ lastModifiedOn: new Date(Date.now()) });
+  next();
+});
+
 transactionSchema.pre<TransactionDocument>('save', function (next) {
   if (this.isNew) {
     this.createdOn = new Date(Date.now());

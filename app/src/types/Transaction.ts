@@ -15,14 +15,12 @@ export enum TransactionSource {
   Salary = 'Salary',
 }
 
-export type TransactionType = {
-  name: string;
-};
+export type TransactionCategory = string;
 
 export type Transaction = {
   id: string;
   transactionSource: TransactionSource;
-  transactionType: string;
+  transactionType: TransactionCategory;
   mode: TransactionMode;
   amount: number;
   currency: string;
@@ -31,7 +29,7 @@ export type Transaction = {
   lastModifiedOn?: Date;
 };
 
-export type TransactionDto = Omit<Transaction, 'budgetId'>;
+export type TransactionDto = Transaction;
 
 export type TransactionRequest = Omit<
   TransactionDto,
