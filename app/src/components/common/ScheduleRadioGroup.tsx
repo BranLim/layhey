@@ -5,16 +5,18 @@ type Props = {
   register: UseFormRegister<any>;
   registerPropPath: string;
   defaultValue: string;
+  enableDayOption: boolean;
 };
 
 export const ScheduleRadioGroup = ({
   register,
   registerPropPath,
   defaultValue,
+  enableDayOption,
 }: Props) => {
   return (
-    <RadioGroup defaultValue={`${defaultValue}`}>
-      <HStack>
+    <RadioGroup name='scheduleRadio' defaultValue={`${defaultValue}`}>
+      <HStack pt={2} pb={2}>
         <Radio value='yearly' {...register(`${registerPropPath}`)}>
           Year
         </Radio>
@@ -24,9 +26,11 @@ export const ScheduleRadioGroup = ({
         <Radio value='weekly' {...register(`${registerPropPath}`)}>
           Week
         </Radio>
-        <Radio value='daily' {...register(`${registerPropPath}`)}>
-          Day
-        </Radio>
+        {enableDayOption && (
+          <Radio value='daily' {...register(`${registerPropPath}`)}>
+            Day
+          </Radio>
+        )}
       </HStack>
     </RadioGroup>
   );

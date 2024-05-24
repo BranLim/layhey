@@ -3,6 +3,7 @@
 import {
   Box,
   Button,
+  Divider,
   Flex,
   FormControl,
   FormLabel,
@@ -187,7 +188,7 @@ const AddTransaction = () => {
               ))}
             </Select>
           </FormControl>
-          <FormControl as={HStack} mt={2} verticalAlign='middle'>
+          <FormControl as={HStack} mt={4} verticalAlign='middle'>
             <FormLabel htmlFor='additionalRules'>Advanced Settings</FormLabel>
             <Switch id='additionalRules' {...register('hasAdvancedSetting')} />
           </FormControl>
@@ -207,14 +208,15 @@ const AddTransaction = () => {
             >
               <TabList>
                 <Tab>Split</Tab>
-                <Tab>Repeat</Tab>
+                <Tab>Duplicate</Tab>
               </TabList>
               <TabPanels border='2px solid #E2E8F0'>
                 <TabPanel>
                   <Stack>
                     <Text as={'p'} fontSize={'sm'}>
-                      Split the above transaction into multiple transactions
-                      equally.
+                      Split the amount of the above transaction equally across
+                      multiple transactions. Then, each created transaction will
+                      have different transaction date.
                     </Text>
                     <Text as={'p'} fontSize={'sm'} pb={2}>
                       This is useful for transactions such as traditional
@@ -235,6 +237,7 @@ const AddTransaction = () => {
                         register={register}
                         registerPropPath={'advancedSetting.option.interval'}
                         defaultValue={defaultInterval}
+                        enableDayOption={false}
                       />
                     </FormControl>
                   </Stack>
@@ -242,29 +245,33 @@ const AddTransaction = () => {
                 <TabPanel>
                   <Stack>
                     <Text as={'p'} fontSize={'sm'}>
-                      Create multiple copies of the above transaction.
+                      Create multiple copies of the above transaction. Each copy
+                      of the transaction will have different date.
                     </Text>
-                    <Text as={'p'} fontSize={'sm'} pb={2}>
+                    <Text as={'p'} fontSize={'sm'}>
                       This is useful for transactions that repeat multiple times
                       such as receiving salaries, dividends, or paying taxes.
                     </Text>
-                    <FormControl as='fieldset'>
-                      <FormLabel as='legend'>
-                        Create one transaction for next
-                      </FormLabel>
-                      <Controller
-                        name='advancedSetting.option.frequency'
-                        control={control}
-                        render={({ field }) => (
-                          <Input {...field} id='repeatFrequency' pb={2} />
-                        )}
-                      />
-                      <ScheduleRadioGroup
-                        register={register}
-                        registerPropPath={'advancedSetting.option.interval'}
-                        defaultValue={defaultInterval}
-                      />
-                    </FormControl>
+                    <Stack pt={2}>
+                      <FormControl as='fieldset' ml={2} pr={4}>
+                        <FormLabel as='legend'>
+                          Create one transaction for next
+                        </FormLabel>
+                        <Controller
+                          name='advancedSetting.option.frequency'
+                          control={control}
+                          render={({ field }) => (
+                            <Input {...field} id='repeatFrequency' pb={2} />
+                          )}
+                        />
+                        <ScheduleRadioGroup
+                          register={register}
+                          registerPropPath={'advancedSetting.option.interval'}
+                          defaultValue={defaultInterval}
+                          enableDayOption={false}
+                        />
+                      </FormControl>
+                    </Stack>
                   </Stack>
                 </TabPanel>
               </TabPanels>
