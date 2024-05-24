@@ -37,7 +37,7 @@ import { NumericFormat } from 'react-number-format';
 import { closeModal } from '@/states/common/modal.slice';
 import { addTransaction } from '@/states/features/cashflow/cashflow.slice';
 import { useAppDispatch } from '@/states/hooks';
-import { getCurrentDate, toFormattedDate } from '@/utils/date-utils';
+import { getCurrentDate, toFormattedDate } from '@/utils/date.utils';
 import {
   AdvancedSetting,
   RepeatSetting,

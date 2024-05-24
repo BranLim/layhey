@@ -27,7 +27,7 @@ import {
   calculateNumberOfDays,
   getCurrentYear,
   toFormattedDate,
-} from '@/utils/date-utils';
+} from '@/utils/date.utils';
 import { useEffect } from 'react';
 import { useReactFlow } from 'reactflow';
 import { defaultViewPort } from '@/components/cashflow/CashFlowView';

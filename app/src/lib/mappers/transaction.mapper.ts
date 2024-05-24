@@ -1,4 +1,4 @@
-import { TransactionDocument } from '@/lib/models/transaction';
+import { TransactionDocument } from '@/lib/models/transaction.model';
 import { Transaction, TransactionResponse } from '@/types/Transaction';
 
 const toTransaction = (

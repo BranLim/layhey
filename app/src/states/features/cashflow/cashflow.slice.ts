@@ -20,7 +20,7 @@ import {
   isTransactionDateWithin,
   toAccountingMonth,
   toFormattedDate,
-} from '@/utils/date-utils';
+} from '@/utils/date.utils';
 
 type CashFlowState = {
   overallCashFlowForPeriod: CashFlowSummaryState;

@@ -20,12 +20,12 @@ const accountingPeriodSchema = new Schema<AccountingPeriodDocument>({
     required: true,
   },
 });
-const AccountingPeriod: AccountingPeriodModel =
+const AccountingPeriodModel: AccountingPeriodModel =
   models.AccountingPeriod ||
   mongoose.model<AccountingPeriodDocument, AccountingPeriodModel>(
-    'AccountingPeriod',
+    'AccountingPeriodModel',
     accountingPeriodSchema,
     'accountingPeriods'
   );
 
-export { AccountingPeriod };
+export { AccountingPeriodModel };

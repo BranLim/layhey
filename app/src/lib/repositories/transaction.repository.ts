@@ -3,8 +3,8 @@ import { connectMongo } from '@/database/mongodb';
 import {
   TransactionDocument,
   TransactionModel,
-} from '@/lib/models/transaction';
-import { toTransaction } from '@/lib/mappers/transaction-mapper';
+} from '@/lib/models/transaction.model';
+import { toTransaction } from '@/lib/mappers/transaction.mapper';
 
 const add = async (transaction: Transaction): Promise<Transaction> => {
   await connectMongo();
