@@ -57,7 +57,14 @@ export const TransactionCategoryList = ({ register }: Props) => {
         <FormControl>
           <FormLabel htmlFor='transactionCategories'>Category</FormLabel>
           <RadioGroup id='transactionCategories'>
-            <HStack spacing='6px' wrap={'wrap'}>
+            <HStack
+              columnGap={4}
+              rowGap={2}
+              wrap={'wrap'}
+              height='80px'
+              alignItems='start'
+              overflow='auto'
+            >
               {transactionCategories.map((category) => (
                 <Tooltip openDelay={500} key={category.id}>
                   <Radio {...register('category')} value={category.name}>

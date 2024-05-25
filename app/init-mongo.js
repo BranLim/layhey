@@ -35,8 +35,8 @@ db.transactionCategories.insertMany([
     description: 'Clothes',
   },
   {
-    name: 'Electronics/gadgets',
-    description: 'Electronics/gadgets',
+    name: 'Electronic/gadget',
+    description: 'Electronic/gadget',
   },
   {
     name: 'Medical',
@@ -45,5 +45,17 @@ db.transactionCategories.insertMany([
   {
     name: 'Insurance',
     description: 'Insurance',
+  },
+  {
+    name: 'Grocery',
+    description: 'Grocery - Fruits, Meats, Vegetables, Noodles, Rice, etc.',
+  },
+  {
+    name: 'Hobby',
+    description: 'Hobby',
+  },
+  {
+    name: 'Entertainment',
+    description: 'Entertainment - Movies, Games, Arcade',
   },
 ]);

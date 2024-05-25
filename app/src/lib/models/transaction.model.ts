@@ -54,12 +54,22 @@ const transactionSchema = new Schema<TransactionDocument>({
     default: Date.now,
   },
 });
-/*
-transactionSchema.pre<TransactionDocument>('insertMany', function (next) {
-  this.set({ lastModifiedOn: new Date(Date.now()) });
-  next();
-});
-*/
+
+transactionSchema.pre<TransactionDocument>(
+  'insertMany',
+  function (next, documents) {
+    if (Array.isArray(documents) && documents.length) {
+      documents.forEach((document) => {
+        if (document.isNew) {
+          document.createdOn = new Date(Date.now());
+        }
+        document.lastModifiedOn = new Date(Date.now());
+      });
+    }
+
+    next();
+  }
+);
 
 transactionSchema.pre<TransactionDocument>('save', function (next) {
   if (this.isNew) {
