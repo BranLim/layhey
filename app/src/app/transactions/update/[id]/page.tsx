@@ -85,7 +85,7 @@ const UpdateTransaction = ({ params }: Props) => {
       ...getValues(),
       mode: modeFromValue(data.category),
       transactionSource: transactionSourceFromValue(data.source),
-      transactionType: '',
+      transactionCategory: '',
       amount: data.amount,
       date: data.date,
       currency: 'SGD',

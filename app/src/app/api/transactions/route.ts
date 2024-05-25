@@ -4,7 +4,10 @@ import {
   Transaction,
   TransactionResponse,
 } from '@/types/Transaction';
-import { addTransaction, getTransactions } from '@/lib/actions/transaction';
+import {
+  addTransaction,
+  getTransactions,
+} from '@/lib/actions/transaction.action';
 import { toTransactionResponse } from '@/lib/mappers/transaction.mapper';
 
 export const dynamic = 'force-dynamic';
@@ -21,7 +24,7 @@ export const GET = async (request: NextRequest): Promise<Response> => {
       amount: transaction.amount,
       mode: transaction.mode,
       transactionSource: transaction.transactionSource,
-      transactionType: transaction.transactionType,
+      transactionCategory: transaction.transactionCategory,
       currency: transaction.currency,
     } as TransactionResponse;
   });

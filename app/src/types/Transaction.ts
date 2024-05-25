@@ -23,6 +23,12 @@ export type TransactionCategory = {
   description: string;
 };
 
+export type TransactionCategoryDto = TransactionCategory;
+
+export type TransactionCategoriesResponse = {
+  categories: TransactionCategory[];
+};
+
 export type Transaction = {
   id: string;
   transactionSource: TransactionSource;

@@ -3,14 +3,11 @@
 import {
   Box,
   Button,
-  Divider,
   Flex,
   FormControl,
   FormLabel,
   HStack,
   Input,
-  InputGroup,
-  InputRightElement,
   Radio,
   RadioGroup,
   Select,
@@ -29,7 +26,6 @@ import {
   AddTransactionRequest,
   modeFromValue,
   TransactionMode,
-  TransactionResponse,
   TransactionSource,
   transactionSourceFromValue,
 } from '@/types/Transaction';
@@ -38,12 +34,10 @@ import { closeModal } from '@/states/common/modal.slice';
 import { addTransaction } from '@/states/features/cashflow/cashflow.slice';
 import { useAppDispatch } from '@/states/hooks';
 import { getCurrentDate, toFormattedDate } from '@/utils/date.utils';
-import {
-  AdvancedSetting,
-  RepeatSetting,
-  SplitSetting,
-} from '@/types/AdvancedSetting';
+import { AdvancedSetting } from '@/types/AdvancedSetting';
 import { ScheduleRadioGroup } from '@/components/common/ScheduleRadioGroup';
+import { TransactionCategoryList } from '@/components/common/TransactionCategoryList';
+import { getTransactionCategories } from '@/lib/actions/transactionCategories.action';
 
 const defaultInterval = 'monthly';
 
@@ -51,7 +45,7 @@ type FormData = {
   mode: string;
   date: Date;
   source: string;
-  type?: string;
+  category?: string;
   amount: number;
   currency: string;
   hasAdvancedSetting?: boolean;
@@ -62,7 +56,7 @@ const defaultFormValues: FormData = {
   mode: TransactionMode.Income,
   date: getCurrentDate(),
   source: '',
-  type: '',
+  category: '',
   amount: 0,
   currency: 'SGD',
   hasAdvancedSetting: false,
@@ -103,7 +97,7 @@ const AddTransaction = () => {
         id: '',
         mode: modeFromValue(data.mode),
         transactionSource: transactionSourceFromValue(data.source),
-        transactionType: '',
+        transactionCategory: data.category ?? '',
         amount: data.amount,
         date: data.date.toISOString(),
         currency: 'SGD',
@@ -172,10 +166,9 @@ const AddTransaction = () => {
               )}
             />
           </FormControl>
+          <TransactionCategoryList register={register} />
           <FormControl>
-            <FormLabel htmlFor='transactionSource'>
-              Transaction Source
-            </FormLabel>
+            <FormLabel htmlFor='transactionSource'>Source</FormLabel>
             <Select
               id='transactionSource'
               placeholder='Transaction Source'

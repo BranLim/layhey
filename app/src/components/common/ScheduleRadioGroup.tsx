@@ -1,3 +1,5 @@
+'use client';
+
 import { HStack, Radio, RadioGroup } from '@chakra-ui/react';
 import { UseFormRegister } from 'react-hook-form';
 

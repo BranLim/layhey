@@ -1,5 +1,8 @@
 import { NextRequest } from 'next/server';
-import { getTransaction, updateTransaction } from '@/lib/actions/transaction';
+import {
+  getTransaction,
+  updateTransaction,
+} from '@/lib/actions/transaction.action';
 
 export const dynamic = 'force-dynamic';
 

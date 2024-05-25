@@ -97,7 +97,7 @@ const getTransaction = async (id: string): Promise<TransactionDto | null> => {
   return {
     id: transaction.id,
     mode: transaction.mode,
-    transactionType: transaction.transactionType,
+    transactionCategory: transaction.transactionCategory,
     amount: transaction.amount,
     currency: transaction.currency,
     date: transaction.date,
