@@ -3,18 +3,19 @@
 import {
   Box,
   Collapse,
-  Flex,
+  Icon,
   IconButton,
   Stack,
   Tooltip,
 } from '@chakra-ui/react';
 import * as React from 'react';
 import { useRef, useState } from 'react';
-import { AddIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
+import { EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import NextLink from 'next/link';
 import { openModal } from '@/states/common/modal.slice';
 import { useAppDispatch } from '@/states/hooks';
 import AddAccountingPeriodIcon from '@/components/icons/AddAccountingPeriodIcon';
+import { FaMoneyBillTransfer } from 'react-icons/fa6';
 
 export const ActionMenu = () => {
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -76,7 +77,7 @@ export const ActionMenu = () => {
               <Tooltip label='Add new transaction' openDelay={500}>
                 <IconButton
                   as={NextLink}
-                  icon={<AddIcon />}
+                  icon={<Icon as={FaMoneyBillTransfer} boxSize={8} />}
                   aria-label='Add Transaction'
                   onClick={handleOpenModal}
                   href='/transactions/add'
