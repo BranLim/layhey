@@ -1,23 +1,17 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import {
-  Button,
-  Flex,
   FormControl,
   FormLabel,
   HStack,
-  IconButton,
   Radio,
   RadioGroup,
-  Tooltip,
 } from '@chakra-ui/react';
 import {
   TransactionCategoriesResponse,
   TransactionCategoryDto,
 } from '@/types/Transaction';
 import { UseFormRegister } from 'react-hook-form';
-import { AddIcon } from '@chakra-ui/icons';
-import { Visibility } from '@chakra-ui/media-query/dist/visibility';
 
 type Props = {
   register: UseFormRegister<any>;
