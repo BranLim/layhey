@@ -1,7 +1,7 @@
 import mongoose, { Schema, models, Model } from 'mongoose';
 import { UserAccountingPeriod } from '@/types/AccountingPeriod';
 
-export type AccountingPeriodDocument = UserAccountingPeriod & Document;
+export type AccountingPeriodDocument = UserAccountingPeriod & mongoose.Document;
 
 export type AccountingPeriodModel = Model<AccountingPeriodDocument>;
 
