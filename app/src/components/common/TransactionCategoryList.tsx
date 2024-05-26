@@ -6,6 +6,7 @@ import {
   FormControl,
   FormLabel,
   HStack,
+  IconButton,
   Radio,
   RadioGroup,
   Tooltip,
@@ -15,6 +16,8 @@ import {
   TransactionCategoryDto,
 } from '@/types/Transaction';
 import { UseFormRegister } from 'react-hook-form';
+import { AddIcon } from '@chakra-ui/icons';
+import { Visibility } from '@chakra-ui/media-query/dist/visibility';
 
 type Props = {
   register: UseFormRegister<any>;
@@ -53,31 +56,30 @@ export const TransactionCategoryList = ({ register }: Props) => {
   }, [isLoadedCategory]);
   return (
     <>
-      {transactionCategories.length > 0 ? (
-        <FormControl>
-          <FormLabel htmlFor='transactionCategories'>Category</FormLabel>
-          <RadioGroup id='transactionCategories'>
-            <HStack
-              columnGap={4}
-              rowGap={2}
-              wrap={'wrap'}
-              height='80px'
-              alignItems='start'
-              overflow='auto'
-            >
-              {transactionCategories.map((category) => (
-                <Tooltip openDelay={500} key={category.id}>
-                  <Radio {...register('category')} value={category.name}>
-                    {category.name}
-                  </Radio>
-                </Tooltip>
+      <FormControl>
+        <FormLabel htmlFor='transactionCategories'>Category</FormLabel>
+        <RadioGroup id='transactionCategories'>
+          <HStack
+            columnGap={4}
+            rowGap={2}
+            wrap={'wrap'}
+            height='80px'
+            alignItems='start'
+            overflow='auto'
+          >
+            {transactionCategories.length > 0 &&
+              transactionCategories.map((category) => (
+                <Radio
+                  key={category.id}
+                  {...register('category')}
+                  value={category.name}
+                >
+                  {category.name}
+                </Radio>
               ))}
-            </HStack>
-          </RadioGroup>
-        </FormControl>
-      ) : (
-        <Button colorScheme='blue'>Add</Button>
-      )}
+          </HStack>
+        </RadioGroup>
+      </FormControl>
     </>
   );
 };
