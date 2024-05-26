@@ -11,20 +11,30 @@ import {
   Stack,
   Textarea,
 } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useAppDispatch } from '@/states/hooks';
 import { closeModal } from '@/states/common/modal.slice';
+import { getCurrentDate, toFormattedDate } from '@/utils/date.utils';
 
 type FormData = {
   name: string;
   description: string;
-  startPeriod?: Date;
-  endPeriod?: Date;
+  startPeriod: Date;
+  endPeriod: Date;
+};
+
+const formData: FormData = {
+  name: '',
+  description: '',
+  startPeriod: getCurrentDate(),
+  endPeriod: getCurrentDate(),
 };
 
 const AddAccountingPeriod = () => {
   const dispatch = useAppDispatch();
-  const { register, handleSubmit } = useForm<FormData>();
+  const { handleSubmit, control, getValues } = useForm<FormData>({
+    defaultValues: formData,
+  });
 
   const handleCloseModal = () => {
     dispatch(closeModal());
@@ -38,14 +48,59 @@ const AddAccountingPeriod = () => {
         <Stack spacing={4}>
           <FormControl>
             <FormLabel htmlFor='name'>Name</FormLabel>
-            <Input id='name' {...register('name', { required: true })} />
+            <Controller
+              control={control}
+              name={'name'}
+              rules={{ required: true }}
+              render={({ field }) => <Input {...field} id='name' />}
+            />
           </FormControl>
 
           <FormControl>
             <FormLabel htmlFor='description'>Description</FormLabel>
-            <Textarea
-              id='description'
-              {...register('description', { required: false })}
+            <Controller
+              control={control}
+              name={'description'}
+              render={({ field }) => <Textarea {...field} id='description' />}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor='startPeriod'>Start Period</FormLabel>
+            <Controller
+              control={control}
+              name='startPeriod'
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  id='startPeriod'
+                  type='date'
+                  value={toFormattedDate(
+                    getValues('startPeriod'),
+                    'yyyy-MM-dd'
+                  )}
+                  onChange={(event) =>
+                    field.onChange(new Date(event.target.value))
+                  }
+                />
+              )}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor='endPeriod'>End Period</FormLabel>
+            <Controller
+              control={control}
+              name={'endPeriod'}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  id={'endPeriod'}
+                  type='date'
+                  value={toFormattedDate(getValues('endPeriod'), 'yyyy-MM-dd')}
+                  onChange={(event) =>
+                    field.onChange(new Date(event.target.value))
+                  }
+                />
+              )}
             />
           </FormControl>
           <Flex alignItems='right' pt={4} pb={2}>

@@ -37,7 +37,6 @@ import { getCurrentDate, toFormattedDate } from '@/utils/date.utils';
 import { AdvancedSetting } from '@/types/AdvancedSetting';
 import { ScheduleRadioGroup } from '@/components/common/ScheduleRadioGroup';
 import { TransactionCategoryList } from '@/components/common/TransactionCategoryList';
-import { getTransactionCategories } from '@/lib/actions/transactionCategories.action';
 
 const defaultInterval = 'monthly';
 
