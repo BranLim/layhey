@@ -1,10 +1,8 @@
-version: "3.9"
-
 name: layhey
 
 services:
   mongodb:
-    image: mongo:latest
+    image: mongo:7.0.5
     container_name: mongodb
     restart: always
     ports:

@@ -278,7 +278,7 @@ const AddTransaction = () => {
               mt={4}
               mr={2}
               colorScheme='gray'
-              onClick={() => handleCloseModal()}
+              onMouseDown={() => handleCloseModal()}
             >
               Cancel
             </Button>

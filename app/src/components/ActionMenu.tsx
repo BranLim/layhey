@@ -32,8 +32,8 @@ export const ActionMenu = () => {
         bottom='80px'
         left='24px'
         zIndex='10'
-        onMouseEnter={() => setIsExpanded(!isExpanded)}
-        onMouseLeave={() => setIsExpanded(!isExpanded)}
+        onMouseEnter={() => setIsExpanded((state) => !state)}
+        onMouseLeave={() => setIsExpanded((state) => !state)}
       >
         <Tooltip
           label='Action menu for transaction management. Click to expand.'
@@ -79,7 +79,7 @@ export const ActionMenu = () => {
                   as={NextLink}
                   icon={<Icon as={FaMoneyBillTransfer} boxSize={8} />}
                   aria-label='Add Transaction'
-                  onClick={handleOpenModal}
+                  onMouseDown={handleOpenModal}
                   href='/transactions/add'
                   passHref
                   size='lg'
@@ -121,7 +121,7 @@ export const ActionMenu = () => {
                   as={NextLink}
                   icon={<AddAccountingPeriodIcon boxSize={8} />}
                   aria-label='Add Accounting Period'
-                  onClick={handleOpenModal}
+                  onMouseDown={handleOpenModal}
                   href='/accounting/period/add'
                   passHref
                   size='lg'
