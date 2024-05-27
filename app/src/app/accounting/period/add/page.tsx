@@ -12,11 +12,15 @@ import {
   Textarea,
 } from '@chakra-ui/react';
 import { Controller, useForm } from 'react-hook-form';
-import { useAppDispatch } from '@/states/hooks';
+import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import { closeModal } from '@/states/common/modal.slice';
 import { getCurrentDate, toFormattedDate } from '@/utils/date.utils';
 import { AddAccountingPeriodRequest } from '@/types/AccountingPeriod';
-import { addAccountingPeriod } from '@/states/features/accounting/accounting.slice';
+import {
+  addAccountingPeriod,
+  selectStatus,
+} from '@/states/features/accounting/accounting.slice';
+import { useEffect } from 'react';
 
 type FormData = {
   name: string;
@@ -34,9 +38,19 @@ const initialFormData: FormData = {
 
 const AddAccountingPeriod = () => {
   const dispatch = useAppDispatch();
+  const accountStateStatus = useAppSelector(selectStatus);
   const { handleSubmit, control, getValues } = useForm<FormData>({
     defaultValues: initialFormData,
   });
+
+  useEffect(() => {
+    if (accountStateStatus === 'idle') {
+      return;
+    }
+    if (accountStateStatus === 'succeeded') {
+      handleCloseModal();
+    }
+  }, [accountStateStatus]);
 
   const handleCloseModal = () => {
     dispatch(closeModal());

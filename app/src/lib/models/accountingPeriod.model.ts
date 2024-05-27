@@ -23,7 +23,7 @@ const accountingPeriodSchema = new Schema<AccountingPeriodDocument>({
 const AccountingPeriodModel: AccountingPeriodModel =
   models.AccountingPeriod ||
   mongoose.model<AccountingPeriodDocument, AccountingPeriodModel>(
-    'AccountingPeriodModel',
+    'AccountingPeriod',
     accountingPeriodSchema,
     'accountingPeriods'
   );

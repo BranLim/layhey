@@ -14,8 +14,8 @@ const add = async (
     startPeriod: accountingPeriod.startPeriod,
     endPeriod: accountingPeriod.endPeriod,
   });
-  await newAccountingPeriod.save();
-  return toUserAccountingPeriod(newAccountingPeriod);
+  const addedAccountingPeriod = await newAccountingPeriod.save();
+  return toUserAccountingPeriod(addedAccountingPeriod);
 };
 
 export { add };

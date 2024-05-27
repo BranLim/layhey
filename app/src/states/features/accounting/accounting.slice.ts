@@ -3,7 +3,7 @@ import {
   UserAccountingPeriod,
   UserAccountingPeriodResponse,
 } from '@/types/AccountingPeriod';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export const addAccountingPeriod = createAsyncThunk(
   'accounting/addAccountingPeriod',
@@ -31,16 +31,36 @@ export const addAccountingPeriod = createAsyncThunk(
 
 type AccountingState = {
   accountingPeriod: UserAccountingPeriod[];
+  status: 'idle' | 'adding' | 'loading' | 'succeeded' | 'error';
+  error?: any;
 };
 
 const initialState: AccountingState = {
   accountingPeriod: [] as UserAccountingPeriod[],
+  status: 'idle',
 };
 
 const accountingSlice = createSlice({
   name: 'accounting',
   initialState,
   reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(addAccountingPeriod.pending, (state, action) => {
+        state.status = 'adding';
+        if (state.error) {
+          state.error = undefined;
+        }
+      })
+      .addCase(
+        addAccountingPeriod.fulfilled,
+        (state, action: PayloadAction<UserAccountingPeriodResponse>) => {
+          state.status = 'succeeded';
+        }
+      );
+  },
 });
+
+export const selectStatus = (state: any) => state.accounting.status;
 
 export default accountingSlice.reducer;
