@@ -25,7 +25,7 @@ type FormData = {
   endPeriod: Date;
 };
 
-const formData: FormData = {
+const initialFormData: FormData = {
   name: '',
   description: '',
   startPeriod: getCurrentDate(),
@@ -35,7 +35,7 @@ const formData: FormData = {
 const AddAccountingPeriod = () => {
   const dispatch = useAppDispatch();
   const { handleSubmit, control, getValues } = useForm<FormData>({
-    defaultValues: formData,
+    defaultValues: initialFormData,
   });
 
   const handleCloseModal = () => {
@@ -43,7 +43,7 @@ const AddAccountingPeriod = () => {
   };
 
   const onSubmit = (data: FormData) => {
-    const { name, description, startPeriod, endPeriod } = formData;
+    const { name, description, startPeriod, endPeriod } = data;
     const addAccountingPeriodRequest: AddAccountingPeriodRequest = {
       data: {
         name: name,
@@ -52,6 +52,7 @@ const AddAccountingPeriod = () => {
         endPeriod: endPeriod.toISOString(),
       },
     };
+    console.log(`Submitting ${JSON.stringify(addAccountingPeriodRequest)}`);
     dispatch(addAccountingPeriod(addAccountingPeriodRequest));
   };
 
@@ -65,7 +66,15 @@ const AddAccountingPeriod = () => {
               control={control}
               name={'name'}
               rules={{ required: true }}
-              render={({ field }) => <Input {...field} id='name' />}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  id='name'
+                  type='text'
+                  value={getValues('name')}
+                  onChange={(event) => field.onChange(event.target.value)}
+                />
+              )}
             />
           </FormControl>
 
