@@ -7,8 +7,8 @@ import {
   NodePositionChange,
   NodeSelectionChange,
   Position,
-  Viewport,
 } from 'reactflow';
+import { v4 as uuidv4 } from 'uuid';
 
 const edgeColor = 'lightgray';
 
@@ -53,7 +53,7 @@ const flowSlice = createSlice({
       const cashFlowEdges: Edge[] = [];
 
       const rootNode: Node<CashFlowNodeData> = {
-        id: 'node-1',
+        id: uuidv4(),
         type: 'cashFlowNode',
         position: { x: 0, y: 10 },
         sourcePosition: Position.Right,
@@ -79,7 +79,7 @@ const flowSlice = createSlice({
       let y = 10;
       for (const cashFlowSummary of cashFlowSummaries) {
         const node: Node<CashFlowNodeData> = {
-          id: `node-${index}`,
+          id: uuidv4(),
           type: 'cashFlowNode',
           position: { x: 480, y: y },
           sourcePosition: Position.Right,
@@ -103,7 +103,7 @@ const flowSlice = createSlice({
 
         const edge: Edge = {
           type: 'smoothstep',
-          target: 'node-1',
+          target: rootNode.id,
           source: node.id,
           id: `edge-${index}`,
           markerEnd: edgeMarkerEnd,
@@ -119,6 +119,7 @@ const flowSlice = createSlice({
     handleNodeMouseEnter: (state, action: PayloadAction<Node>) => {
       const mouseEnteredNode = action.payload;
       const foundNodeStyle = state.nodeStyles[mouseEnteredNode.id];
+
       if (foundNodeStyle) {
         foundNodeStyle['border'] = '4px solid dimgray';
         foundNodeStyle['boxShadow'] = '0px 0px 16px lightslategray';
@@ -127,6 +128,7 @@ const flowSlice = createSlice({
     handleNodeMouseLeave: (state, action: PayloadAction<Node>) => {
       const mouseLeaveNode = action.payload;
       const foundNodeStyle = state.nodeStyles[mouseLeaveNode.id];
+
       if (foundNodeStyle) {
         foundNodeStyle['border'] = '3px solid black';
         foundNodeStyle['boxShadow'] = '0px 0px 12px darkslategray';
@@ -140,6 +142,8 @@ const flowSlice = createSlice({
       const foundNode = state.nodes.find((node) => node.id === changeEvent.id);
       if (foundNode) {
         foundNode.selected = changeEvent.selected;
+      }
+      if (changeEvent.selected) {
         state.selectedNode = foundNode;
       }
     },
