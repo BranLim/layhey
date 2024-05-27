@@ -15,6 +15,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { useAppDispatch } from '@/states/hooks';
 import { closeModal } from '@/states/common/modal.slice';
 import { getCurrentDate, toFormattedDate } from '@/utils/date.utils';
+import { AddAccountingPeriodRequest } from '@/types/AccountingPeriod';
+import { addAccountingPeriod } from '@/states/features/accounting/accounting.slice';
 
 type FormData = {
   name: string;
@@ -40,7 +42,18 @@ const AddAccountingPeriod = () => {
     dispatch(closeModal());
   };
 
-  const onSubmit = (data: FormData) => {};
+  const onSubmit = (data: FormData) => {
+    const { name, description, startPeriod, endPeriod } = formData;
+    const addAccountingPeriodRequest: AddAccountingPeriodRequest = {
+      data: {
+        name: name,
+        description: description,
+        startPeriod: startPeriod.toISOString(),
+        endPeriod: endPeriod.toISOString(),
+      },
+    };
+    dispatch(addAccountingPeriod(addAccountingPeriodRequest));
+  };
 
   return (
     <Box pt={4}>
@@ -122,5 +135,4 @@ const AddAccountingPeriod = () => {
     </Box>
   );
 };
-
 export default AddAccountingPeriod;

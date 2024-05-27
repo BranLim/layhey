@@ -12,11 +12,11 @@ const accountingPeriodSchema = new Schema<AccountingPeriodDocument>({
   },
   description: String,
   startPeriod: {
-    type: String,
+    type: Date,
     required: true,
   },
   endPeriod: {
-    type: String,
+    type: Date,
     required: true,
   },
 });

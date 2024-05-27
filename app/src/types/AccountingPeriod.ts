@@ -8,13 +8,21 @@ export type UserAccountingPeriod = AccountingPeriod & {
   name: string;
   description: string;
 };
-export type UserAccountingPeriodRequest = UserAccountingPeriod;
+export type UserAccountingPeriodRequest = Omit<
+  UserAccountingPeriod,
+  'startPeriod' | 'endPeriod'
+> & {
+  startPeriod: string;
+  endPeriod: string;
+};
+
+export type UserAccountingPeriodResponse = UserAccountingPeriod;
 
 export type AddAccountingPeriodRequest = {
   data: UserAccountingPeriodRequest;
 };
 export type UpdateAccountingPeriodRequest = AddAccountingPeriodRequest;
 
-export type GetUserAccountingPeriodResponse = {
+export type GetUserAccountingPeriodsResponse = {
   accountingPeriods: UserAccountingPeriod[];
 };

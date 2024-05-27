@@ -1,15 +1,24 @@
 import {
-  AccountingPeriod,
   AddAccountingPeriodRequest,
   UserAccountingPeriod,
 } from '@/types/AccountingPeriod';
 import { add } from '@/lib/repositories/accountingPeriod.repository';
 
-const addAccountPeriod = async (
-  addAccountingPeriod: AddAccountingPeriodRequest
+const addAccountingPeriod = async (
+  addAccountingPeriodRequest: AddAccountingPeriodRequest
 ): Promise<UserAccountingPeriod> => {
-  const addedAccountingPeriod = await add(addAccountingPeriod.data);
+  const { name, description, startPeriod, endPeriod } =
+    addAccountingPeriodRequest.data;
+  const addedAccountingPeriod = await add({
+    id: '',
+    name: name,
+    description: description,
+    startPeriod: new Date(startPeriod),
+    endPeriod: new Date(endPeriod),
+  });
   return {
     ...addedAccountingPeriod,
   };
 };
+
+export { addAccountingPeriod };
