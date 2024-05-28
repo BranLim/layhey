@@ -30,13 +30,13 @@ export const addAccountingPeriod = createAsyncThunk(
 );
 
 type AccountingState = {
-  accountingPeriod: UserAccountingPeriod[];
+  accountingPeriods: UserAccountingPeriod[];
   status: 'idle' | 'adding' | 'loading' | 'succeeded' | 'error';
   error?: any;
 };
 
 const initialState: AccountingState = {
-  accountingPeriod: [] as UserAccountingPeriod[],
+  accountingPeriods: [] as UserAccountingPeriod[],
   status: 'idle',
 };
 
@@ -55,6 +55,8 @@ const accountingSlice = createSlice({
       .addCase(
         addAccountingPeriod.fulfilled,
         (state, action: PayloadAction<UserAccountingPeriodResponse>) => {
+          const addedPeriod = action.payload;
+          state.accountingPeriods.push(addedPeriod);
           state.status = 'succeeded';
         }
       );
@@ -62,5 +64,7 @@ const accountingSlice = createSlice({
 });
 
 export const selectStatus = (state: any) => state.accounting.status;
+export const selectPresetAccountingPeriods = (state: any) =>
+  state.accounting.accountingPeriods;
 
 export default accountingSlice.reducer;

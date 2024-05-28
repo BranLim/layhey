@@ -10,6 +10,7 @@ import {
   Select,
   VStack,
   Text,
+  Flex,
 } from '@chakra-ui/react';
 import {
   Controller,
@@ -32,6 +33,8 @@ import { useEffect } from 'react';
 import { useReactFlow } from 'reactflow';
 import { defaultViewPort } from '@/components/cashflow/CashFlowView';
 import { error } from '@chakra-ui/utils';
+import { selectPresetAccountingPeriods } from '@/states/features/accounting/accounting.slice';
+import { UserAccountingPeriod } from '@/types/AccountingPeriod';
 
 type Input = {
   startPeriod: Date;
@@ -51,6 +54,7 @@ const defaultViewOptionValues: Input = {
 export const CashFlowViewControl = () => {
   const dispatch = useAppDispatch();
   const accountingPeriod = useAppSelector(selectAccountingPeriod);
+  const accountingPeriodPresets = useAppSelector(selectPresetAccountingPeriods);
   const {
     trigger,
     setError,
@@ -105,7 +109,7 @@ export const CashFlowViewControl = () => {
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Box
+        <Flex
           position='absolute'
           bottom='80px'
           right='20px'
@@ -115,14 +119,32 @@ export const CashFlowViewControl = () => {
           borderRadius='8px'
           boxShadow='0px 4px 6px 1px black'
           borderColor='gray'
-          height='160px'
-          minHeight='160px'
+          height='260px'
+          minHeight='260px'
         >
           <VStack alignItems='left' p='0'>
             <Heading pl='2' pt='2' size='xs' justifyContent='left'>
               Cash Flow View
             </Heading>
-            <HStack p='2'>
+            <HStack p={2}>
+              <FormControl width='xs'>
+                <FormLabel htmlFor='presetAccountingPeriod' fontSize='sm'>
+                  Preset
+                </FormLabel>
+                <Select id='presetAccountingPeriod'>
+                  {accountingPeriodPresets?.map(
+                    (preset: UserAccountingPeriod) => {
+                      return (
+                        <option key={preset.id} value={preset.id}>
+                          {preset.name}
+                        </option>
+                      );
+                    }
+                  )}
+                </Select>
+              </FormControl>
+            </HStack>
+            <HStack p={2}>
               <FormControl width='2xs' isInvalid={!!errors.startPeriod}>
                 <FormLabel htmlFor='accountingStartPeriod' fontSize='sm'>
                   Start Period
@@ -228,13 +250,13 @@ export const CashFlowViewControl = () => {
                 Reset
               </Button>
             </HStack>
+            {(!!errors.startPeriod || !!errors.endPeriod) && (
+              <Text pl={4} color='crimson'>
+                Error: Start and End period should be at least 7 days apart.
+              </Text>
+            )}
           </VStack>
-          {(!!errors.startPeriod || !!errors.endPeriod) && (
-            <Text pl={4} color='crimson'>
-              Error: Start and End period should be at least 7 days apart.
-            </Text>
-          )}
-        </Box>
+        </Flex>
       </form>
     </>
   );
