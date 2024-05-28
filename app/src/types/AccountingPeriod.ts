@@ -16,7 +16,13 @@ export type UserAccountingPeriodRequest = Omit<
   endPeriod: string;
 };
 
-export type UserAccountingPeriodResponse = UserAccountingPeriod;
+export type UserAccountingPeriodResponse = Omit<
+  UserAccountingPeriod,
+  'startPeriod' | 'endPeriod'
+> & {
+  startPeriod: string;
+  endPeriod: string;
+};
 
 export type AddAccountingPeriodRequest = {
   data: UserAccountingPeriodRequest;
@@ -24,5 +30,5 @@ export type AddAccountingPeriodRequest = {
 export type UpdateAccountingPeriodRequest = AddAccountingPeriodRequest;
 
 export type GetUserAccountingPeriodsResponse = {
-  accountingPeriods: UserAccountingPeriod[];
+  accountingPeriods: UserAccountingPeriodResponse[];
 };

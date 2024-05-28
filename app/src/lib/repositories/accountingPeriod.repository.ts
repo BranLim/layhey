@@ -18,4 +18,14 @@ const add = async (
   return toUserAccountingPeriod(addedAccountingPeriod);
 };
 
-export { add };
+const findAll = async (): Promise<UserAccountingPeriod[]> => {
+  await connectMongo();
+
+  const accountingPeriods = await AccountingPeriodModel.find({});
+
+  return accountingPeriods.map((accountingPeriod) =>
+    toUserAccountingPeriod(accountingPeriod)
+  );
+};
+
+export { add, findAll };

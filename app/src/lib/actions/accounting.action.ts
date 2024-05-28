@@ -2,7 +2,7 @@ import {
   AddAccountingPeriodRequest,
   UserAccountingPeriod,
 } from '@/types/AccountingPeriod';
-import { add } from '@/lib/repositories/accountingPeriod.repository';
+import { add, findAll } from '@/lib/repositories/accountingPeriod.repository';
 
 const addAccountingPeriod = async (
   addAccountingPeriodRequest: AddAccountingPeriodRequest
@@ -21,4 +21,11 @@ const addAccountingPeriod = async (
   };
 };
 
-export { addAccountingPeriod };
+const getAccountingPeriods = async (): Promise<UserAccountingPeriod[]> => {
+  const addedAccountingPeriod = await findAll();
+  return {
+    ...addedAccountingPeriod,
+  };
+};
+
+export { addAccountingPeriod, getAccountingPeriods };
