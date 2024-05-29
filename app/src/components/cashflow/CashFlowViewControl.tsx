@@ -34,6 +34,8 @@ import { useReactFlow } from 'reactflow';
 import { defaultViewPort } from '@/components/cashflow/CashFlowView';
 import { error } from '@chakra-ui/utils';
 import {
+  getAccountingPeriods,
+  selectAccountingStoreStatus,
   selectPresetAccountingPeriod,
   selectPresetAccountingPeriods,
 } from '@/states/features/accounting/accounting.slice';
@@ -56,6 +58,7 @@ const defaultViewOptionValues: Input = {
 
 export const CashFlowViewControl = () => {
   const dispatch = useAppDispatch();
+  const accountingStoreStatus = useAppSelector(selectAccountingStoreStatus);
   const [selectedPeriodPreset, setSelectedPeriodPreset] = useState('');
   const accountingPeriod = useAppSelector(selectAccountingPeriod);
   const accountingPeriodPresets = useAppSelector(selectPresetAccountingPeriods);
@@ -72,6 +75,10 @@ export const CashFlowViewControl = () => {
     control,
   } = useForm<Input>({ defaultValues: defaultViewOptionValues });
   const reactFlow = useReactFlow();
+
+  useEffect(() => {
+    dispatch(getAccountingPeriods);
+  });
 
   useEffect(() => {
     if (!accountingPeriod.startPeriod && !accountingPeriod.endPeriod) {
@@ -91,6 +98,10 @@ export const CashFlowViewControl = () => {
       })
     );
   }, [accountingPeriod.startPeriod, accountingPeriod.endPeriod]);
+
+  useEffect(() => {
+    console.log(`Accounting Store Status: ${accountingStoreStatus}`);
+  }, [accountingStoreStatus]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;

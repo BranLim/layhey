@@ -7,6 +7,7 @@ import {
 } from '@/types/AccountingPeriod';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { toUserAccountingPeriodResponse } from '@/lib/mappers/accountingPeriod.mapper';
+import { getErrorMessage } from '@/utils/error.utils';
 
 export const addAccountingPeriod = createAsyncThunk(
   'accounting/addAccountingPeriod',
@@ -32,25 +33,30 @@ export const addAccountingPeriod = createAsyncThunk(
   }
 );
 
-export const getAccountPeriods = createAsyncThunk(
+export const getAccountingPeriods = createAsyncThunk(
   'accounting/getAccountingPeriods',
-  async (): Promise<GetUserAccountingPeriodsResponse> => {
-    const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/accountingperiods`;
-    const response = await fetch(apiPath, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    });
+  async ({}, { rejectWithValue }): Promise<any> => {
+    try {
+      const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/accountingperiods`;
+      const response = await fetch(apiPath, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error('Error adding new transaction');
+      if (!response.ok) {
+        throw new Error('Error getting transactions');
+      }
+      const userAccountingPeriodResponse =
+        (await response.json()) as GetUserAccountingPeriodsResponse;
+
+      return userAccountingPeriodResponse;
+    } catch (error) {
+      console.error(error);
+      return rejectWithValue(getErrorMessage(error));
     }
-    const userAccountingPeriodResponse =
-      (await response.json()) as GetUserAccountingPeriodsResponse;
-
-    return userAccountingPeriodResponse;
   }
 );
 
@@ -88,11 +94,33 @@ const accountingSlice = createSlice({
           });
           state.status = 'succeeded';
         }
-      );
+      )
+      .addCase(getAccountingPeriods.pending, (state, action) => {
+        state.status = 'loading';
+        if (state.error) {
+          state.error = undefined;
+        }
+      })
+      .addCase(getAccountingPeriods.fulfilled, (state, action) => {
+        const accountingPeriodResponse = action.payload;
+        const userAccountPeriods =
+          accountingPeriodResponse.accountingPeriods.map((accountingPeriod) => {
+            return {
+              id: accountingPeriod.id,
+              name: accountingPeriod.name,
+              description: accountingPeriod.description,
+              startPeriod: new Date(accountingPeriod.startPeriod),
+              endPeriod: new Date(accountingPeriod.endPeriod),
+            } as UserAccountingPeriod;
+          });
+        state.accountingPeriods.push(...userAccountPeriods);
+        state.status = 'succeeded';
+      });
   },
 });
 
-export const selectStatus = (state: any) => state.accounting.status;
+export const selectAccountingStoreStatus = (state: any) =>
+  state.accounting.status;
 export const selectPresetAccountingPeriods = (state: any) =>
   state.accounting.accountingPeriods;
 export const selectPresetAccountingPeriod = (state: any, id: string) =>
