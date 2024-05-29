@@ -16,13 +16,15 @@ export type UserAccountingPeriodRequest = Omit<
   endPeriod: string;
 };
 
-export type UserAccountingPeriodResponse = Omit<
+export type SerializableUserAccountingPeriod = Omit<
   UserAccountingPeriod,
   'startPeriod' | 'endPeriod'
 > & {
   startPeriod: string;
   endPeriod: string;
 };
+
+export type UserAccountingPeriodResponse = SerializableUserAccountingPeriod;
 
 export type AddAccountingPeriodRequest = {
   data: UserAccountingPeriodRequest;

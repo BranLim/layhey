@@ -65,13 +65,7 @@ export const CashFlowViewControl = () => {
   const selectedAccountingPeriodPreset = useAppSelector((state) =>
     selectPresetAccountingPeriod(state, selectedPeriodPreset)
   );
-  useEffect(() => {
-    console.log('Use Effect called');
-    setTimeout(() => {
-      dispatch(getAccountingPeriods);
-    }, 1500);
-    console.log('Scheduled dispatch for execution 1.5 seconds later');
-  }, []);
+
   const {
     trigger,
     setError,
@@ -84,18 +78,7 @@ export const CashFlowViewControl = () => {
   const reactFlow = useReactFlow();
 
   useEffect(() => {
-    dispatch(getAccountingPeriods);
-  });
-
-  useEffect(() => {
     if (!accountingPeriod.startPeriod && !accountingPeriod.endPeriod) {
-      console.log('Setting cashflow period');
-      dispatch(
-        setAccountingPeriod({
-          startPeriod: startOfYear.toISOString(),
-          endPeriod: endOfYear.toISOString(),
-        })
-      );
       return;
     }
     dispatch(
@@ -104,11 +87,7 @@ export const CashFlowViewControl = () => {
         endPeriod: accountingPeriod.endPeriod,
       })
     );
-  }, [accountingPeriod.startPeriod, accountingPeriod.endPeriod]);
-
-  useEffect(() => {
-    console.log(`Accounting Store Status: ${accountingStoreStatus}`);
-  }, [accountingStoreStatus]);
+  }, [dispatch, accountingPeriod.startPeriod, accountingPeriod.endPeriod]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;

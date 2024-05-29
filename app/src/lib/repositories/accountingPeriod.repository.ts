@@ -23,8 +23,10 @@ const findAll = async (): Promise<UserAccountingPeriod[]> => {
 
   const accountingPeriods = await AccountingPeriodModel.find({});
 
-  return accountingPeriods.map((accountingPeriod) =>
-    toUserAccountingPeriod(accountingPeriod)
+  return (
+    accountingPeriods?.map((accountingPeriod) =>
+      toUserAccountingPeriod(accountingPeriod)
+    ) ?? []
   );
 };
 

@@ -3,6 +3,7 @@ import {
   UserAccountingPeriod,
 } from '@/types/AccountingPeriod';
 import { add, findAll } from '@/lib/repositories/accountingPeriod.repository';
+import { getErrorMessage } from '@/utils/error.utils';
 
 const addAccountingPeriod = async (
   addAccountingPeriodRequest: AddAccountingPeriodRequest
@@ -22,10 +23,16 @@ const addAccountingPeriod = async (
 };
 
 const getAccountingPeriods = async (): Promise<UserAccountingPeriod[]> => {
-  const addedAccountingPeriod = await findAll();
-  return {
-    ...addedAccountingPeriod,
-  };
+  try {
+    const addedAccountingPeriod = await findAll();
+    if (addedAccountingPeriod) {
+      console.log(`Found ${addedAccountingPeriod.length} accounting periods`);
+    }
+    return addedAccountingPeriod;
+  } catch (error) {
+    console.log(`Error loading accounting periods. ${getErrorMessage(error)}`);
+    throw error;
+  }
 };
 
 export { addAccountingPeriod, getAccountingPeriods };
