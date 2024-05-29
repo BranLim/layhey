@@ -18,7 +18,7 @@ import { getCurrentDate, toFormattedDate } from '@/utils/date.utils';
 import { AddAccountingPeriodRequest } from '@/types/AccountingPeriod';
 import {
   addAccountingPeriod,
-  selectStatus,
+  selectAccountingStoreStatus,
 } from '@/states/features/accounting/accounting.slice';
 import { useEffect } from 'react';
 
@@ -38,19 +38,21 @@ const initialFormData: FormData = {
 
 const AddAccountingPeriod = () => {
   const dispatch = useAppDispatch();
-  const accountStateStatus = useAppSelector(selectStatus);
+  const accountingStoreStateStatus = useAppSelector(
+    selectAccountingStoreStatus
+  );
   const { handleSubmit, control, getValues } = useForm<FormData>({
     defaultValues: initialFormData,
   });
 
   useEffect(() => {
-    if (accountStateStatus === 'idle') {
+    if (accountingStoreStateStatus === 'idle') {
       return;
     }
-    if (accountStateStatus === 'succeeded') {
+    if (accountingStoreStateStatus === 'succeeded') {
       handleCloseModal();
     }
-  }, [accountStateStatus]);
+  }, [accountingStoreStateStatus]);
 
   const handleCloseModal = () => {
     dispatch(closeModal());

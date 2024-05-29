@@ -65,6 +65,13 @@ export const CashFlowViewControl = () => {
   const selectedAccountingPeriodPreset = useAppSelector((state) =>
     selectPresetAccountingPeriod(state, selectedPeriodPreset)
   );
+  useEffect(() => {
+    console.log('Use Effect called');
+    setTimeout(() => {
+      dispatch(getAccountingPeriods);
+    }, 1500);
+    console.log('Scheduled dispatch for execution 1.5 seconds later');
+  }, []);
   const {
     trigger,
     setError,

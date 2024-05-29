@@ -36,6 +36,7 @@ export const addAccountingPeriod = createAsyncThunk(
 export const getAccountingPeriods = createAsyncThunk(
   'accounting/getAccountingPeriods',
   async ({}, { rejectWithValue }): Promise<any> => {
+    console.log('Get Accounting Periods called...');
     try {
       const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/accountingperiods`;
       const response = await fetch(apiPath, {
@@ -104,15 +105,17 @@ const accountingSlice = createSlice({
       .addCase(getAccountingPeriods.fulfilled, (state, action) => {
         const accountingPeriodResponse = action.payload;
         const userAccountPeriods =
-          accountingPeriodResponse.accountingPeriods.map((accountingPeriod) => {
-            return {
-              id: accountingPeriod.id,
-              name: accountingPeriod.name,
-              description: accountingPeriod.description,
-              startPeriod: new Date(accountingPeriod.startPeriod),
-              endPeriod: new Date(accountingPeriod.endPeriod),
-            } as UserAccountingPeriod;
-          });
+          accountingPeriodResponse.accountingPeriods.map(
+            (accountingPeriod: UserAccountingPeriodResponse) => {
+              return {
+                id: accountingPeriod.id,
+                name: accountingPeriod.name,
+                description: accountingPeriod.description,
+                startPeriod: new Date(accountingPeriod.startPeriod),
+                endPeriod: new Date(accountingPeriod.endPeriod),
+              } as UserAccountingPeriod;
+            }
+          );
         state.accountingPeriods.push(...userAccountPeriods);
         state.status = 'succeeded';
       });
