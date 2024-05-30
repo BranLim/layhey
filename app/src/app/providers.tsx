@@ -12,6 +12,10 @@ import {
   getTransactions,
   setCashFlowAccountingPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
+import {
+  AccountingPeriod,
+  SerializableAccountingPeriod,
+} from '@/types/AccountingPeriod';
 
 const currentYear = getCurrentYear();
 const accountingPeriodStart = new Date(currentYear, 0, 1);
@@ -22,15 +26,17 @@ export function Providers({ children }: { children: React.ReactNode }) {
   if (!storeRef.current) {
     const newStore = makeStore();
     storeRef.current = newStore;
+
+    const accountingPeriod: SerializableAccountingPeriod = {
+      startPeriod: accountingPeriodStart.toISOString(),
+      endPeriod: accountingPeriodEnd.toISOString(),
+    };
+
     (async () => {
       await Promise.all([
-        newStore.dispatch(
-          setCurrentAccountingPeriod({
-            startPeriod: accountingPeriodStart.toISOString(),
-            endPeriod: accountingPeriodEnd.toISOString(),
-          })
-        ),
+        newStore.dispatch(setCurrentAccountingPeriod(accountingPeriod)),
         newStore.dispatch(getAccountingPeriods()),
+        newStore.dispatch(setCashFlowAccountingPeriod(accountingPeriod)),
       ]);
       newStore.dispatch(
         getTransactions({

@@ -39,7 +39,10 @@ import {
   selectPresetAccountingPeriod,
   selectPresetAccountingPeriods,
 } from '@/states/features/accounting/accounting.slice';
-import { UserAccountingPeriod } from '@/types/AccountingPeriod';
+import {
+  SerializableAccountingPeriod,
+  UserAccountingPeriod,
+} from '@/types/AccountingPeriod';
 import { selectCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slice';
 
 type Input = {
@@ -76,9 +79,12 @@ export const CashFlowViewControl = () => {
   } = useForm<Input>({ defaultValues: defaultViewOptionValues });
   const reactFlow = useReactFlow();
   useEffect(() => {
-    if (selectedPeriodPreset) {
+    if (selectedPeriodPreset && selectedAccountingPeriodPreset) {
       setValue('startPeriod', selectedAccountingPeriodPreset.startPeriod);
       setValue('endPeriod', selectedAccountingPeriodPreset.endPeriod);
+    } else {
+      setValue('startPeriod', startOfYear);
+      setValue('endPeriod', endOfYear);
     }
   }, [selectedPeriodPreset]);
 
@@ -91,14 +97,14 @@ export const CashFlowViewControl = () => {
     }
   };
 
-  const onSubmit: SubmitHandler<Input> = (data: Input) => {
+  const onSubmit: SubmitHandler<Input> = async (data: Input) => {
     console.log(`Setting accounting period: ${JSON.stringify(data)}`);
-    dispatch(
-      setCashFlowAccountingPeriod({
-        startPeriod: data.startPeriod.toISOString(),
-        endPeriod: data.endPeriod.toISOString(),
-      })
-    );
+    const cashflowAccountingPeriod: SerializableAccountingPeriod = {
+      startPeriod: new Date(data.startPeriod).toISOString(),
+      endPeriod: new Date(data.endPeriod).toISOString(),
+    };
+    dispatch(setCashFlowAccountingPeriod(cashflowAccountingPeriod));
+    await dispatch(getTransactions(cashflowAccountingPeriod));
   };
 
   const onReset = () => {
@@ -161,13 +167,18 @@ export const CashFlowViewControl = () => {
                 control={control}
                 rules={{
                   validate: (value, formValues) => {
-                    const noOfDaysInMillis =
-                      formValues.endPeriod.getTime() - value.getTime();
+                    const endPeriod =
+                      typeof formValues.endPeriod === 'string'
+                        ? new Date(formValues.endPeriod)
+                        : formValues.endPeriod;
 
-                    if (calculateNumberOfDays(noOfDaysInMillis) < 7) {
-                      return false;
-                    }
-                    return true;
+                    const startPeriod =
+                      typeof value === 'string' ? new Date(value) : value;
+
+                    const noOfDaysInMillis =
+                      endPeriod.getTime() - startPeriod.getTime();
+
+                    return calculateNumberOfDays(noOfDaysInMillis) >= 7;
                   },
                 }}
                 render={({ field }) => (
@@ -203,12 +214,18 @@ export const CashFlowViewControl = () => {
                 control={control}
                 rules={{
                   validate: (value, formValues): ValidateResult => {
+                    const startPeriod =
+                      typeof formValues.startPeriod === 'string'
+                        ? new Date(formValues.startPeriod)
+                        : formValues.startPeriod;
+
+                    const endPeriod =
+                      typeof value === 'string' ? new Date(value) : value;
+
                     const noOfDaysInMillis =
-                      value.getTime() - formValues.startPeriod.getTime();
-                    if (calculateNumberOfDays(noOfDaysInMillis) < 7) {
-                      return false;
-                    }
-                    return true;
+                      endPeriod.getTime() - startPeriod.getTime();
+
+                    return calculateNumberOfDays(noOfDaysInMillis) >= 7;
                   },
                 }}
                 render={({ field }) => (

@@ -48,8 +48,7 @@ export const CashFlowView = () => {
   useEffect(() => {
     if (
       cashFlowStoreStateStatus !== 'compute_completed' &&
-      cashFlowStoreStateStatus !== 'load_complete' &&
-      !cashFlowSummary
+      cashFlowStoreStateStatus !== 'load_complete'
     ) {
       return;
     }
