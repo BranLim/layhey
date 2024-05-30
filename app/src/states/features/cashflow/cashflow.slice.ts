@@ -22,19 +22,6 @@ import {
   toFormattedDate,
 } from '@/utils/date.utils';
 
-type CashFlowState = {
-  overallCashFlowForPeriod: CashFlowSummaryState;
-  cashFlows: {
-    [key: string]: {
-      income: CashFlow;
-      expense: CashFlow;
-    };
-  };
-
-  status: 'idle' | 'loading' | 'succeeded' | 'error';
-  error?: any;
-};
-
 const initialiseCashFlowByPeriod = (state: any, accountingPeriod: string) => {
   if (!state.cashFlows[accountingPeriod]) {
     state.cashFlows[accountingPeriod] = {
@@ -189,8 +176,32 @@ const addTransactionReducer = (
       state.overallCashFlowForPeriod.difference =
         state.overallCashFlowForPeriod.inflow -
         state.overallCashFlowForPeriod.outflow;
+      state.status = 'compute_completed';
     }
   });
+};
+
+type Status =
+  | 'idle'
+  | 'loading'
+  | 'load_complete'
+  | 'recompute'
+  | 'computing'
+  | 'compute_completed'
+  | 'error';
+
+type CashFlowState = {
+  overallCashFlowForPeriod: CashFlowSummaryState;
+  cashFlows: {
+    [key: string]: {
+      income: CashFlow;
+      expense: CashFlow;
+    };
+  };
+
+  status: Status;
+
+  error?: any;
 };
 
 const initialState: CashFlowState = {
@@ -278,21 +289,22 @@ const cashflowSlice = createSlice({
           state.overallCashFlowForPeriod.outflow = totalExpense;
           state.overallCashFlowForPeriod.difference =
             totalIncome - totalExpense;
-          state.status = 'succeeded';
+          state.status = 'load_complete';
         }
       )
       .addCase(getTransactions.rejected, (state, action) => {
         state.status = 'error';
         state.error = action.error;
       })
+      .addCase(addTransaction.pending, (state, action) => {
+        state.status = 'computing';
+      })
       .addCase(addTransaction.fulfilled, addTransactionReducer);
   },
 });
 
 export const { setCashFlowAccountingPeriod } = cashflowSlice.actions;
-export const selectStatus = (state: any) => state.cashflow.status;
-export const selectHasError = (state: any) => !!state.cashflow.error;
-export const selectError = (state: any) => state.cashflow.error;
+export const selectCashFlowStoreStatus = (state: any) => state.cashflow.status;
 export const selectAccountingPeriod = createSelector(
   (state: any) => state.cashflow.overallCashFlowForPeriod,
   (cashFlowSummary) => ({

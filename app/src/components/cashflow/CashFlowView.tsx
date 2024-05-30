@@ -7,10 +7,9 @@ import ReactFlow, {
 } from 'reactflow';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
-  selectAccountingPeriod,
   selectAllCashFlowSummaryByMonthWithinAccountingPeriod,
   selectCashFlowSummary,
-  selectStatus,
+  selectCashFlowStoreStatus,
 } from '@/states/features/cashflow/cashflow.slice';
 import { CashFlowNode } from '@/components/cashflow/CashFlowNode';
 import { selectIsOpenModal } from '@/states/common/modal.slice';
@@ -26,7 +25,6 @@ import {
   selectFlowNodes,
   setCashFlows,
 } from '@/states/features/cashflow/flow.slice';
-import { Box } from '@chakra-ui/react';
 import { Loading } from '@/components/common/Loading';
 
 const nodeDragThreshold = 6;
@@ -36,6 +34,7 @@ export const CashFlowView = () => {
   const dispatch = useAppDispatch();
   const nodeTypes = useMemo(() => ({ cashFlowNode: CashFlowNode }), []);
   const modalClose = useAppSelector(selectIsOpenModal);
+  const cashFlowStoreStateStatus = useAppSelector(selectCashFlowStoreStatus);
   const cashFlowAccountingPeriod = useAppSelector(
     selectCurrentAccountingPeriod
   );
@@ -45,12 +44,12 @@ export const CashFlowView = () => {
   );
   const nodes = useAppSelector(selectFlowNodes);
   const edges = useAppSelector(selectFlowEdges);
-  const cashFlowStatus = useAppSelector(selectStatus);
 
   useEffect(() => {
     if (
-      !cashFlowAccountingPeriod.startPeriod &&
-      !cashFlowAccountingPeriod.endPeriod
+      cashFlowStoreStateStatus !== 'compute_completed' &&
+      cashFlowStoreStateStatus !== 'load_complete' &&
+      !cashFlowSummary
     ) {
       return;
     }
@@ -68,14 +67,7 @@ export const CashFlowView = () => {
       })),
     };
     dispatch(setCashFlows(payload));
-  }, [
-    modalClose,
-    cashFlowSummary.startPeriod,
-    cashFlowSummary.endPeriod,
-    cashFlowSummary.inflow,
-    cashFlowSummary.outflow,
-    cashFlowSummary.difference,
-  ]);
+  }, [dispatch, cashFlowStoreStateStatus]);
 
   const handleNodesChange = (changes: NodeChange[]) => {
     changes.forEach((change) => {
@@ -100,7 +92,7 @@ export const CashFlowView = () => {
 
   return (
     <>
-      {cashFlowStatus === 'loading' && <Loading />}
+      {cashFlowStoreStateStatus === 'loading' && <Loading />}
       <ReactFlow
         nodes={nodes}
         edges={edges}

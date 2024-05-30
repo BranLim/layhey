@@ -30,12 +30,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
             endPeriod: accountingPeriodEnd.toISOString(),
           })
         ),
-        newStore.dispatch(
-          setCashFlowAccountingPeriod({
-            startPeriod: accountingPeriodStart.toISOString(),
-            endPeriod: accountingPeriodStart.toISOString(),
-          })
-        ),
         newStore.dispatch(getAccountingPeriods()),
       ]);
       newStore.dispatch(

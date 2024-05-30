@@ -59,7 +59,6 @@ const defaultViewOptionValues: Input = {
 
 export const CashFlowViewControl = () => {
   const dispatch = useAppDispatch();
-  const accountingStoreStatus = useAppSelector(selectAccountingStoreStatus);
   const [selectedPeriodPreset, setSelectedPeriodPreset] = useState<string>();
   const accountingPeriodPresets = useAppSelector(selectPresetAccountingPeriods);
   const selectedAccountingPeriodPreset = useAppSelector((state) =>
