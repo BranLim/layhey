@@ -22,7 +22,7 @@ import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
   getTransactions,
   selectAccountingPeriod,
-  setAccountingPeriod,
+  setCashFlowAccountingPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
 import {
   calculateNumberOfDays,
@@ -40,6 +40,7 @@ import {
   selectPresetAccountingPeriods,
 } from '@/states/features/accounting/accounting.slice';
 import { UserAccountingPeriod } from '@/types/AccountingPeriod';
+import { selectCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slice';
 
 type Input = {
   startPeriod: Date;
@@ -60,7 +61,7 @@ export const CashFlowViewControl = () => {
   const dispatch = useAppDispatch();
   const accountingStoreStatus = useAppSelector(selectAccountingStoreStatus);
   const [selectedPeriodPreset, setSelectedPeriodPreset] = useState('');
-  const accountingPeriod = useAppSelector(selectAccountingPeriod);
+  const accountingPeriod = useAppSelector(selectCurrentAccountingPeriod);
   const accountingPeriodPresets = useAppSelector(selectPresetAccountingPeriods);
   const selectedAccountingPeriodPreset = useAppSelector((state) =>
     selectPresetAccountingPeriod(state, selectedPeriodPreset)
@@ -101,7 +102,7 @@ export const CashFlowViewControl = () => {
   const onSubmit: SubmitHandler<Input> = (data: Input) => {
     console.log(`Setting accounting period: ${JSON.stringify(data)}`);
     dispatch(
-      setAccountingPeriod({
+      setCashFlowAccountingPeriod({
         startPeriod: data.startPeriod.toISOString(),
         endPeriod: data.endPeriod.toISOString(),
       })
@@ -112,7 +113,7 @@ export const CashFlowViewControl = () => {
     setValue('startPeriod', startOfYear);
     setValue('endPeriod', endOfYear);
     dispatch(
-      setAccountingPeriod({
+      setCashFlowAccountingPeriod({
         startPeriod: startOfYear.toISOString(),
         endPeriod: endOfYear.toISOString(),
       })

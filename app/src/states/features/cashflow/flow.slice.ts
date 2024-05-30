@@ -9,6 +9,10 @@ import {
   Position,
 } from 'reactflow';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  AccountingPeriod,
+  SerializableAccountingPeriod,
+} from '@/types/AccountingPeriod';
 
 const edgeColor = 'lightgray';
 
@@ -30,6 +34,7 @@ export type FlowPayload = {
 };
 
 export type FlowViewState = {
+  currentChosenAccountingPeriod: SerializableAccountingPeriod;
   nodes: Node<CashFlowNodeData>[];
   edges: Edge[];
   selectedNode?: Node<CashFlowNodeData>;
@@ -37,6 +42,10 @@ export type FlowViewState = {
 };
 
 const initialState: FlowViewState = {
+  currentChosenAccountingPeriod: {
+    startPeriod: '',
+    endPeriod: '',
+  },
   nodes: [],
   edges: [],
   nodeStyles: {},
@@ -46,6 +55,15 @@ const flowSlice = createSlice({
   name: 'flow',
   initialState: initialState,
   reducers: {
+    setCurrentAccountingPeriod: (
+      state,
+      action: PayloadAction<SerializableAccountingPeriod>
+    ) => {
+      const accountingPeriod = action.payload;
+      if (accountingPeriod) {
+        state.currentChosenAccountingPeriod = accountingPeriod;
+      }
+    },
     setCashFlows: (state, action: PayloadAction<FlowPayload>) => {
       const { rootCashFlowSummary, cashFlowSummaries } = action.payload;
 
@@ -161,12 +179,15 @@ const flowSlice = createSlice({
 });
 
 export const {
+  setCurrentAccountingPeriod,
   setCashFlows,
   handleNodeSelection,
   handleNodeMove,
   handleNodeMouseEnter,
   handleNodeMouseLeave,
 } = flowSlice.actions;
+export const selectCurrentAccountingPeriod = (state: any) =>
+  state.flow.currentChosenAccountingPeriod;
 export const selectFlowNodes = (state: any) => state.flow.nodes;
 export const selectFlowEdges = (state: any) => state.flow.edges;
 export const selectNodeStyle = (state: any, nodeId: string) =>

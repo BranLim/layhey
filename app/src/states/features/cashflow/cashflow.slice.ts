@@ -210,7 +210,7 @@ const cashflowSlice = createSlice({
   name: 'cashflow',
   initialState,
   reducers: {
-    setAccountingPeriod: (
+    setCashFlowAccountingPeriod: (
       state,
       action: PayloadAction<{ startPeriod: string; endPeriod: string }>
     ) => {
@@ -289,7 +289,7 @@ const cashflowSlice = createSlice({
   },
 });
 
-export const { setAccountingPeriod } = cashflowSlice.actions;
+export const { setCashFlowAccountingPeriod } = cashflowSlice.actions;
 export const selectStatus = (state: any) => state.cashflow.status;
 export const selectHasError = (state: any) => !!state.cashflow.error;
 export const selectError = (state: any) => state.cashflow.error;

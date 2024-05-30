@@ -6,8 +6,9 @@ import { AppStore, makeStore } from '@/states/store';
 import { Provider } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import { getAccountingPeriods } from '@/states/features/accounting/accounting.slice';
-import { setAccountingPeriod } from '@/states/features/cashflow/cashflow.slice';
 import { getCurrentYear } from '@/utils/date.utils';
+import { setCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slice';
+import { setCashFlowAccountingPeriod } from '@/states/features/cashflow/cashflow.slice';
 
 const currentYear = getCurrentYear();
 const startOfYear = new Date(currentYear, 0, 1);
@@ -18,13 +19,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
   if (!storeRef.current) {
     const newStore = makeStore();
     storeRef.current = newStore;
-    newStore.dispatch(getAccountingPeriods());
     newStore.dispatch(
-      setAccountingPeriod({
+      setCurrentAccountingPeriod({
         startPeriod: startOfYear.toISOString(),
         endPeriod: endOfYear.toISOString(),
       })
     );
+    newStore.dispatch(
+      setCashFlowAccountingPeriod({
+        startPeriod: startOfYear.toISOString(),
+        endPeriod: startOfYear.toISOString(),
+      })
+    );
+    newStore.dispatch(getAccountingPeriods());
   }
   return (
     <Provider store={storeRef.current}>

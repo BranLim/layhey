@@ -21,6 +21,7 @@ import {
   handleNodeMouseLeave,
   handleNodeMove,
   handleNodeSelection,
+  selectCurrentAccountingPeriod,
   selectFlowEdges,
   selectFlowNodes,
   setCashFlows,
@@ -35,7 +36,9 @@ export const CashFlowView = () => {
   const dispatch = useAppDispatch();
   const nodeTypes = useMemo(() => ({ cashFlowNode: CashFlowNode }), []);
   const modalClose = useAppSelector(selectIsOpenModal);
-  const cashFlowAccountingPeriod = useAppSelector(selectAccountingPeriod);
+  const cashFlowAccountingPeriod = useAppSelector(
+    selectCurrentAccountingPeriod
+  );
   const cashFlowSummary = useAppSelector(selectCashFlowSummary);
   const allCashFlowsForPeriod = useAppSelector(
     selectAllCashFlowSummaryByMonthWithinAccountingPeriod

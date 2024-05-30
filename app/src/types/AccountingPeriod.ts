@@ -2,27 +2,24 @@ export type AccountingPeriod = {
   startPeriod?: Date;
   endPeriod?: Date;
 };
+export type SerializableAccountingPeriod = {
+  startPeriod: string;
+  endPeriod: string;
+};
 
-export type UserAccountingPeriod = AccountingPeriod & {
+export type AccountingPeriodIdentifier = {
   id?: string;
   name: string;
   description: string;
 };
-export type UserAccountingPeriodRequest = Omit<
-  UserAccountingPeriod,
-  'startPeriod' | 'endPeriod'
-> & {
-  startPeriod: string;
-  endPeriod: string;
-};
 
-export type SerializableUserAccountingPeriod = Omit<
-  UserAccountingPeriod,
-  'startPeriod' | 'endPeriod'
-> & {
-  startPeriod: string;
-  endPeriod: string;
-};
+export type UserAccountingPeriod = AccountingPeriod &
+  AccountingPeriodIdentifier;
+
+export type SerializableUserAccountingPeriod = AccountingPeriodIdentifier &
+  SerializableAccountingPeriod;
+
+export type UserAccountingPeriodRequest = SerializableUserAccountingPeriod;
 
 export type UserAccountingPeriodResponse = SerializableUserAccountingPeriod;
 
