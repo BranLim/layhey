@@ -6,32 +6,45 @@ import { AppStore, makeStore } from '@/states/store';
 import { Provider } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import { getAccountingPeriods } from '@/states/features/accounting/accounting.slice';
-import { getCurrentYear } from '@/utils/date.utils';
+import { getCurrentYear, toFormattedDate } from '@/utils/date.utils';
 import { setCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slice';
-import { setCashFlowAccountingPeriod } from '@/states/features/cashflow/cashflow.slice';
+import {
+  getTransactions,
+  setCashFlowAccountingPeriod,
+} from '@/states/features/cashflow/cashflow.slice';
 
 const currentYear = getCurrentYear();
-const startOfYear = new Date(currentYear, 0, 1);
-const endOfYear = new Date(currentYear, 11, 31);
+const accountingPeriodStart = new Date(currentYear, 0, 1);
+const accountingPeriodEnd = new Date(currentYear, 11, 31);
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const storeRef = useRef<AppStore>();
   if (!storeRef.current) {
     const newStore = makeStore();
     storeRef.current = newStore;
-    newStore.dispatch(
-      setCurrentAccountingPeriod({
-        startPeriod: startOfYear.toISOString(),
-        endPeriod: endOfYear.toISOString(),
-      })
-    );
-    newStore.dispatch(
-      setCashFlowAccountingPeriod({
-        startPeriod: startOfYear.toISOString(),
-        endPeriod: startOfYear.toISOString(),
-      })
-    );
-    newStore.dispatch(getAccountingPeriods());
+    (async () => {
+      await Promise.all([
+        newStore.dispatch(
+          setCurrentAccountingPeriod({
+            startPeriod: accountingPeriodStart.toISOString(),
+            endPeriod: accountingPeriodEnd.toISOString(),
+          })
+        ),
+        newStore.dispatch(
+          setCashFlowAccountingPeriod({
+            startPeriod: accountingPeriodStart.toISOString(),
+            endPeriod: accountingPeriodStart.toISOString(),
+          })
+        ),
+        newStore.dispatch(getAccountingPeriods()),
+      ]);
+      newStore.dispatch(
+        getTransactions({
+          startPeriod: toFormattedDate(accountingPeriodStart, 'yyyy-MM-dd'),
+          endPeriod: toFormattedDate(accountingPeriodEnd, 'yyyy-MM-dd'),
+        })
+      );
+    })();
   }
   return (
     <Provider store={storeRef.current}>

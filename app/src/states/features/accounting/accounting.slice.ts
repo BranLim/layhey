@@ -80,10 +80,7 @@ const accountingSlice = createSlice({
   name: 'accounting',
   initialState,
   reducers: {
-    reloadUserAccountingPeriod: (
-      state,
-      action: PayloadAction<AccountingState>
-    ) => {
+    reloadUserAccountingPeriod: (state, action) => {
       state.isInitialLoadComplete = false;
     },
   },
@@ -135,7 +132,8 @@ export const selectAccountingStoreStatus = (state: any) =>
   state.accounting.status;
 export const selectPresetAccountingPeriods = (state: any) =>
   state.accounting.accountingPeriods;
-export const selectPresetAccountingPeriod = (state: any, id: string) =>
+export const selectPresetAccountingPeriod = (state: any, id?: string) =>
+  id &&
   state.accounting.accountingPeriods.find(
     (accountingPeriod: UserAccountingPeriod) => accountingPeriod.id === id
   );

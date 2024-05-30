@@ -60,8 +60,7 @@ const defaultViewOptionValues: Input = {
 export const CashFlowViewControl = () => {
   const dispatch = useAppDispatch();
   const accountingStoreStatus = useAppSelector(selectAccountingStoreStatus);
-  const [selectedPeriodPreset, setSelectedPeriodPreset] = useState('');
-  const accountingPeriod = useAppSelector(selectCurrentAccountingPeriod);
+  const [selectedPeriodPreset, setSelectedPeriodPreset] = useState<string>();
   const accountingPeriodPresets = useAppSelector(selectPresetAccountingPeriods);
   const selectedAccountingPeriodPreset = useAppSelector((state) =>
     selectPresetAccountingPeriod(state, selectedPeriodPreset)
@@ -77,25 +76,19 @@ export const CashFlowViewControl = () => {
     control,
   } = useForm<Input>({ defaultValues: defaultViewOptionValues });
   const reactFlow = useReactFlow();
-
   useEffect(() => {
-    if (!accountingPeriod.startPeriod && !accountingPeriod.endPeriod) {
-      return;
+    if (selectedPeriodPreset) {
+      setValue('startPeriod', selectedAccountingPeriodPreset.startPeriod);
+      setValue('endPeriod', selectedAccountingPeriodPreset.endPeriod);
     }
-    dispatch(
-      getTransactions({
-        startPeriod: accountingPeriod.startPeriod,
-        endPeriod: accountingPeriod.endPeriod,
-      })
-    );
-  }, [dispatch, accountingPeriod.startPeriod, accountingPeriod.endPeriod]);
+  }, [selectedPeriodPreset]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
-    setSelectedPeriodPreset(selectedValue);
-    if (selectedAccountingPeriodPreset) {
-      setValue('startPeriod', selectedAccountingPeriodPreset.startPeriod);
-      setValue('endPeriod', selectedAccountingPeriodPreset.endPeriod);
+    if (selectedValue) {
+      setSelectedPeriodPreset(selectedValue);
+    } else {
+      setSelectedPeriodPreset('');
     }
   };
 
@@ -145,6 +138,7 @@ export const CashFlowViewControl = () => {
                   Preset
                 </FormLabel>
                 <Select id='presetAccountingPeriod' onChange={handleChange}>
+                  <option>Select Preset</option>
                   {accountingPeriodPresets?.map(
                     (preset: UserAccountingPeriod) => {
                       return (
