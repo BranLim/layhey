@@ -200,7 +200,6 @@ type CashFlowState = {
   };
 
   status: Status;
-
   error?: any;
 };
 

@@ -5,19 +5,18 @@ import { useRef } from 'react';
 import { AppStore, makeStore } from '@/states/store';
 import { Provider } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
-import { getAccountingPeriods } from '@/states/features/accounting/accounting.slice';
-import { getCurrentYear, toFormattedDate } from '@/utils/date.utils';
+import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
 import { setCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slice';
 import {
   getTransactions,
   setCashFlowAccountingPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
-import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
+import { getAccountingPeriods } from '@/states/features/accounting/accounting.slice';
+import { getCurrentYear, toFormattedDate } from '@/utils/date.utils';
 
 const currentYear = getCurrentYear();
 const accountingPeriodStart = new Date(currentYear, 0, 1);
 const accountingPeriodEnd = new Date(currentYear, 11, 31);
-
 export function Providers({ children }: { children: React.ReactNode }) {
   const storeRef = useRef<AppStore>();
   if (!storeRef.current) {
@@ -39,6 +38,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       })
     );
   }
+
   return (
     <Provider store={storeRef.current}>
       <ReactFlowProvider>
