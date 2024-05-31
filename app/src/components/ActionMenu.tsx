@@ -21,8 +21,10 @@ export const ActionMenu = () => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const dispatch = useAppDispatch();
-  const handleOpenModal = () => {
-    dispatch(openModal());
+  const handleOpenModal = (modalId: string) => {
+    if (modalId) {
+      dispatch(openModal(modalId));
+    }
   };
 
   return (
@@ -79,7 +81,7 @@ export const ActionMenu = () => {
                   as={NextLink}
                   icon={<Icon as={FaMoneyBillTransfer} boxSize={8} />}
                   aria-label='Add Transaction'
-                  onMouseDown={handleOpenModal}
+                  onMouseDown={() => handleOpenModal('AddTransactionModal')}
                   href='/transactions/add'
                   passHref
                   size='lg'
@@ -111,7 +113,6 @@ export const ActionMenu = () => {
                   _focus={{
                     boxShadow: 'outline',
                   }}
-                  onClick={handleOpenModal}
                   href='/transactions/update/6635f92426594141912d3a90'
                   passHref
                 />
@@ -121,7 +122,9 @@ export const ActionMenu = () => {
                   as={NextLink}
                   icon={<AddAccountingPeriodIcon boxSize={8} />}
                   aria-label='Add Accounting Period'
-                  onMouseDown={handleOpenModal}
+                  onMouseDown={() =>
+                    handleOpenModal('AddAccountingPeriodModal')
+                  }
                   href='/accounting/period/add'
                   passHref
                   size='lg'

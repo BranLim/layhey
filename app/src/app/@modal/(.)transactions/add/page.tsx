@@ -12,17 +12,17 @@ import {
 import { Divider, Text } from '@chakra-ui/react';
 import { closeModal, selectIsOpenModal } from '@/states/common/modal.slice';
 import { useRouter } from 'next/navigation';
-import { useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 
 export default function AddTransactionModal() {
-  const ref = useRef(null);
-  const isOpen = useAppSelector(selectIsOpenModal);
+  const isOpen = useAppSelector((state) =>
+    selectIsOpenModal(state, 'AddTransactionModal')
+  );
   const dispatch = useAppDispatch();
   const router = useRouter();
 
   const handleCloseModal = () => {
-    dispatch(closeModal());
+    dispatch(closeModal('AddTransactionModal'));
   };
 
   return (

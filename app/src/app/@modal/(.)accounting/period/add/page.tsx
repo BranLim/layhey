@@ -11,17 +11,18 @@ import {
 import { Divider, Text } from '@chakra-ui/react';
 import { closeModal, selectIsOpenModal } from '@/states/common/modal.slice';
 import { useRouter } from 'next/navigation';
-import { useRef } from 'react';
-import { useAppDispatch, useAppSelector, useAppStore } from '@/states/hooks';
+import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import AddAccountingPeriod from '@/app/accounting/period/add/page';
 
-export default function AddTransactionModal() {
-  const isOpen = useAppSelector(selectIsOpenModal);
+export default function AddAccountingPeriodModal() {
+  const isOpen = useAppSelector((state) =>
+    selectIsOpenModal(state, 'AddAccountingPeriodModal')
+  );
   const dispatch = useAppDispatch();
   const router = useRouter();
 
   const handleCloseModal = () => {
-    dispatch(closeModal());
+    dispatch(closeModal('AddAccountingPeriodModal'));
   };
 
   return (

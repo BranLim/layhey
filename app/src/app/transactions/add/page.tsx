@@ -86,7 +86,7 @@ const AddTransaction = () => {
   });
 
   const handleCloseModal = () => {
-    dispatch(closeModal());
+    dispatch(closeModal('AddTransactionModal'));
   };
 
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {

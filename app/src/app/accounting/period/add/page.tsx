@@ -59,7 +59,7 @@ const AddAccountingPeriod = () => {
   }, [accountingStoreStateStatus]);
 
   const handleCloseModal = () => {
-    dispatch(closeModal());
+    dispatch(closeModal('AddAccountingPeriodModal'));
   };
 
   const onSubmit = (data: FormData) => {
