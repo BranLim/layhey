@@ -14,7 +14,11 @@ import {
 import { Controller, useForm } from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import { closeModal } from '@/states/common/modal.slice';
-import { getCurrentDate, toFormattedDate } from '@/utils/date.utils';
+import {
+  ensureDate,
+  getCurrentDate,
+  toFormattedDate,
+} from '@/utils/date.utils';
 import { AddAccountingPeriodRequest } from '@/types/AccountingPeriod';
 import {
   addAccountingPeriod,
@@ -49,7 +53,7 @@ const AddAccountingPeriod = () => {
     if (accountingStoreStateStatus === 'idle') {
       return;
     }
-    if (accountingStoreStateStatus === 'succeeded') {
+    if (accountingStoreStateStatus === 'add_complete') {
       handleCloseModal();
     }
   }, [accountingStoreStateStatus]);
@@ -107,6 +111,16 @@ const AddAccountingPeriod = () => {
             <Controller
               control={control}
               name='startPeriod'
+              rules={{
+                validate: (value: Date, formValues: FormData) => {
+                  try {
+                    const endPeriod = ensureDate(value);
+                  } catch (error) {
+                    console.log('Invalid data type');
+                    return false;
+                  }
+                },
+              }}
               render={({ field }) => (
                 <Input
                   {...field}

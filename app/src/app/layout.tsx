@@ -27,7 +27,7 @@ export default function RootLayout({
         <Providers>
           <Box height='100vh' overflow='hidden'>
             <Header />
-            {modal}
+            <div>{modal}</div>
             {children}
             <Footer />
           </Box>

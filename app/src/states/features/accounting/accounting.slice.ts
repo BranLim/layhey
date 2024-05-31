@@ -63,10 +63,18 @@ export const getAccountingPeriods = createAsyncThunk(
   }
 );
 
+type Status =
+  | 'idle'
+  | 'adding'
+  | 'add_complete'
+  | 'loading'
+  | 'load_complete'
+  | 'error';
+
 type AccountingState = {
   accountingPeriods: SerializableUserAccountingPeriod[];
   isInitialLoadComplete: boolean;
-  status: 'idle' | 'adding' | 'loading' | 'succeeded' | 'error';
+  status: Status;
   error?: any;
 };
 
@@ -101,7 +109,7 @@ const accountingSlice = createSlice({
             startPeriod: addedPeriod.startPeriod,
             endPeriod: addedPeriod.endPeriod,
           });
-          state.status = 'succeeded';
+          state.status = 'add_complete';
         }
       )
       .addCase(getAccountingPeriods.pending, (state, action) => {
@@ -117,7 +125,7 @@ const accountingSlice = createSlice({
           ...accountingPeriodResponse.accountingPeriods
         );
         state.isInitialLoadComplete = true;
-        state.status = 'succeeded';
+        state.status = 'load_complete';
       })
       .addCase(getAccountingPeriods.rejected, (state, action) => {
         state.isInitialLoadComplete = true;

@@ -1,5 +1,4 @@
-import { format, parse, setMonth } from 'date-fns';
-import { end } from '@popperjs/core';
+import { format, isDate, parse, parseISO } from 'date-fns';
 
 export const isTransactionDateWithin = (
   transactionDate: Date,
@@ -47,4 +46,14 @@ export const toAccountingMonth = (date: Date) => {
 
 export const calculateNumberOfDays = (noOfDaysInMillis: number): number => {
   return noOfDaysInMillis / (1000 * 60 * 60 * 24);
+};
+
+export const ensureDate = (value: unknown): Date => {
+  if (isDate(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    return parseISO(value);
+  }
+  throw new Error('Unknown value. Cannot convert to date/time');
 };
