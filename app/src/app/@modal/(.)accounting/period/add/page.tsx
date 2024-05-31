@@ -12,11 +12,10 @@ import { Divider, Text } from '@chakra-ui/react';
 import { closeModal, selectIsOpenModal } from '@/states/common/modal.slice';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
-import { useAppDispatch, useAppSelector } from '@/states/hooks';
+import { useAppDispatch, useAppSelector, useAppStore } from '@/states/hooks';
 import AddAccountingPeriod from '@/app/accounting/period/add/page';
 
 export default function AddTransactionModal() {
-  const ref = useRef(null);
   const isOpen = useAppSelector(selectIsOpenModal);
   const dispatch = useAppDispatch();
   const router = useRouter();
