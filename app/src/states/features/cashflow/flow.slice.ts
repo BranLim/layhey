@@ -1,5 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CashFlowNodeData, CashFlowSummaryState } from '@/types/CashFlow';
+import {
+  CashFlowNodeData,
+  SerializableCashFlowSummary,
+} from '@/types/CashFlow';
 import {
   Edge,
   MarkerType,
@@ -29,8 +32,8 @@ const edgeMarkerEnd = {
 };
 
 export type FlowPayload = {
-  rootCashFlowSummary: CashFlowSummaryState;
-  cashFlowSummaries: CashFlowSummaryState[];
+  rootCashFlowSummary: SerializableCashFlowSummary;
+  cashFlowSummaries: SerializableCashFlowSummary[];
 };
 
 export type FlowViewState = {

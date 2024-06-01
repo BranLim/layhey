@@ -1,5 +1,7 @@
+export type CashFlowType = 'income' | 'expense';
+
 export type CashFlow = {
-  type: string;
+  type: CashFlowType;
   period: string;
   total: number;
 };
@@ -13,7 +15,7 @@ export type CashFlowSummary = {
   currency: string;
 };
 
-export type CashFlowSummaryState = Omit<
+export type SerializableCashFlowSummary = Omit<
   CashFlowSummary,
   'startPeriod' | 'endPeriod'
 > & {
@@ -26,6 +28,6 @@ export type CashFlowNodes = {
   edges: any[];
 };
 
-export type CashFlowNodeData = CashFlowSummaryState & {
+export type CashFlowNodeData = SerializableCashFlowSummary & {
   rootNode?: boolean;
 };

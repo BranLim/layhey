@@ -13,7 +13,7 @@ import {
 import {
   CashFlow,
   CashFlowSummary,
-  CashFlowSummaryState,
+  SerializableCashFlowSummary,
 } from '@/types/CashFlow';
 import {
   fromAccountingMonthToDate,
@@ -21,6 +21,7 @@ import {
   toAccountingMonth,
   toFormattedDate,
 } from '@/utils/date.utils';
+import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
 
 const initialiseCashFlowByPeriod = (state: any, accountingPeriod: string) => {
   if (!state.cashFlows[accountingPeriod]) {
@@ -191,9 +192,10 @@ type Status =
   | 'error';
 
 type CashFlowState = {
-  overallCashFlowForPeriod: CashFlowSummaryState;
+  overallCashFlowForPeriod: SerializableCashFlowSummary;
   cashFlows: {
     [key: string]: {
+      accountingPeriod: SerializableAccountingPeriod;
       income: CashFlow;
       expense: CashFlow;
     };
@@ -297,6 +299,9 @@ const cashflowSlice = createSlice({
       })
       .addCase(addTransaction.pending, (state, action) => {
         state.status = 'computing';
+        if (state.error) {
+          state.error = undefined;
+        }
       })
       .addCase(addTransaction.fulfilled, addTransactionReducer);
   },
@@ -313,7 +318,7 @@ export const selectAccountingPeriod = createSelector(
 );
 export const selectCashFlowSummary = createSelector(
   (state: any) => state.cashflow.overallCashFlowForPeriod,
-  (cashFlowSummary: CashFlowSummaryState) =>
+  (cashFlowSummary: SerializableCashFlowSummary) =>
     ({
       startPeriod: new Date(cashFlowSummary.startPeriod),
       endPeriod: new Date(cashFlowSummary.endPeriod),
