@@ -77,7 +77,7 @@ const UpdateTransaction = ({ params }: Props) => {
   });
 
   const handleCloseModal = () => {
-    dispatch(closeModal());
+    dispatch(closeModal('UpdateTransactionModal'));
   };
 
   const onSubmit: SubmitHandler<Input> = async (data: Input) => {

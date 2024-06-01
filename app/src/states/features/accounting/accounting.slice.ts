@@ -1,5 +1,4 @@
 import {
-  AccountingPeriod,
   AddAccountingPeriodRequest,
   GetUserAccountingPeriodsResponse,
   SerializableUserAccountingPeriod,
@@ -7,7 +6,6 @@ import {
   UserAccountingPeriodResponse,
 } from '@/types/AccountingPeriod';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { toUserAccountingPeriodResponse } from '@/lib/mappers/accountingPeriod.mapper';
 import { getErrorMessage } from '@/utils/error.utils';
 
 export const addAccountingPeriod = createAsyncThunk(

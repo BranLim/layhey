@@ -21,12 +21,14 @@ interface Props {
 }
 export default function UpdateTransactionModal({ params }: Props) {
   const ref = useRef(null);
-  const isOpen = useAppSelector(selectIsOpenModal);
+  const isOpen = useAppSelector((state) =>
+    selectIsOpenModal(state, 'UpdateTransactionModal')
+  );
   const dispatch = useAppDispatch();
   const router = useRouter();
 
   const handleCloseModal = () => {
-    dispatch(closeModal());
+    dispatch(closeModal('UpdateTransactionModal'));
   };
 
   return (

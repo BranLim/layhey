@@ -12,10 +12,7 @@ import {
   Position,
 } from 'reactflow';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  AccountingPeriod,
-  SerializableAccountingPeriod,
-} from '@/types/AccountingPeriod';
+import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
 
 const edgeColor = 'lightgray';
 
@@ -96,9 +93,34 @@ const flowSlice = createSlice({
       };
       cashFlowNodes.push(rootNode);
 
+      const sortedCashFlowSummaries = cashFlowSummaries.sort(
+        (summary1, summary2) => {
+          const start = new Date(summary1.startPeriod);
+          const start2 = new Date(summary2.startPeriod);
+          const end = new Date(summary1.endPeriod);
+          const end2 = new Date(summary2.endPeriod);
+
+          if (end > end2) {
+            return -1;
+          }
+          if (end < end2) {
+            return 1;
+          }
+
+          if (start > start2) {
+            return -1;
+          }
+          if (start < start2) {
+            return 1;
+          }
+
+          return 0;
+        }
+      );
+
       let index = 2;
       let y = 10;
-      for (const cashFlowSummary of cashFlowSummaries) {
+      for (const cashFlowSummary of sortedCashFlowSummaries) {
         const node: Node<CashFlowNodeData> = {
           id: uuidv4(),
           type: 'cashFlowNode',
