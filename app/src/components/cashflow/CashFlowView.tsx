@@ -33,7 +33,6 @@ export const defaultViewPort = { x: 10, y: 20, zoom: 0.8 };
 export const CashFlowView = () => {
   const dispatch = useAppDispatch();
   const nodeTypes = useMemo(() => ({ cashFlowNode: CashFlowNode }), []);
-  const modalClose = useAppSelector(selectIsOpenModal);
   const cashFlowStoreStateStatus = useAppSelector(selectCashFlowStoreStatus);
   const cashFlowAccountingPeriod = useAppSelector(
     selectCurrentAccountingPeriod
