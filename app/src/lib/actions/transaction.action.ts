@@ -21,7 +21,10 @@ import {
   differenceInMonths,
   Duration,
   add as addDate,
+  differenceInWeeks,
+  differenceInYears,
 } from 'date-fns';
+import { AccountingPeriod } from '@/types/AccountingPeriod';
 
 const addTransaction = async (
   addTransactionRequest: AddTransactionRequest
@@ -108,47 +111,6 @@ const getTransaction = async (id: string): Promise<TransactionDto | null> => {
     currency: transaction.currency,
     date: transaction.date,
   } as TransactionDto;
-};
-
-const deriveTransactionPeriods = (
-  accountingStartPeriod: Date,
-  accountingEndPeriod: Date
-): Date[] => {
-  const diffInDays = differenceInDays(
-    accountingEndPeriod,
-    accountingStartPeriod
-  );
-
-  const periods: Date[] = [];
-  const duration: Duration = {};
-  let nextDate = new Date(accountingStartPeriod);
-  if (diffInDays <= 7) {
-    duration.days = 1;
-    periods.push(accountingStartPeriod);
-    for (let i = 1; i < diffInDays; i++) {
-      nextDate = addDate(nextDate, duration);
-      periods.push(nextDate);
-    }
-    periods.push(accountingEndPeriod);
-  } else if (diffInDays <= 31) {
-    duration.weeks = 1;
-    const noOfWeeks = diffInDays / 7;
-    for (let i = 1; i < noOfWeeks; i++) {
-      nextDate = addDate(nextDate, duration);
-      periods.push(nextDate);
-    }
-  } else if (diffInDays > 31) {
-    duration.months = 1;
-    const noOfMonths = differenceInMonths(
-      accountingStartPeriod,
-      accountingEndPeriod
-    );
-    for (let i = 1; i < noOfMonths; i++) {
-      nextDate = addDate(nextDate, duration);
-      periods.push(nextDate);
-    }
-  }
-  return periods;
 };
 
 export { addTransaction, updateTransaction, getTransactions, getTransaction };
