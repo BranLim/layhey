@@ -180,7 +180,7 @@ const generateMonthSlot = (
       endPeriod: nextDate,
       key: getAccountingSlotKey(currentDate, nextDate),
     });
-    currentDate = addDate(nextDate, { months: 1 });
+    currentDate = addDate(nextDate, { days: 1 });
   }
 
   return periods;
