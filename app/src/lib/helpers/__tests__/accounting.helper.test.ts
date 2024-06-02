@@ -5,9 +5,18 @@ import expect from 'expect';
 
 describe('AccountingAction tests', () => {
   describe('Start and end period is 1 week apart', () => {
-    it('Should return 7 accounting periods when computing transaction period slots', () => {
+    it('Should return 7 slots when transaction period is within same week', () => {
       const startPeriod = new Date(2024, 0, 1);
       const endPeriod = new Date(2024, 0, 7, 23, 59, 59);
+
+      const accountingPeriods: AccountingPeriod[] =
+        computeAccountingPeriodSlots(startPeriod, endPeriod);
+
+      expect(accountingPeriods.length).toBe(7);
+    });
+    it('Should return 7 slots when transaction period is spread across two calendar weeks', () => {
+      const startPeriod = new Date(2024, 0, 3);
+      const endPeriod = new Date(2024, 0, 9, 23, 59, 59);
 
       const accountingPeriods: AccountingPeriod[] =
         computeAccountingPeriodSlots(startPeriod, endPeriod);
