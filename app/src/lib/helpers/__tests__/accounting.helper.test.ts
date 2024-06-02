@@ -83,13 +83,21 @@ describe('AccountingAction tests', () => {
       expect(accountingPeriods.length).toBe(12);
     });
     it('Should return 12 accounting slot when transaction period start 15 January and end 31 December', () => {
-      const startPeriod = new Date(2024, 0, 15);
+      const startPeriod = new Date(2024, 0, 15, 0, 0, 0);
       const endPeriod = new Date(2024, 11, 31, 23, 59, 59);
 
       const accountingPeriods: AccountingPeriod[] =
         computeAccountingPeriodSlots(startPeriod, endPeriod);
 
       expect(accountingPeriods.length).toBe(12);
+      expect(accountingPeriods[0]).toMatchObject({
+        startPeriod: new Date(2024, 0, 15, 0, 0, 0, 0),
+        endPeriod: new Date(2024, 0, 31, 23, 59, 59, 999),
+      });
+      expect(accountingPeriods[11]).toMatchObject({
+        startPeriod: new Date(2024, 11, 1, 0, 0, 0, 0),
+        endPeriod: new Date(2024, 11, 31, 23, 59, 59, 999),
+      });
     });
   });
 });

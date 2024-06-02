@@ -64,7 +64,8 @@ const generateDaySlots = (
     accountingEndPeriod.getDate(),
     23,
     59,
-    59
+    59,
+    999
   );
   const periods: AccountingPeriodSlot[] = [];
   let currentDate = new Date(
@@ -81,7 +82,8 @@ const generateDaySlots = (
     currentDate.getDate(),
     23,
     59,
-    59
+    59,
+    999
   );
   for (let i = 0; i < Accounting_Period_Days_In_Week; i++) {
     periods.push({
@@ -108,7 +110,8 @@ const generateWeekSlots = (
     accountingEndPeriod.getDate(),
     23,
     59,
-    59
+    59,
+    999
   );
   const weekStartDate = startOfWeek(accountingStartPeriod, { weekStartsOn: 1 });
   const weekEndDate = endOfWeek(accountingEndPeriod, { weekStartsOn: 1 });
@@ -125,7 +128,8 @@ const generateWeekSlots = (
     accountingStartPeriod.getDate(),
     23,
     59,
-    59
+    59,
+    999
   );
   const periods: AccountingPeriodSlot[] = [];
   for (let i = 0; i < diffInWeeks; i++) {
@@ -156,7 +160,8 @@ const generateMonthSlot = (
     accountingEndPeriod.getDate(),
     23,
     59,
-    59
+    59,
+    999
   );
   let currentDate = new Date(accountingStartPeriod.getTime());
   let nextDate = new Date(
@@ -165,7 +170,8 @@ const generateMonthSlot = (
     accountingStartPeriod.getDate(),
     23,
     59,
-    59
+    59,
+    999
   );
   const periods: AccountingPeriodSlot[] = [];
   while (currentDate < endPeriod) {
