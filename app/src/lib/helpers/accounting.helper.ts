@@ -12,6 +12,7 @@ import {
   differenceInCalendarWeeks,
   differenceInYears,
   Duration,
+  endOfWeek,
   isBefore,
   isDate,
   isLastDayOfMonth,
@@ -22,6 +23,7 @@ import {
 } from 'date-fns';
 import { add as addDate } from 'date-fns/add';
 import { toFormattedDate } from '@/utils/date.utils';
+import { next } from 'sucrase/dist/types/parser/tokenizer';
 
 const computeAccountingPeriodSlots = (
   accountingStartPeriod: Date,
@@ -63,11 +65,19 @@ const generateDaySlots = (
   accountingStartPeriod: Date,
   accountingEndPeriod: Date
 ): AccountingPeriodSlot[] => {
+  const endPeriod = new Date(
+    accountingEndPeriod.getFullYear(),
+    accountingEndPeriod.getMonth(),
+    accountingEndPeriod.getDate(),
+    23,
+    59,
+    59
+  );
   const periods: AccountingPeriodSlot[] = [];
   let currentDate = new Date(
     accountingStartPeriod.getFullYear(),
     accountingStartPeriod.getMonth(),
-    accountingStartPeriod.getDay(),
+    accountingStartPeriod.getDate(),
     0,
     0,
     0
@@ -75,7 +85,7 @@ const generateDaySlots = (
   let nextDate = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth(),
-    currentDate.getDay(),
+    currentDate.getDate(),
     23,
     59,
     59
@@ -88,6 +98,9 @@ const generateDaySlots = (
     });
     currentDate = addDate(currentDate, { days: 1 });
     nextDate = addDate(nextDate, { days: 1 });
+    if (nextDate > endPeriod) {
+      nextDate = endPeriod;
+    }
   }
   return periods;
 };
@@ -97,24 +110,44 @@ const generateWeekSlots = (
   accountingEndPeriod: Date
 ): AccountingPeriodSlot[] => {
   const periods: AccountingPeriodSlot[] = [];
+  const endPeriod = new Date(
+    accountingEndPeriod.getFullYear(),
+    accountingEndPeriod.getMonth(),
+    accountingEndPeriod.getDate(),
+    23,
+    59,
+    59
+  );
+  const weekStartDate = startOfWeek(accountingStartPeriod, { weekStartsOn: 1 });
+  const weekEndDate = endOfWeek(accountingEndPeriod, { weekStartsOn: 1 });
+
+  const diffInWeeks = Math.ceil(
+    (weekEndDate.getTime() - weekStartDate.getTime()) /
+      (1000 * 60 * 60 * 24 * 7)
+  );
 
   let currentDate = new Date(accountingStartPeriod.getTime());
-  let nextDate = new Date(accountingStartPeriod.getTime());
-
-  const diffInWeeks = differenceInCalendarWeeks(
-    accountingEndPeriod,
-    accountingStartPeriod,
-    { weekStartsOn: 1 }
+  let nextDate = new Date(
+    accountingStartPeriod.getFullYear(),
+    accountingStartPeriod.getMonth(),
+    accountingStartPeriod.getDate(),
+    23,
+    59,
+    59
   );
   for (let i = 0; i < diffInWeeks; i++) {
     if (!isSunday(currentDate)) {
-      nextDate = getSunday(nextDate);
+      nextDate = getSunday(currentDate);
+    }
+    if (nextDate > endPeriod) {
+      nextDate = endPeriod;
     }
     periods.push({
       startPeriod: currentDate,
       endPeriod: nextDate,
       key: getAccountingSlotKey(currentDate, nextDate),
     });
+    currentDate = addDate(nextDate, { days: 1 });
   }
 
   return periods;
