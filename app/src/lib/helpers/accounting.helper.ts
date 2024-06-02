@@ -12,6 +12,7 @@ import {
   differenceInCalendarWeeks,
   differenceInYears,
   Duration,
+  endOfMonth,
   endOfWeek,
   isBefore,
   isDate,
@@ -22,7 +23,7 @@ import {
   startOfWeek,
 } from 'date-fns';
 import { add as addDate } from 'date-fns/add';
-import { toFormattedDate } from '@/utils/date.utils';
+import { getMonthEnd, getSunday, toFormattedDate } from '@/utils/date.utils';
 import { next } from 'sucrase/dist/types/parser/tokenizer';
 
 const computeAccountingPeriodSlots = (
@@ -39,25 +40,17 @@ const computeAccountingPeriodSlots = (
     differenceInCalendarDays(accountingEndPeriod, accountingStartPeriod) + 1;
 
   const periods: AccountingPeriodSlot[] = [];
-  const duration: Duration = {};
-
-  /*
-   * If both startDate and endDate are same month, startDate is > 1 and endDate is < endOfMonth then
-   *  - first slot is: startPeriod = startDate, endPeriod = startDate + n = sundayOfTheWeek
-   *  - subsequent slots is: startPeriod = startDayOfWeek, endPeriod = sunDayOfTheWeek
-   *  - final slot is: startPeriod = startDayOfWeek, endPeriood = endPeriod
-   * */
+  let slots: AccountingPeriodSlot[] = [];
   if (diffInDays <= Accounting_Period_Days_In_Month) {
-    let slots: AccountingPeriodSlot[] = [];
     if (diffInDays <= Accounting_Period_Days_In_Week) {
       slots = generateDaySlots(accountingStartPeriod, accountingEndPeriod);
     } else {
       slots = generateWeekSlots(accountingStartPeriod, accountingEndPeriod);
     }
-    periods.push(...slots);
   } else {
+    slots = generateMonthSlot(accountingStartPeriod, accountingEndPeriod);
   }
-
+  periods.push(...slots);
   return periods;
 };
 
@@ -109,7 +102,6 @@ const generateWeekSlots = (
   accountingStartPeriod: Date,
   accountingEndPeriod: Date
 ): AccountingPeriodSlot[] => {
-  const periods: AccountingPeriodSlot[] = [];
   const endPeriod = new Date(
     accountingEndPeriod.getFullYear(),
     accountingEndPeriod.getMonth(),
@@ -135,6 +127,7 @@ const generateWeekSlots = (
     59,
     59
   );
+  const periods: AccountingPeriodSlot[] = [];
   for (let i = 0; i < diffInWeeks; i++) {
     if (!isSunday(currentDate)) {
       nextDate = getSunday(currentDate);
@@ -148,6 +141,46 @@ const generateWeekSlots = (
       key: getAccountingSlotKey(currentDate, nextDate),
     });
     currentDate = addDate(nextDate, { days: 1 });
+  }
+
+  return periods;
+};
+
+const generateMonthSlot = (
+  accountingStartPeriod: Date,
+  accountingEndPeriod: Date
+): AccountingPeriodSlot[] => {
+  const endPeriod = new Date(
+    accountingEndPeriod.getFullYear(),
+    accountingEndPeriod.getMonth(),
+    accountingEndPeriod.getDate(),
+    23,
+    59,
+    59
+  );
+  let currentDate = new Date(accountingStartPeriod.getTime());
+  let nextDate = new Date(
+    accountingStartPeriod.getFullYear(),
+    accountingStartPeriod.getMonth(),
+    accountingStartPeriod.getDate(),
+    23,
+    59,
+    59
+  );
+  const periods: AccountingPeriodSlot[] = [];
+  while (currentDate < endPeriod) {
+    if (!isLastDayOfMonth(currentDate)) {
+      nextDate = getMonthEnd(currentDate);
+    }
+    if (nextDate > endPeriod) {
+      nextDate = endPeriod;
+    }
+    periods.push({
+      startPeriod: currentDate,
+      endPeriod: nextDate,
+      key: getAccountingSlotKey(currentDate, nextDate),
+    });
+    currentDate = addDate(nextDate, { months: 1 });
   }
 
   return periods;
@@ -177,11 +210,6 @@ const getAccountingPeriodFromSlotKey = (
 
 const getAccountingSlotKey = (startDate: Date, endDate: Date) =>
   `${toFormattedDate(startDate, 'yyyyMMdd')}_${toFormattedDate(endDate, 'yyyyMMdd')}`;
-
-const getSunday = (currentDate: Date): Date => {
-  const startOfWeekDate = startOfWeek(currentDate, { weekStartsOn: 1 });
-  return addDays(startOfWeekDate, 6);
-};
 
 export {
   computeAccountingPeriodSlots,

@@ -25,6 +25,24 @@ describe('AccountingAction tests', () => {
     });
   });
   describe('Start and end period is between 2 to 4 weeks apart', () => {
+    it('Should return 2 accounting periods when transaction period is spread across 2 calendar weeks', () => {
+      const startPeriod = new Date(2024, 0, 3);
+      const endPeriod = new Date(2024, 0, 12, 23, 59, 59);
+
+      const accountingPeriods: AccountingPeriod[] =
+        computeAccountingPeriodSlots(startPeriod, endPeriod);
+
+      expect(accountingPeriods.length).toBe(2);
+    });
+    it('Should return 3 accounting periods when transaction period is spread across 3 calendar weeks', () => {
+      const startPeriod = new Date(2024, 0, 3);
+      const endPeriod = new Date(2024, 0, 16, 23, 59, 59);
+
+      const accountingPeriods: AccountingPeriod[] =
+        computeAccountingPeriodSlots(startPeriod, endPeriod);
+
+      expect(accountingPeriods.length).toBe(3);
+    });
     it('Should return 4 accounting periods when transaction period is spread across 4 calendar weeks', () => {
       const startPeriod = new Date(2024, 0, 1);
       const endPeriod = new Date(2024, 0, 28, 23, 59, 59);

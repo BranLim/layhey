@@ -1,4 +1,12 @@
-import { format, isDate, parse, parseISO } from 'date-fns';
+import {
+  addDays,
+  endOfMonth,
+  format,
+  isDate,
+  parse,
+  parseISO,
+  startOfWeek,
+} from 'date-fns';
 
 export const isTransactionDateWithin = (
   transactionDate: Date,
@@ -57,3 +65,10 @@ export const ensureDate = (value: unknown): Date => {
   }
   throw new Error('Unknown value. Cannot convert to date/time');
 };
+
+export const getSunday = (currentDate: Date): Date => {
+  const startOfWeekDate = startOfWeek(currentDate, { weekStartsOn: 1 });
+  return addDays(startOfWeekDate, 6);
+};
+
+export const getMonthEnd = (currentDate: Date): Date => endOfMonth(currentDate);
