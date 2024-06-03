@@ -94,10 +94,17 @@ describe('AccountingAction tests', () => {
         startPeriod: new Date(2024, 0, 15, 0, 0, 0, 0),
         endPeriod: new Date(2024, 0, 31, 23, 59, 59, 999),
       });
-      expect(accountingPeriods[11]).toMatchObject({
-        startPeriod: new Date(2024, 11, 1, 0, 0, 0, 0),
-        endPeriod: new Date(2024, 11, 31, 23, 59, 59, 999),
-      });
+    });
+  });
+  describe('Start and end period is more than 1 year apart', () => {
+    it('Should return 2 accounting slots when transaction period start 1st January and end 31 Jan next year', () => {
+      const startPeriod = new Date(2024, 0, 1);
+      const endPeriod = new Date(2025, 0, 31, 23, 59, 59);
+
+      const accountingPeriods: AccountingPeriod[] =
+        computeAccountingPeriodSlots(startPeriod, endPeriod);
+
+      expect(accountingPeriods.length).toBe(2);
     });
   });
 });

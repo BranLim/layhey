@@ -23,7 +23,12 @@ import {
   startOfWeek,
 } from 'date-fns';
 import { add as addDate } from 'date-fns/add';
-import { getMonthEnd, getSunday, toFormattedDate } from '@/utils/date.utils';
+import {
+  getMonthEnd,
+  getSunday,
+  getYearEnd,
+  toFormattedDate,
+} from '@/utils/date.utils';
 import { next } from 'sucrase/dist/types/parser/tokenizer';
 
 const computeAccountingPeriodSlots = (
@@ -47,8 +52,13 @@ const computeAccountingPeriodSlots = (
     } else {
       slots = generateWeekSlots(accountingStartPeriod, accountingEndPeriod);
     }
-  } else {
+  } else if (
+    diffInDays > Accounting_Period_Days_In_Month &&
+    diffInDays <= Accounting_Period_Days_In_Year
+  ) {
     slots = generateMonthSlot(accountingStartPeriod, accountingEndPeriod);
+  } else {
+    slots = generateYearSlot(accountingStartPeriod, accountingEndPeriod);
   }
   periods.push(...slots);
   return periods;
@@ -178,6 +188,47 @@ const generateMonthSlot = (
     if (!isLastDayOfMonth(currentDate)) {
       nextDate = getMonthEnd(currentDate);
     }
+    if (nextDate > endPeriod) {
+      nextDate = endPeriod;
+    }
+    periods.push({
+      startPeriod: currentDate,
+      endPeriod: nextDate,
+      key: getAccountingSlotKey(currentDate, nextDate),
+    });
+    currentDate = addDate(nextDate, { days: 1 });
+  }
+
+  return periods;
+};
+
+const generateYearSlot = (
+  accountingStartPeriod: Date,
+  accountingEndPeriod: Date
+): AccountingPeriodSlot[] => {
+  const endPeriod = new Date(
+    accountingEndPeriod.getFullYear(),
+    accountingEndPeriod.getMonth(),
+    accountingEndPeriod.getDate(),
+    23,
+    59,
+    59,
+    999
+  );
+  let currentDate = new Date(accountingStartPeriod.getTime());
+  let nextDate = new Date(
+    accountingStartPeriod.getFullYear(),
+    accountingStartPeriod.getMonth(),
+    accountingStartPeriod.getDate(),
+    23,
+    59,
+    59,
+    999
+  );
+  const periods: AccountingPeriodSlot[] = [];
+  while (currentDate < endPeriod) {
+    nextDate = getYearEnd(currentDate);
+
     if (nextDate > endPeriod) {
       nextDate = endPeriod;
     }

@@ -1,6 +1,7 @@
 import {
   addDays,
   endOfMonth,
+  endOfYear,
   format,
   isDate,
   parse,
@@ -72,3 +73,5 @@ export const getSunday = (currentDate: Date): Date => {
 };
 
 export const getMonthEnd = (currentDate: Date): Date => endOfMonth(currentDate);
+
+export const getYearEnd = (currentDate: Date): Date => endOfYear(currentDate);
