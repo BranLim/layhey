@@ -67,6 +67,8 @@ export const CashFlowViewControl = () => {
   const selectedAccountingPeriodPreset = useAppSelector((state) =>
     selectPresetAccountingPeriod(state, selectedPeriodPreset)
   );
+  const [isSubmitButtonEnabled, setIsSubmitButtonEnabled] =
+    useState<boolean>(true);
 
   const {
     trigger,
@@ -170,6 +172,7 @@ export const CashFlowViewControl = () => {
                     validDate: (value) => {
                       const startPeriod =
                         typeof value === 'string' ? new Date(value) : value;
+
                       return (
                         !Number.isNaN(startPeriod.getTime()) ||
                         'Start period is not a valid date'
@@ -178,6 +181,7 @@ export const CashFlowViewControl = () => {
                     atLeastAWeekApart: (value, formValues) => {
                       const startPeriod =
                         typeof value === 'string' ? new Date(value) : value;
+
                       const endPeriod =
                         typeof formValues.endPeriod === 'string'
                           ? new Date(formValues.endPeriod)
@@ -204,11 +208,8 @@ export const CashFlowViewControl = () => {
                     )}
                     onChange={async (event) => {
                       field.onChange(new Date(event.target.value));
-                      const startPeriodValidation =
-                        await trigger('startPeriod');
-                      if (!startPeriodValidation) {
-                        return;
-                      }
+                      const valid = await trigger('startPeriod');
+                      setIsSubmitButtonEnabled(valid);
                     }}
                   />
                 )}
@@ -222,19 +223,31 @@ export const CashFlowViewControl = () => {
                 name='endPeriod'
                 control={control}
                 rules={{
-                  validate: (value, formValues): ValidateResult => {
-                    const startPeriod =
-                      typeof formValues.startPeriod === 'string'
-                        ? new Date(formValues.startPeriod)
-                        : formValues.startPeriod;
+                  validate: {
+                    validDate: (value) => {
+                      const endPeriod =
+                        typeof value === 'string' ? new Date(value) : value;
+                      return (
+                        !Number.isNaN(endPeriod.getTime()) ||
+                        'End period is not a valid date'
+                      );
+                    },
+                    atLeastAWeekApart: (value, formValues) => {
+                      const endPeriod =
+                        typeof value === 'string' ? new Date(value) : value;
+                      const startPeriod =
+                        typeof formValues.startPeriod === 'string'
+                          ? new Date(formValues.startPeriod)
+                          : formValues.startPeriod;
 
-                    const endPeriod =
-                      typeof value === 'string' ? new Date(value) : value;
+                      const noOfDaysInMillis =
+                        endPeriod.getTime() - startPeriod.getTime();
 
-                    const noOfDaysInMillis =
-                      endPeriod.getTime() - startPeriod.getTime();
-
-                    return calculateNumberOfDays(noOfDaysInMillis) >= 7;
+                      return (
+                        calculateNumberOfDays(noOfDaysInMillis) >= 7 ||
+                        'Start and End period should be at least 7 days apart'
+                      );
+                    },
                   },
                 }}
                 render={({ field }) => (
@@ -248,13 +261,8 @@ export const CashFlowViewControl = () => {
                     )}
                     onChange={async (event) => {
                       field.onChange(new Date(event.target.value));
-                      const endPeriodValidation = await trigger('endPeriod');
-                      if (!endPeriodValidation) {
-                        setError('endPeriod', {
-                          type: 'focus',
-                          message: 'At least 7 days apart',
-                        });
-                      }
+                      const valid = await trigger('endPeriod');
+                      setIsSubmitButtonEnabled(valid);
                     }}
                   />
                 )}
@@ -268,7 +276,13 @@ export const CashFlowViewControl = () => {
                 <option>SGD</option>
               </Select>
             </FormControl>
-            <Button mt='8' type='submit' colorScheme='blue' size='md'>
+            <Button
+              mt='8'
+              type='submit'
+              colorScheme='blue'
+              size='md'
+              isDisabled={!isSubmitButtonEnabled}
+            >
               Submit
             </Button>
             <Button
