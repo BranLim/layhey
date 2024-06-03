@@ -1,6 +1,6 @@
 export const Accounting_Period_Days_In_Week = 7;
 export const Accounting_Period_Days_In_Month = 31;
-export const Accounting_Period_Days_In_Year = 365;
+export const Accounting_Period_Days_In_Year = 366;
 
 export type AccountingPeriod = {
   startPeriod: Date;
