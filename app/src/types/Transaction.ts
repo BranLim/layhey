@@ -7,12 +7,8 @@ export enum TransactionMode {
 
 export enum TransactionSource {
   Cash = 'Cash',
-  Cashback = 'Cashback',
   CreditCard = 'Credit Card',
   DirectDebit = 'Direct Debit',
-  Dividend = 'Dividend',
-  GovernmentAssistance = 'Government Assistance',
-  Salary = 'Salary',
 }
 
 export type TransactionCategoryName = string;

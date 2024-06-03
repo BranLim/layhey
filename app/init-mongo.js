@@ -58,4 +58,16 @@ db.transactionCategories.insertMany([
     name: 'Entertainment',
     description: 'Entertainment - Movies, Games, Arcade',
   },
+  {
+    name: 'Salary',
+    description: 'Salary',
+  },
+  {
+    name: 'Government Assistance',
+    description: 'Government Assistance',
+  },
+  {
+    name: 'Dividend',
+    description: 'Dividend',
+  },
 ]);

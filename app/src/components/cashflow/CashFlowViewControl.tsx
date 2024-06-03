@@ -166,19 +166,31 @@ export const CashFlowViewControl = () => {
                 name='startPeriod'
                 control={control}
                 rules={{
-                  validate: (value, formValues) => {
-                    const endPeriod =
-                      typeof formValues.endPeriod === 'string'
-                        ? new Date(formValues.endPeriod)
-                        : formValues.endPeriod;
+                  validate: {
+                    validDate: (value) => {
+                      const startPeriod =
+                        typeof value === 'string' ? new Date(value) : value;
+                      return (
+                        !Number.isNaN(startPeriod.getTime()) ||
+                        'Start period is not a valid date'
+                      );
+                    },
+                    atLeastAWeekApart: (value, formValues) => {
+                      const startPeriod =
+                        typeof value === 'string' ? new Date(value) : value;
+                      const endPeriod =
+                        typeof formValues.endPeriod === 'string'
+                          ? new Date(formValues.endPeriod)
+                          : formValues.endPeriod;
 
-                    const startPeriod =
-                      typeof value === 'string' ? new Date(value) : value;
+                      const noOfDaysInMillis =
+                        endPeriod.getTime() - startPeriod.getTime();
 
-                    const noOfDaysInMillis =
-                      endPeriod.getTime() - startPeriod.getTime();
-
-                    return calculateNumberOfDays(noOfDaysInMillis) >= 7;
+                      return (
+                        calculateNumberOfDays(noOfDaysInMillis) >= 7 ||
+                        'Start and End period should be at least 7 days apart'
+                      );
+                    },
                   },
                 }}
                 render={({ field }) => (
@@ -195,10 +207,7 @@ export const CashFlowViewControl = () => {
                       const startPeriodValidation =
                         await trigger('startPeriod');
                       if (!startPeriodValidation) {
-                        setError('startPeriod', {
-                          type: 'focus',
-                          message: 'At least 7 days apart',
-                        });
+                        return;
                       }
                     }}
                   />
@@ -276,7 +285,7 @@ export const CashFlowViewControl = () => {
           </HStack>
           {(!!errors.startPeriod || !!errors.endPeriod) && (
             <Text pl={4} color='crimson'>
-              Error: Start and End period should be at least 7 days apart.
+              {errors.startPeriod?.message || errors.endPeriod?.message}
             </Text>
           )}
         </VStack>
