@@ -13,7 +13,6 @@ import {
 } from 'reactflow';
 import { v4 as uuidv4 } from 'uuid';
 import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
-import { node } from 'prop-types';
 
 const edgeColor = 'lightgray';
 
@@ -41,7 +40,7 @@ export type AddCashFlowPayload = {
 
 export type FlowViewState = {
   currentChosenAccountingPeriod: SerializableAccountingPeriod;
-  expandedNodes: Node<CashFlowNodeData>[];
+  expandedNodes: Set<string>;
   nodes: Node<CashFlowNodeData>[];
   edges: Edge[];
   selectedNode?: Node<CashFlowNodeData>;
@@ -53,7 +52,7 @@ const initialState: FlowViewState = {
     startPeriod: '',
     endPeriod: '',
   },
-  expandedNodes: [],
+  expandedNodes: new Set<string>(),
   nodes: [],
   edges: [],
   nodeStyles: {},
@@ -271,7 +270,23 @@ const flowSlice = createSlice({
         (node) => node.id === nodeDoubleClicked.id
       );
       if (foundNode) {
-        state.expandedNodes.push(foundNode);
+        if (foundNode.data.isExpanded) {
+          foundNode.data.isExpanded = false;
+          state.expandedNodes.delete(foundNode.id);
+
+          const tempEdges = [...state.edges];
+          const tempNodes = [...state.nodes];
+
+          const edgesToDelete = tempEdges.filter(
+            (edge) => edge.target === foundNode.id
+          );
+          tempNodes.filter((node) =>
+            edgesToDelete.find((edge) => edge.source !== node.id)
+          );
+        } else {
+          foundNode.data.isExpanded = true;
+          state.expandedNodes.add(foundNode.id);
+        }
       }
     },
   },

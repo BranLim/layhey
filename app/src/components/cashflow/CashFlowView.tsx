@@ -73,7 +73,7 @@ export const CashFlowView = () => {
     ) {
       return;
     }
-    dispatch(getTransactions());
+    //dispatch(getTransactions());
   }, [dispatch, cashFlowStoreStateStatus]);
 
   const handleNodesChange = (changes: NodeChange[]) => {
@@ -98,7 +98,7 @@ export const CashFlowView = () => {
   };
 
   const handleMouseDoubleClick = (event: React.MouseEvent, node: Node) => {
-    if (event.button === 1) {
+    if (event.button === 0) {
       dispatch(handleNodeMouseDoubleClick(node));
     }
   };

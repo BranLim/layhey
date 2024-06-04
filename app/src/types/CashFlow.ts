@@ -23,11 +23,7 @@ export type SerializableCashFlowSummary = Omit<
   endPeriod: string;
 };
 
-export type CashFlowNodes = {
-  nodes: any[];
-  edges: any[];
-};
-
 export type CashFlowNodeData = SerializableCashFlowSummary & {
   rootNode?: boolean;
+  isExpanded?: boolean;
 };

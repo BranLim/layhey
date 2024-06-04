@@ -131,8 +131,8 @@ export const addTransaction = createAsyncThunk(
   }
 );
 
-export const getTransactionsForInitialView = createAsyncThunk(
-  'cashflow/getTransactionsForInitialView',
+export const getTransactions = createAsyncThunk(
+  'cashflow/getTransactions',
   async (
     {
       startPeriod,
@@ -171,20 +171,6 @@ export const getTransactionsForInitialView = createAsyncThunk(
       return rejectWithValue(getErrorMessage(error));
     }
   }
-);
-
-export const getTransactions = createAsyncThunk(
-  'cashflow/getTransactions',
-  async (
-    {
-      startPeriod,
-      endPeriod,
-    }: {
-      startPeriod: string;
-      endPeriod: string;
-    },
-    { rejectWithValue }
-  ) => {}
 );
 
 const getTransactionsReducer = (
@@ -345,14 +331,14 @@ const cashflowSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getTransactionsForInitialView.pending, (state, action) => {
+      .addCase(getTransactions.pending, (state, action) => {
         state.status = 'loading';
         if (state.error) {
           state.error = undefined;
         }
       })
-      .addCase(getTransactionsForInitialView.fulfilled, getTransactionsReducer)
-      .addCase(getTransactionsForInitialView.rejected, (state, action) => {
+      .addCase(getTransactions.fulfilled, getTransactionsReducer)
+      .addCase(getTransactions.rejected, (state, action) => {
         state.status = 'error';
         state.error = action.error;
       })
