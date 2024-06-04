@@ -372,36 +372,34 @@ export const selectCashFlowSummary = createSelector(
     }) as CashFlowSummary
 );
 
-export const selectAllCashFlowSummaryByMonthWithinAccountingPeriod =
-  createSelector(
-    (state: any) => state.cashflow,
-    (cashflow): CashFlowSummary[] => {
-      const cashFlows = cashflow.cashFlows;
+export const selectAllCashFlowSummaryForAccountingPeriod = createSelector(
+  (state: any) => state.cashflow,
+  (cashflow): CashFlowSummary[] => {
+    const cashFlows = cashflow.cashFlows;
 
-      const summaryNodes: CashFlowSummary[] = [];
-      for (const accountingMonth in cashFlows) {
-        const cashflowByMonth = cashFlows[accountingMonth];
-        const accountingPeriod =
-          getAccountingPeriodFromSlotKey(accountingMonth);
-        if (!accountingPeriod) {
-          continue;
-        }
-
-        const cashFlow: CashFlowSummary = {
-          startPeriod: accountingPeriod.startPeriod,
-          endPeriod: accountingPeriod.endPeriod,
-          inflow: cashflowByMonth.income.total,
-          outflow: cashflowByMonth.expense.total,
-          difference:
-            cashflowByMonth.income.total - cashflowByMonth.expense.total,
-          currency: 'SGD',
-        };
-
-        summaryNodes.push(cashFlow);
+    const summaryNodes: CashFlowSummary[] = [];
+    for (const accountingMonth in cashFlows) {
+      const cashflowByMonth = cashFlows[accountingMonth];
+      const accountingPeriod = getAccountingPeriodFromSlotKey(accountingMonth);
+      if (!accountingPeriod) {
+        continue;
       }
 
-      return summaryNodes;
+      const cashFlow: CashFlowSummary = {
+        startPeriod: accountingPeriod.startPeriod,
+        endPeriod: accountingPeriod.endPeriod,
+        inflow: cashflowByMonth.income.total,
+        outflow: cashflowByMonth.expense.total,
+        difference:
+          cashflowByMonth.income.total - cashflowByMonth.expense.total,
+        currency: 'SGD',
+      };
+
+      summaryNodes.push(cashFlow);
     }
-  );
+
+    return summaryNodes;
+  }
+);
 
 export default cashflowSlice.reducer;

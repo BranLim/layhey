@@ -7,7 +7,7 @@ import ReactFlow, {
 } from 'reactflow';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
-  selectAllCashFlowSummaryByMonthWithinAccountingPeriod,
+  selectAllCashFlowSummaryForAccountingPeriod,
   selectCashFlowSummary,
   selectCashFlowStoreStatus,
 } from '@/states/features/cashflow/cashflow.slice';
@@ -23,7 +23,7 @@ import {
   selectCurrentAccountingPeriod,
   selectFlowEdges,
   selectFlowNodes,
-  setCashFlows,
+  setInitialCashFlows,
 } from '@/states/features/cashflow/flow.slice';
 import { Loading } from '@/components/common/Loading';
 
@@ -39,7 +39,7 @@ export const CashFlowView = () => {
   );
   const cashFlowSummary = useAppSelector(selectCashFlowSummary);
   const allCashFlowsForPeriod = useAppSelector(
-    selectAllCashFlowSummaryByMonthWithinAccountingPeriod
+    selectAllCashFlowSummaryForAccountingPeriod
   );
   const nodes = useAppSelector(selectFlowNodes);
   const edges = useAppSelector(selectFlowEdges);
@@ -64,7 +64,7 @@ export const CashFlowView = () => {
         endPeriod: cashFlowForPeriod.endPeriod?.toISOString() ?? '',
       })),
     };
-    dispatch(setCashFlows(payload));
+    dispatch(setInitialCashFlows(payload));
   }, [dispatch, cashFlowStoreStateStatus]);
 
   const handleNodesChange = (changes: NodeChange[]) => {

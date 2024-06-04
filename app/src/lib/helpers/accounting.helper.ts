@@ -6,20 +6,12 @@ import {
   AccountingPeriodSlot,
 } from '@/types/AccountingPeriod';
 import {
-  addDays,
   differenceInCalendarDays,
-  differenceInCalendarMonths,
-  differenceInCalendarWeeks,
-  differenceInYears,
-  Duration,
-  endOfMonth,
   endOfWeek,
-  isBefore,
   isDate,
   isLastDayOfMonth,
   isSunday,
   parse,
-  startOfISOWeek,
   startOfWeek,
 } from 'date-fns';
 import { add as addDate } from 'date-fns/add';
@@ -29,7 +21,6 @@ import {
   getYearEnd,
   toFormattedDate,
 } from '@/utils/date.utils';
-import { next } from 'sucrase/dist/types/parser/tokenizer';
 
 const computeAccountingPeriodSlots = (
   accountingStartPeriod: Date,

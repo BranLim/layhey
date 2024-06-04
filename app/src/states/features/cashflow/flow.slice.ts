@@ -33,6 +33,11 @@ export type FlowPayload = {
   cashFlowSummaries: SerializableCashFlowSummary[];
 };
 
+export type AddCashFlowPayload = {
+  cashFlowSummaries: SerializableCashFlowSummary[];
+  targetNodeId: string;
+};
+
 export type FlowViewState = {
   currentChosenAccountingPeriod: SerializableAccountingPeriod;
   nodes: Node<CashFlowNodeData>[];
@@ -51,6 +56,39 @@ const initialState: FlowViewState = {
   nodeStyles: {},
 };
 
+const applyDefaultNodeStyle = (state: any, nodeId: string) => {
+  state.nodeStyles[nodeId] = {
+    border: '3px solid black',
+  };
+};
+
+const sortCashFlowSummaries = (
+  cashFlowSummaries: SerializableCashFlowSummary[]
+) => {
+  return cashFlowSummaries.sort((summary1, summary2) => {
+    const start = new Date(summary1.startPeriod);
+    const start2 = new Date(summary2.startPeriod);
+    const end = new Date(summary1.endPeriod);
+    const end2 = new Date(summary2.endPeriod);
+
+    if (end > end2) {
+      return -1;
+    }
+    if (end < end2) {
+      return 1;
+    }
+
+    if (start > start2) {
+      return -1;
+    }
+    if (start < start2) {
+      return 1;
+    }
+
+    return 0;
+  });
+};
+
 const flowSlice = createSlice({
   name: 'flow',
   initialState: initialState,
@@ -64,7 +102,7 @@ const flowSlice = createSlice({
         state.currentChosenAccountingPeriod = accountingPeriod;
       }
     },
-    setCashFlows: (state, action: PayloadAction<FlowPayload>) => {
+    setInitialCashFlows: (state, action: PayloadAction<FlowPayload>) => {
       const { rootCashFlowSummary, cashFlowSummaries } = action.payload;
 
       const cashFlowNodes: Node<CashFlowNodeData>[] = [];
@@ -88,41 +126,15 @@ const flowSlice = createSlice({
           rootNode: true,
         },
       };
-      state.nodeStyles[rootNode.id] = {
-        border: '3px solid black',
-      };
+      applyDefaultNodeStyle(state, rootNode.id);
       cashFlowNodes.push(rootNode);
 
-      const sortedCashFlowSummaries = cashFlowSummaries.sort(
-        (summary1, summary2) => {
-          const start = new Date(summary1.startPeriod);
-          const start2 = new Date(summary2.startPeriod);
-          const end = new Date(summary1.endPeriod);
-          const end2 = new Date(summary2.endPeriod);
+      const sortedCashFlowSummaries = sortCashFlowSummaries(cashFlowSummaries);
 
-          if (end > end2) {
-            return -1;
-          }
-          if (end < end2) {
-            return 1;
-          }
-
-          if (start > start2) {
-            return -1;
-          }
-          if (start < start2) {
-            return 1;
-          }
-
-          return 0;
-        }
-      );
-
-      let index = 2;
       let y = 10;
       for (const cashFlowSummary of sortedCashFlowSummaries) {
         const node: Node<CashFlowNodeData> = {
-          id: uuidv4(),
+          id: `node-${uuidv4()}`,
           type: 'cashFlowNode',
           position: { x: 480, y: y },
           sourcePosition: Position.Right,
@@ -139,25 +151,29 @@ const flowSlice = createSlice({
           },
         };
         cashFlowNodes.push(node);
-        state.nodeStyles[node.id] = {
-          border: '3px solid black',
-        };
+        applyDefaultNodeStyle(state, node.id);
         y += 180;
 
         const edge: Edge = {
           type: 'smoothstep',
           target: rootNode.id,
           source: node.id,
-          id: `edge-${index}`,
+          id: `edge-${uuidv4()}`,
           markerEnd: edgeMarkerEnd,
           style: edgeStyle,
         };
         cashFlowEdges.push(edge);
-
-        index++;
       }
       state.nodes = cashFlowNodes;
       state.edges = cashFlowEdges;
+    },
+    addCashFlows: (state, action: PayloadAction<AddCashFlowPayload>) => {
+      const { targetNodeId, cashFlowSummaries } = action.payload;
+
+      const edges: Edge[] = [];
+      const sortedCashFlowSummaries = sortCashFlowSummaries(cashFlowSummaries);
+
+      state.edges.push(...edges);
     },
     handleNodeMouseEnter: (state, action: PayloadAction<Node>) => {
       const mouseEnteredNode = action.payload;
@@ -205,7 +221,8 @@ const flowSlice = createSlice({
 
 export const {
   setCurrentAccountingPeriod,
-  setCashFlows,
+  setInitialCashFlows,
+  addCashFlows,
   handleNodeSelection,
   handleNodeMove,
   handleNodeMouseEnter,
