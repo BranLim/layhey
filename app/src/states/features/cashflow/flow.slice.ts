@@ -13,6 +13,7 @@ import {
 } from 'reactflow';
 import { v4 as uuidv4 } from 'uuid';
 import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
+import { node } from 'prop-types';
 
 const edgeColor = 'lightgray';
 
@@ -122,6 +123,25 @@ const generateCashFlowNodes = (
   return cashFlowNodes;
 };
 
+const generateNodeEdges = (
+  targetNodeId: string,
+  childrenNodeIds: string[]
+): Edge[] => {
+  const cashFlowEdges: Edge[] = [];
+  for (const childrenId of childrenNodeIds) {
+    const edge: Edge = {
+      type: 'smoothstep',
+      target: targetNodeId,
+      source: childrenId,
+      id: `edge-${uuidv4()}`,
+      markerEnd: edgeMarkerEnd,
+      style: edgeStyle,
+    };
+    cashFlowEdges.push(edge);
+  }
+  return cashFlowEdges;
+};
+
 const flowSlice = createSlice({
   name: 'flow',
   initialState: initialState,
@@ -163,37 +183,46 @@ const flowSlice = createSlice({
       cashFlowNodes.push(rootNode);
 
       const sortedCashFlowSummaries = sortCashFlowSummaries(cashFlowSummaries);
-
       const generatedCashFlowNodes = generateCashFlowNodes(
         state,
         sortedCashFlowSummaries,
         480,
         10
       );
-      cashFlowNodes.push(...generatedCashFlowNodes);
+      const generatedNodeEdges = generateNodeEdges(
+        rootNode.id,
+        generatedCashFlowNodes.map((node) => node.id)
+      );
 
-      let y = 10;
-      for (const node of generatedCashFlowNodes) {
-        const edge: Edge = {
-          type: 'smoothstep',
-          target: rootNode.id,
-          source: node.id,
-          id: `edge-${uuidv4()}`,
-          markerEnd: edgeMarkerEnd,
-          style: edgeStyle,
-        };
-        cashFlowEdges.push(edge);
-      }
+      cashFlowNodes.push(...generatedCashFlowNodes);
+      cashFlowEdges.push(...generatedNodeEdges);
+
       state.nodes = cashFlowNodes;
       state.edges = cashFlowEdges;
     },
     addCashFlows: (state, action: PayloadAction<AddCashFlowPayload>) => {
       const { targetNodeId, cashFlowSummaries } = action.payload;
 
-      const edges: Edge[] = [];
-      const sortedCashFlowSummaries = sortCashFlowSummaries(cashFlowSummaries);
+      const nodes: Node<CashFlowNodeData>[] = [...state.nodes];
+      const edges: Edge[] = [...state.edges];
 
-      state.edges.push(...edges);
+      const targetNode = nodes.find((node) => node.id === targetNodeId);
+      const sortedCashFlowSummaries = sortCashFlowSummaries(cashFlowSummaries);
+      const generatedCashFlowNodes = generateCashFlowNodes(
+        state,
+        sortedCashFlowSummaries,
+        targetNode?.position.x ?? 0 + 480,
+        10
+      );
+      const generatedEdges = generateNodeEdges(
+        targetNodeId,
+        generatedCashFlowNodes.map((node) => node.id)
+      );
+
+      nodes.push(...generatedCashFlowNodes);
+      edges.push(...generatedEdges);
+
+      state.edges = edges;
     },
     handleNodeMouseEnter: (state, action: PayloadAction<Node>) => {
       const mouseEnteredNode = action.payload;
