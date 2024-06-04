@@ -20,7 +20,7 @@ import {
 } from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
-  getTransactions,
+  getTransactionsForInitialView,
   selectAccountingPeriod,
   setCashFlowAccountingPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
@@ -106,7 +106,7 @@ export const CashFlowViewControl = () => {
       endPeriod: new Date(data.endPeriod).toISOString(),
     };
     dispatch(setCashFlowAccountingPeriod(cashflowAccountingPeriod));
-    await dispatch(getTransactions(cashflowAccountingPeriod));
+    await dispatch(getTransactionsForInitialView(cashflowAccountingPeriod));
   };
 
   const onReset = () => {

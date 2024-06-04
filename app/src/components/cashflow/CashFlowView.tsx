@@ -8,11 +8,10 @@ import ReactFlow, {
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
   selectAllCashFlowSummaryForAccountingPeriod,
-  selectCashFlowSummary,
   selectCashFlowStoreStatus,
+  selectCashFlowSummary,
 } from '@/states/features/cashflow/cashflow.slice';
 import { CashFlowNode } from '@/components/cashflow/CashFlowNode';
-import { selectIsOpenModal } from '@/states/common/modal.slice';
 import 'reactflow/dist/style.css';
 import {
   FlowPayload,
@@ -20,10 +19,11 @@ import {
   handleNodeMouseLeave,
   handleNodeMove,
   handleNodeSelection,
-  selectCurrentAccountingPeriod,
+  handleNodeMouseDoubleClick,
   selectFlowEdges,
   selectFlowNodes,
   setInitialCashFlows,
+  selectLatestExpandedNode,
 } from '@/states/features/cashflow/flow.slice';
 import { Loading } from '@/components/common/Loading';
 
@@ -34,15 +34,13 @@ export const CashFlowView = () => {
   const dispatch = useAppDispatch();
   const nodeTypes = useMemo(() => ({ cashFlowNode: CashFlowNode }), []);
   const cashFlowStoreStateStatus = useAppSelector(selectCashFlowStoreStatus);
-  const cashFlowAccountingPeriod = useAppSelector(
-    selectCurrentAccountingPeriod
-  );
   const cashFlowSummary = useAppSelector(selectCashFlowSummary);
   const allCashFlowsForPeriod = useAppSelector(
     selectAllCashFlowSummaryForAccountingPeriod
   );
   const nodes = useAppSelector(selectFlowNodes);
   const edges = useAppSelector(selectFlowEdges);
+  const latestExpandedNode = useAppSelector(selectLatestExpandedNode);
 
   useEffect(() => {
     if (
@@ -67,6 +65,17 @@ export const CashFlowView = () => {
     dispatch(setInitialCashFlows(payload));
   }, [dispatch, cashFlowStoreStateStatus]);
 
+  useEffect(() => {
+    if (
+      cashFlowStoreStateStatus !== 'compute_completed' &&
+      cashFlowStoreStateStatus !== 'load_complete' &&
+      !latestExpandedNode
+    ) {
+      return;
+    }
+    dispatch(getTransactions());
+  }, [dispatch, cashFlowStoreStateStatus]);
+
   const handleNodesChange = (changes: NodeChange[]) => {
     changes.forEach((change) => {
       switch (change.type) {
@@ -88,6 +97,12 @@ export const CashFlowView = () => {
     dispatch(handleNodeMouseEnter(node));
   };
 
+  const handleMouseDoubleClick = (event: React.MouseEvent, node: Node) => {
+    if (event.button === 1) {
+      dispatch(handleNodeMouseDoubleClick(node));
+    }
+  };
+
   return (
     <>
       {cashFlowStoreStateStatus === 'loading' && <Loading />}
@@ -100,6 +115,7 @@ export const CashFlowView = () => {
         onNodeMouseEnter={handleMouseEnter}
         onNodeMouseLeave={handleMouseLeave}
         nodeDragThreshold={nodeDragThreshold}
+        onNodeDoubleClick={handleMouseDoubleClick}
         minZoom={0.1}
         maxZoom={5.0}
         defaultViewport={defaultViewPort}

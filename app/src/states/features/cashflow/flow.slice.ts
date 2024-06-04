@@ -41,6 +41,7 @@ export type AddCashFlowPayload = {
 
 export type FlowViewState = {
   currentChosenAccountingPeriod: SerializableAccountingPeriod;
+  expandedNodes: Node<CashFlowNodeData>[];
   nodes: Node<CashFlowNodeData>[];
   edges: Edge[];
   selectedNode?: Node<CashFlowNodeData>;
@@ -52,6 +53,7 @@ const initialState: FlowViewState = {
     startPeriod: '',
     endPeriod: '',
   },
+  expandedNodes: [],
   nodes: [],
   edges: [],
   nodeStyles: {},
@@ -258,11 +260,18 @@ const flowSlice = createSlice({
     handleNodeMove: (state, action: PayloadAction<NodePositionChange>) => {
       const changeEvent = action.payload;
       const foundNode = state.nodes.find((node) => node.id === changeEvent.id);
+      if (foundNode && changeEvent.position) {
+        foundNode.position = changeEvent.position;
+        foundNode.positionAbsolute = changeEvent.positionAbsolute;
+      }
+    },
+    handleNodeMouseDoubleClick: (state, action: PayloadAction<Node>) => {
+      const nodeDoubleClicked = action.payload;
+      const foundNode = state.nodes.find(
+        (node) => node.id === nodeDoubleClicked.id
+      );
       if (foundNode) {
-        if (changeEvent.position) {
-          foundNode.position = changeEvent.position;
-          foundNode.positionAbsolute = changeEvent.positionAbsolute;
-        }
+        state.expandedNodes.push(foundNode);
       }
     },
   },
@@ -276,6 +285,7 @@ export const {
   handleNodeMove,
   handleNodeMouseEnter,
   handleNodeMouseLeave,
+  handleNodeMouseDoubleClick,
 } = flowSlice.actions;
 export const selectCurrentAccountingPeriod = (state: any) =>
   state.flow.currentChosenAccountingPeriod;
@@ -283,5 +293,7 @@ export const selectFlowNodes = (state: any) => state.flow.nodes;
 export const selectFlowEdges = (state: any) => state.flow.edges;
 export const selectNodeStyle = (state: any, nodeId: string) =>
   state.flow.nodeStyles[nodeId];
+export const selectLatestExpandedNode = (state: any) =>
+  state.flow.expandedNodes[state.flow.expandedNodes.length - 1];
 
 export default flowSlice.reducer;

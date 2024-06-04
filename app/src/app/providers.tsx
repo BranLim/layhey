@@ -8,7 +8,7 @@ import { ReactFlowProvider } from 'reactflow';
 import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
 import { setCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slice';
 import {
-  getTransactions,
+  getTransactionsForInitialView,
   setCashFlowAccountingPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
 import { getAccountingPeriods } from '@/states/features/accounting/accounting.slice';
@@ -32,7 +32,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     newStore.dispatch(setCashFlowAccountingPeriod(accountingPeriod));
     newStore.dispatch(getAccountingPeriods());
     newStore.dispatch(
-      getTransactions({
+      getTransactionsForInitialView({
         startPeriod: toFormattedDate(accountingPeriodStart, 'yyyy-MM-dd'),
         endPeriod: toFormattedDate(accountingPeriodEnd, 'yyyy-MM-dd'),
       })

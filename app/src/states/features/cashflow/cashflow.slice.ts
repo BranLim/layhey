@@ -131,8 +131,8 @@ export const addTransaction = createAsyncThunk(
   }
 );
 
-export const getTransactions = createAsyncThunk(
-  'cashflow/getTransactions',
+export const getTransactionsForInitialView = createAsyncThunk(
+  'cashflow/getTransactionsForInitialView',
   async (
     {
       startPeriod,
@@ -173,10 +173,26 @@ export const getTransactions = createAsyncThunk(
   }
 );
 
+export const getTransactions = createAsyncThunk(
+  'cashflow/getTransactions',
+  async (
+    {
+      startPeriod,
+      endPeriod,
+    }: {
+      startPeriod: string;
+      endPeriod: string;
+    },
+    { rejectWithValue }
+  ) => {}
+);
+
 const getTransactionsReducer = (
   state: any,
   action: PayloadAction<TransactionResponse[]>
 ) => {
+  state.cashFlows = {};
+
   const transactionDtos: TransactionResponse[] = action.payload;
 
   const accountingPeriodSlots = getAccountingPeriodSlots(state);
@@ -329,15 +345,14 @@ const cashflowSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getTransactions.pending, (state, action) => {
+      .addCase(getTransactionsForInitialView.pending, (state, action) => {
         state.status = 'loading';
-        state.cashFlows = {};
         if (state.error) {
           state.error = undefined;
         }
       })
-      .addCase(getTransactions.fulfilled, getTransactionsReducer)
-      .addCase(getTransactions.rejected, (state, action) => {
+      .addCase(getTransactionsForInitialView.fulfilled, getTransactionsReducer)
+      .addCase(getTransactionsForInitialView.rejected, (state, action) => {
         state.status = 'error';
         state.error = action.error;
       })
@@ -378,9 +393,9 @@ export const selectAllCashFlowSummaryForAccountingPeriod = createSelector(
     const cashFlows = cashflow.cashFlows;
 
     const summaryNodes: CashFlowSummary[] = [];
-    for (const accountingMonth in cashFlows) {
-      const cashflowByMonth = cashFlows[accountingMonth];
-      const accountingPeriod = getAccountingPeriodFromSlotKey(accountingMonth);
+    for (const cashFlowSlot in cashFlows) {
+      const cashFlowBySlots = cashFlows[cashFlowSlot];
+      const accountingPeriod = getAccountingPeriodFromSlotKey(cashFlowSlot);
       if (!accountingPeriod) {
         continue;
       }
@@ -388,10 +403,10 @@ export const selectAllCashFlowSummaryForAccountingPeriod = createSelector(
       const cashFlow: CashFlowSummary = {
         startPeriod: accountingPeriod.startPeriod,
         endPeriod: accountingPeriod.endPeriod,
-        inflow: cashflowByMonth.income.total,
-        outflow: cashflowByMonth.expense.total,
+        inflow: cashFlowBySlots.income.total,
+        outflow: cashFlowBySlots.expense.total,
         difference:
-          cashflowByMonth.income.total - cashflowByMonth.expense.total,
+          cashFlowBySlots.income.total - cashFlowBySlots.expense.total,
         currency: 'SGD',
       };
 
