@@ -91,15 +91,17 @@ const sortCashFlowSummaries = (
 
 const generateCashFlowNodes = (
   state: any,
-  cashFlowSummaries: SerializableCashFlowSummary[]
+  cashFlowSummaries: SerializableCashFlowSummary[],
+  xInitialPos: number,
+  yInitialPos: number
 ): Node<CashFlowNodeData>[] => {
   const cashFlowNodes: Node<CashFlowNodeData>[] = [];
-  let y = 10;
+  let y = yInitialPos;
   for (const cashFlowSummary of cashFlowSummaries) {
     const node: Node<CashFlowNodeData> = {
       id: `node-${uuidv4()}`,
       type: 'cashFlowNode',
-      position: { x: 480, y: y },
+      position: { x: xInitialPos, y: y },
       sourcePosition: Position.Right,
       targetPosition: Position.Left,
       draggable: true,
@@ -162,31 +164,16 @@ const flowSlice = createSlice({
 
       const sortedCashFlowSummaries = sortCashFlowSummaries(cashFlowSummaries);
 
-      generateCashFlowNodes(state, sortedCashFlowSummaries);
+      const generatedCashFlowNodes = generateCashFlowNodes(
+        state,
+        sortedCashFlowSummaries,
+        480,
+        10
+      );
+      cashFlowNodes.push(...generatedCashFlowNodes);
 
       let y = 10;
-      for (const cashFlowSummary of sortedCashFlowSummaries) {
-        const node: Node<CashFlowNodeData> = {
-          id: `node-${uuidv4()}`,
-          type: 'cashFlowNode',
-          position: { x: 480, y: y },
-          sourcePosition: Position.Right,
-          targetPosition: Position.Left,
-          draggable: true,
-          focusable: true,
-          data: {
-            startPeriod: cashFlowSummary.startPeriod,
-            endPeriod: cashFlowSummary.endPeriod,
-            inflow: cashFlowSummary.inflow,
-            outflow: cashFlowSummary.outflow,
-            difference: cashFlowSummary.difference,
-            currency: cashFlowSummary.currency,
-          },
-        };
-        cashFlowNodes.push(node);
-        applyDefaultNodeStyle(state, node.id);
-        y += 180;
-
+      for (const node of generatedCashFlowNodes) {
         const edge: Edge = {
           type: 'smoothstep',
           target: rootNode.id,
