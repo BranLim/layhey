@@ -89,6 +89,37 @@ const sortCashFlowSummaries = (
   });
 };
 
+const generateCashFlowNodes = (
+  state: any,
+  cashFlowSummaries: SerializableCashFlowSummary[]
+): Node<CashFlowNodeData>[] => {
+  const cashFlowNodes: Node<CashFlowNodeData>[] = [];
+  let y = 10;
+  for (const cashFlowSummary of cashFlowSummaries) {
+    const node: Node<CashFlowNodeData> = {
+      id: `node-${uuidv4()}`,
+      type: 'cashFlowNode',
+      position: { x: 480, y: y },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      draggable: true,
+      focusable: true,
+      data: {
+        startPeriod: cashFlowSummary.startPeriod,
+        endPeriod: cashFlowSummary.endPeriod,
+        inflow: cashFlowSummary.inflow,
+        outflow: cashFlowSummary.outflow,
+        difference: cashFlowSummary.difference,
+        currency: cashFlowSummary.currency,
+      },
+    };
+    cashFlowNodes.push(node);
+    applyDefaultNodeStyle(state, node.id);
+    y += 180;
+  }
+  return cashFlowNodes;
+};
+
 const flowSlice = createSlice({
   name: 'flow',
   initialState: initialState,
@@ -130,6 +161,8 @@ const flowSlice = createSlice({
       cashFlowNodes.push(rootNode);
 
       const sortedCashFlowSummaries = sortCashFlowSummaries(cashFlowSummaries);
+
+      generateCashFlowNodes(state, sortedCashFlowSummaries);
 
       let y = 10;
       for (const cashFlowSummary of sortedCashFlowSummaries) {
