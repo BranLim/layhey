@@ -40,7 +40,7 @@ export type AddCashFlowPayload = {
 
 export type FlowViewState = {
   currentChosenAccountingPeriod: SerializableAccountingPeriod;
-  expandedNodes: Set<string>;
+  expandedNodes: Array<string>;
   nodes: Node<CashFlowNodeData>[];
   edges: Edge[];
   selectedNode?: Node<CashFlowNodeData>;
@@ -52,9 +52,9 @@ const initialState: FlowViewState = {
     startPeriod: '',
     endPeriod: '',
   },
-  expandedNodes: new Set<string>(),
-  nodes: [],
-  edges: [],
+  expandedNodes: Array<string>(),
+  nodes: Array<Node<CashFlowNodeData>>(),
+  edges: Array<Edge>(),
   nodeStyles: {},
 };
 
@@ -272,7 +272,9 @@ const flowSlice = createSlice({
       if (foundNode) {
         if (foundNode.data.isExpanded) {
           foundNode.data.isExpanded = false;
-          state.expandedNodes.delete(foundNode.id);
+          const expandedNodes = new Set(state.expandedNodes);
+          expandedNodes.delete(foundNode.id);
+          state.expandedNodes = Array.from(expandedNodes);
 
           const tempEdges = [...state.edges];
           const tempNodes = [...state.nodes];
@@ -285,7 +287,9 @@ const flowSlice = createSlice({
           );
         } else {
           foundNode.data.isExpanded = true;
-          state.expandedNodes.add(foundNode.id);
+          const expandedNodes = new Set(state.expandedNodes);
+          expandedNodes.add(foundNode.id);
+          state.expandedNodes = Array.from(expandedNodes);
         }
       }
     },

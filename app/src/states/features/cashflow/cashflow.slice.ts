@@ -12,6 +12,7 @@ import {
 } from '@/types/Transaction';
 import {
   CashFlow,
+  CashFlowStatements,
   CashFlowSummary,
   SerializableCashFlowSummary,
 } from '@/types/CashFlow';
@@ -37,14 +38,7 @@ type Status =
 
 type CashFlowState = {
   overallCashFlowForPeriod: SerializableCashFlowSummary;
-  cashFlows: {
-    [key: string]: {
-      accountingPeriod: SerializableAccountingPeriod;
-      income: CashFlow;
-      expense: CashFlow;
-    };
-  };
-
+  cashFlows: CashFlowStatements;
   status: Status;
   error?: any;
 };

@@ -1,4 +1,16 @@
+import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
+
 export type CashFlowType = 'income' | 'expense';
+
+export type CashFlowStatements = {
+  [key: string]: CashFlowStatement;
+};
+
+export type CashFlowStatement = {
+  accountingPeriod: SerializableAccountingPeriod;
+  income: CashFlow;
+  expense: CashFlow;
+};
 
 export type CashFlow = {
   type: CashFlowType;
