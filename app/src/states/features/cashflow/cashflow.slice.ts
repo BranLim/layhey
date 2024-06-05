@@ -15,17 +15,11 @@ import {
   CashFlowSummary,
   SerializableCashFlowSummary,
 } from '@/types/CashFlow';
-import {
-  fromAccountingMonthToDate,
-  isTransactionDateWithin,
-  toAccountingMonth,
-  toFormattedDate,
-} from '@/utils/date.utils';
+import { isTransactionDateWithin, toFormattedDate } from '@/utils/date.utils';
 import {
   AccountingPeriodSlot,
   SerializableAccountingPeriod,
 } from '@/types/AccountingPeriod';
-import { getErrorMessage } from '@/utils/error.utils';
 import {
   computeAccountingPeriodSlots,
   getAccountingPeriodFromSlotKey,
@@ -55,6 +49,19 @@ type CashFlowState = {
   error?: any;
 };
 
+type GetTransactionResponse = {
+  transactions: TransactionResponse[];
+  appendToExistingTransactions: boolean;
+  startPeriod: string;
+  endPeriod: string;
+};
+
+type GetTransactionRequest = {
+  startPeriod: string;
+  endPeriod: string;
+  append: boolean;
+};
+
 const initialState: CashFlowState = {
   overallCashFlowForPeriod: {
     startPeriod: '',
@@ -71,7 +78,7 @@ const initialState: CashFlowState = {
 const initialiseCashFlowByPeriod = (
   state: any,
   accountingPeriodSlots: AccountingPeriodSlot[]
-) => {
+): void => {
   accountingPeriodSlots.forEach((slot) => {
     if (!state.cashFlows[slot.key]) {
       state.cashFlows[slot.key] = {
@@ -94,13 +101,12 @@ const initialiseCashFlowByPeriod = (
   });
 };
 
-const getAccountingPeriodSlots = (state: any): AccountingPeriodSlot[] => {
-  const accountingStartPeriod = new Date(
-    state.overallCashFlowForPeriod.startPeriod
-  );
-  const accountingEndPeriod = new Date(
-    state.overallCashFlowForPeriod.endPeriod
-  );
+const getAccountingPeriodSlots = (
+  startPeriod: string,
+  endPeriod: string
+): AccountingPeriodSlot[] => {
+  const accountingStartPeriod = new Date(startPeriod);
+  const accountingEndPeriod = new Date(endPeriod);
 
   return computeAccountingPeriodSlots(
     accountingStartPeriod,
@@ -133,55 +139,65 @@ export const addTransaction = createAsyncThunk(
 
 export const getTransactions = createAsyncThunk(
   'cashflow/getTransactions',
-  async (
-    {
-      startPeriod,
-      endPeriod,
-    }: {
-      startPeriod: string;
-      endPeriod: string;
-    },
-    { rejectWithValue }
-  ) => {
-    try {
-      const formattedStartPeriod = toFormattedDate(
-        new Date(startPeriod),
-        'yyyy-MM-dd'
-      );
-      const formattedEndPeriod = toFormattedDate(
-        new Date(endPeriod),
-        'yyyy-MM-dd'
-      );
+  async (getTransactionRequest: GetTransactionRequest) => {
+    const {
+      startPeriod: requestStartPeriod,
+      endPeriod: requestEndPeriod,
+      append,
+    } = getTransactionRequest;
 
-      const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${formattedStartPeriod}&endPeriod=${formattedEndPeriod}`;
-      const response = await fetch(apiPath, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-        },
-      });
-      if (!response.ok) {
-        rejectWithValue(
-          `Error get transactions for the period: ${startPeriod} - ${endPeriod}`
-        );
-      }
-      return (await response.json()) as TransactionResponse[];
-    } catch (error: any) {
-      console.error(error);
-      return rejectWithValue(getErrorMessage(error));
+    const formattedStartPeriod = toFormattedDate(
+      new Date(requestStartPeriod),
+      'yyyy-MM-dd'
+    );
+    const formattedEndPeriod = toFormattedDate(
+      new Date(requestEndPeriod),
+      'yyyy-MM-dd'
+    );
+
+    const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${formattedStartPeriod}&endPeriod=${formattedEndPeriod}`;
+    const response = await fetch(apiPath, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+      },
+    });
+    if (!response.ok) {
+      throw new Error(
+        `Error get transactions for the period: ${requestStartPeriod} - ${requestEndPeriod}`
+      );
     }
+    return {
+      appendToExistingTransactions: append,
+      transactions: (await response.json()) as TransactionResponse[],
+      startPeriod: new Date(requestStartPeriod).toISOString(),
+      endPeriod: new Date(requestEndPeriod).toISOString(),
+    } as GetTransactionResponse;
   }
 );
 
 const getTransactionsReducer = (
   state: any,
-  action: PayloadAction<TransactionResponse[]>
+  action: PayloadAction<GetTransactionResponse>
 ) => {
-  state.cashFlows = {};
+  const {
+    transactions: transactionDtos,
+    appendToExistingTransactions,
+    startPeriod,
+    endPeriod,
+  } = action.payload;
 
-  const transactionDtos: TransactionResponse[] = action.payload;
+  let accountingPeriodSlots: AccountingPeriodSlot[] = [];
+  if (appendToExistingTransactions) {
+    accountingPeriodSlots = getAccountingPeriodSlots(startPeriod, endPeriod);
+  } else {
+    state.cashFlows = {};
+    accountingPeriodSlots = getAccountingPeriodSlots(
+      state.overallCashFlowForPeriod.startPeriod,
+      state.overallCashFlowForPeriod.endPeriod
+    );
+  }
 
-  const accountingPeriodSlots = getAccountingPeriodSlots(state);
   initialiseCashFlowByPeriod(state, accountingPeriodSlots);
 
   let totalIncome = 0;
@@ -195,7 +211,7 @@ const getTransactionsReducer = (
       if (!slot) {
         return;
       }
-      const cashFlowForPeriod = state.cashFlows[slot?.key];
+      const cashFlowForPeriod = state.cashFlows[slot.key];
 
       switch (transaction.mode) {
         case TransactionMode.Income:
@@ -236,79 +252,83 @@ const addTransactionReducer = (
   if (!transactions) {
     return;
   }
-  const accountingPeriodSlots = getAccountingPeriodSlots(state);
+  const budgetStartPeriod: string = state.overallCashFlowForPeriod.startPeriod;
+  const budgetEndPeriod: string = state.overallCashFlowForPeriod.endPeriod;
+
+  if (!budgetStartPeriod || !budgetEndPeriod) {
+    console.log('Undefined budget start and end period.');
+    return;
+  }
+
+  const accountingPeriodSlots = getAccountingPeriodSlots(
+    budgetStartPeriod,
+    budgetEndPeriod
+  );
   initialiseCashFlowByPeriod(state, accountingPeriodSlots);
 
   transactions.forEach((transaction: TransactionResponse) => {
     const { mode, amount, date } = transaction;
     console.log(`Transaction Detail: ${date}, ${mode}, ${amount}`);
 
-    const budgetStartPeriod: string =
-      state.overallCashFlowForPeriod.startPeriod;
-    const budgetEndPeriod: string = state.overallCashFlowForPeriod.endPeriod;
-
-    if (!budgetStartPeriod || !budgetEndPeriod) {
-      return;
-    }
-
     const transactionDate = new Date(date);
     if (
-      isTransactionDateWithin(
+      !isTransactionDateWithin(
         transactionDate,
         new Date(budgetStartPeriod),
         new Date(budgetEndPeriod)
       )
     ) {
-      const accountingPeriodSlot = getAccountingPeriodSlot(
-        accountingPeriodSlots,
-        new Date(transaction.date)
-      );
-      if (!accountingPeriodSlot) {
-        return;
-      }
-
-      const cashFlowForPeriod = state.cashFlows[accountingPeriodSlot.key];
-      switch (mode) {
-        case TransactionMode.Income:
-          console.log('Updating income');
-
-          const updatedIncome = {
-            ...cashFlowForPeriod.income,
-            total: cashFlowForPeriod.income.total + amount,
-          };
-          state.cashFlows[accountingPeriodSlot.key].income = updatedIncome;
-          console.log(JSON.stringify(updatedIncome));
-
-          let totalIncome = 0;
-          for (const key in state.cashFlows) {
-            const cashFlowForMonth = state.cashFlows[key];
-            totalIncome += cashFlowForMonth.income.total;
-          }
-          state.overallCashFlowForPeriod.inflow = totalIncome;
-          break;
-        case TransactionMode.Expense:
-          console.log('Updating expense');
-
-          const updatedExpense = {
-            ...cashFlowForPeriod.expense,
-            total: cashFlowForPeriod.expense.total + amount,
-          };
-          state.cashFlows[accountingPeriodSlot.key].expense = updatedExpense;
-          console.log(JSON.stringify(updatedExpense));
-
-          let totalExpense = 0;
-          for (const key in state.cashFlows) {
-            const cashFlowForMonth = state.cashFlows[key];
-            totalExpense += cashFlowForMonth.expense.total;
-          }
-          state.overallCashFlowForPeriod.outflow = totalExpense;
-          break;
-      }
-      state.overallCashFlowForPeriod.difference =
-        state.overallCashFlowForPeriod.inflow -
-        state.overallCashFlowForPeriod.outflow;
-      state.status = 'compute_completed';
+      return;
     }
+    const accountingPeriodSlot = getAccountingPeriodSlot(
+      accountingPeriodSlots,
+      new Date(transaction.date)
+    );
+    if (!accountingPeriodSlot) {
+      return;
+    }
+
+    const cashFlowForPeriod = state.cashFlows[accountingPeriodSlot.key];
+    switch (mode) {
+      case TransactionMode.Income:
+        console.log('Updating income');
+
+        const updatedIncome = {
+          ...cashFlowForPeriod.income,
+          total: cashFlowForPeriod.income.total + amount,
+        };
+        state.cashFlows[accountingPeriodSlot.key].income = updatedIncome;
+        console.log(JSON.stringify(updatedIncome));
+
+        let totalIncome = 0;
+        for (const key in state.cashFlows) {
+          const cashFlowForMonth = state.cashFlows[key];
+          totalIncome += cashFlowForMonth.income.total;
+        }
+        state.overallCashFlowForPeriod.inflow = totalIncome;
+        break;
+      case TransactionMode.Expense:
+        console.log('Updating expense');
+
+        const updatedExpense = {
+          ...cashFlowForPeriod.expense,
+          total: cashFlowForPeriod.expense.total + amount,
+        };
+        state.cashFlows[accountingPeriodSlot.key].expense = updatedExpense;
+        console.log(JSON.stringify(updatedExpense));
+
+        let totalExpense = 0;
+        for (const key in state.cashFlows) {
+          const cashFlowForMonth = state.cashFlows[key];
+          totalExpense += cashFlowForMonth.expense.total;
+        }
+        state.overallCashFlowForPeriod.outflow = totalExpense;
+        break;
+    }
+    state.overallCashFlowForPeriod.difference =
+      state.overallCashFlowForPeriod.inflow -
+      state.overallCashFlowForPeriod.outflow;
+    state.status = 'compute_completed';
   });
 };
 
