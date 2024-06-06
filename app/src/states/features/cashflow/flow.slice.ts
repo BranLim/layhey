@@ -38,6 +38,12 @@ export type AddCashFlowPayload = {
   targetNodeId: string;
 };
 
+export type FlowViewStatus =
+  | 'initial_node_load'
+  | 'initial_node_load_complete'
+  | 'node_expansion'
+  | 'node_expansion_completed';
+
 export type FlowViewState = {
   currentChosenAccountingPeriod: SerializableAccountingPeriod;
   expandedNodes: Array<string>;
@@ -45,6 +51,7 @@ export type FlowViewState = {
   edges: Edge[];
   selectedNode?: Node<CashFlowNodeData>;
   nodeStyles: Record<string, any>;
+  flowViewStatus: FlowViewStatus;
 };
 
 const initialState: FlowViewState = {
@@ -56,6 +63,7 @@ const initialState: FlowViewState = {
   nodes: Array<Node<CashFlowNodeData>>(),
   edges: Array<Edge>(),
   nodeStyles: {},
+  flowViewStatus: 'initial_node_load',
 };
 
 const applyDefaultNodeStyle = (state: any, nodeId: string) => {
@@ -230,6 +238,7 @@ const flowSlice = createSlice({
       edges.push(...generatedEdges);
 
       state.edges = edges;
+      state.flowViewStatus = 'initial_node_load_complete';
     },
     handleNodeMouseEnter: (state, action: PayloadAction<Node>) => {
       const mouseEnteredNode = action.payload;
@@ -318,7 +327,12 @@ export const selectFlowNodes = (state: any) => state.flow.nodes;
 export const selectFlowEdges = (state: any) => state.flow.edges;
 export const selectNodeStyle = (state: any, nodeId: string) =>
   state.flow.nodeStyles[nodeId];
-export const selectLatestExpandedNode = (state: any) =>
-  state.flow.expandedNodes[state.flow.expandedNodes.length - 1];
+export const selectFlowViewStatus = (state: any) => state.flow.flowViewStatus;
+export const selectLatestExpandedNode = (state: any) => {
+  return state.flow.expandedNodes === undefined ||
+    state.flow.expandedNodes.length === 0
+    ? undefined
+    : state.flow.expandedNodes[state.flow.expandedNodes.length - 1];
+};
 
 export default flowSlice.reducer;

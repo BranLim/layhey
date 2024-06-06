@@ -198,7 +198,7 @@ const getTransactionsReducer = (
     accountingPeriodSlots = getAccountingPeriodSlots(startPeriod, endPeriod);
   } else {
     state.cashFlows = {};
-    parentRef = state.overallCashFlowForPeriod;
+    parentRef = state.overallCashFlowForPeriod.id;
     accountingPeriodSlots = getAccountingPeriodSlots(
       state.overallCashFlowForPeriod.startPeriod,
       state.overallCashFlowForPeriod.endPeriod
@@ -414,29 +414,76 @@ export const selectCashFlowSummary = createSelector(
     }) as CashFlowSummary
 );
 
-export const selectAllCashFlowSummaryForAccountingPeriod = createSelector(
-  (state: any) => state.cashflow,
-  (cashflow): CashFlowSummary[] => {
-    const cashFlows = cashflow.cashFlows;
+export const selectInitialCashFlowStatements = createSelector(
+  [
+    (state: any) => state.cashflow,
+    (state: any) => state.overallCashFlowForPeriod,
+  ],
+  (cashflow, overallCashFlowForPeriod): CashFlowSummary[] => {
+    let cashFlows = cashflow.cashFlows;
 
     const summaryNodes: CashFlowSummary[] = [];
     for (const cashFlowSlot in cashFlows) {
-      const cashFlowBySlots: CashFlowStatement = cashFlows[cashFlowSlot];
+      const cashFlowBySlot: CashFlowStatement = cashFlows[cashFlowSlot];
+      if (
+        cashFlowBySlot.parentRef &&
+        overallCashFlowForPeriod &&
+        cashFlowBySlot.parentRef != overallCashFlowForPeriod.id
+      ) {
+        continue;
+      }
       const accountingPeriod = getAccountingPeriodFromSlotKey(cashFlowSlot);
       if (!accountingPeriod) {
         continue;
       }
 
       const cashFlow: CashFlowSummary = {
-        id: cashFlowBySlots.id,
-        parentRef: cashFlowBySlots.parentRef,
-        statementType: cashFlowBySlots.statementType,
+        id: cashFlowBySlot.id,
+        parentRef: cashFlowBySlot.parentRef,
+        statementType: cashFlowBySlot.statementType,
         startPeriod: accountingPeriod.startPeriod,
         endPeriod: accountingPeriod.endPeriod,
-        inflow: cashFlowBySlots.income.total,
-        outflow: cashFlowBySlots.expense.total,
-        difference:
-          cashFlowBySlots.income.total - cashFlowBySlots.expense.total,
+        inflow: cashFlowBySlot.income.total,
+        outflow: cashFlowBySlot.expense.total,
+        difference: cashFlowBySlot.income.total - cashFlowBySlot.expense.total,
+        currency: 'SGD',
+      };
+
+      summaryNodes.push(cashFlow);
+    }
+
+    return summaryNodes;
+  }
+);
+
+export const selectSubsequentCashFlowStatements = createSelector(
+  [(state: any) => state.cashflow, (parentStatementId) => parentStatementId],
+  (cashflow, parentStatementId): CashFlowSummary[] => {
+    let cashFlows = cashflow.cashFlows;
+
+    const summaryNodes: CashFlowSummary[] = [];
+    for (const cashFlowSlot in cashFlows) {
+      const cashFlowBySlot: CashFlowStatement = cashFlows[cashFlowSlot];
+      if (
+        cashFlowBySlot.parentRef &&
+        cashFlowBySlot.parentRef != parentStatementId
+      ) {
+        continue;
+      }
+      const accountingPeriod = getAccountingPeriodFromSlotKey(cashFlowSlot);
+      if (!accountingPeriod) {
+        continue;
+      }
+
+      const cashFlow: CashFlowSummary = {
+        id: cashFlowBySlot.id,
+        parentRef: cashFlowBySlot.parentRef,
+        statementType: cashFlowBySlot.statementType,
+        startPeriod: accountingPeriod.startPeriod,
+        endPeriod: accountingPeriod.endPeriod,
+        inflow: cashFlowBySlot.income.total,
+        outflow: cashFlowBySlot.expense.total,
+        difference: cashFlowBySlot.income.total - cashFlowBySlot.expense.total,
         currency: 'SGD',
       };
 
