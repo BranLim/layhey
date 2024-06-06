@@ -25,7 +25,6 @@ import {
   getAccountingPeriodSlot,
 } from '@/lib/helpers/accounting.helper';
 import { v4 as uuidv4 } from 'uuid';
-import { end } from '@popperjs/core';
 
 type Status =
   | 'idle'
@@ -39,6 +38,7 @@ type Status =
 type CashFlowState = {
   overallCashFlowForPeriod: SerializableCashFlowSummary;
   cashFlows: CashFlowStatements;
+  cashFlowSummaries: { [parentStatementId: string]: CashFlowSummary[] };
   status: Status;
   error?: any;
 };
@@ -51,14 +51,14 @@ type GetTransactionResponse = {
   endPeriod: string;
 };
 
-type GetTransactionRequest = {
+export type GetTransactionRequest = {
   startPeriod: string;
   endPeriod: string;
   append: boolean;
   parentStatementSlotId?: string;
 };
 
-const initialState: CashFlowState = {
+const initialCashFlowState: CashFlowState = {
   overallCashFlowForPeriod: {
     id: `${uuidv4()}`,
     parentRef: undefined,
@@ -71,6 +71,7 @@ const initialState: CashFlowState = {
     currency: 'SGD',
   },
   cashFlows: {},
+  cashFlowSummaries: {},
   status: 'idle',
 };
 
@@ -352,7 +353,7 @@ const addTransactionReducer = (
 
 const cashflowSlice = createSlice({
   name: 'cashflow',
-  initialState,
+  initialState: initialCashFlowState,
   reducers: {
     setCashFlowAccountingPeriod: (
       state,
@@ -365,6 +366,44 @@ const cashflowSlice = createSlice({
       state.overallCashFlowForPeriod.endPeriod = new Date(
         endPeriod
       ).toISOString();
+    },
+    computeSubsequentCashFlowSummaries: (
+      state,
+      action: PayloadAction<string>
+    ) => {
+      const parentStatementId: string = action.payload;
+      const cashFlows = state.cashFlows;
+
+      const summaryNodes: CashFlowSummary[] = [];
+      for (const cashFlowSlot in cashFlows) {
+        const cashFlowBySlot: CashFlowStatement = cashFlows[cashFlowSlot];
+        if (
+          cashFlowBySlot.parentRef &&
+          cashFlowBySlot.parentRef != parentStatementId
+        ) {
+          continue;
+        }
+        const accountingPeriod = getAccountingPeriodFromSlotKey(cashFlowSlot);
+        if (!accountingPeriod) {
+          continue;
+        }
+
+        const cashFlow: CashFlowSummary = {
+          id: cashFlowBySlot.id,
+          parentRef: cashFlowBySlot.parentRef,
+          statementType: cashFlowBySlot.statementType,
+          startPeriod: accountingPeriod.startPeriod,
+          endPeriod: accountingPeriod.endPeriod,
+          inflow: cashFlowBySlot.income.total,
+          outflow: cashFlowBySlot.expense.total,
+          difference:
+            cashFlowBySlot.income.total - cashFlowBySlot.expense.total,
+          currency: 'SGD',
+        };
+
+        summaryNodes.push(cashFlow);
+      }
+      state.cashFlowSummaries[parentStatementId] = summaryNodes;
     },
   },
   extraReducers: (builder) => {
@@ -390,7 +429,10 @@ const cashflowSlice = createSlice({
   },
 });
 
-export const { setCashFlowAccountingPeriod } = cashflowSlice.actions;
+export const {
+  setCashFlowAccountingPeriod,
+  computeSubsequentCashFlowSummaries,
+} = cashflowSlice.actions;
 export const selectCashFlowStoreStatus = (state: any) => state.cashflow.status;
 export const selectAccountingPeriod = createSelector(
   (state: any) => state.cashflow.overallCashFlowForPeriod,
@@ -457,44 +499,12 @@ export const selectInitialCashFlowStatements = createSelector(
 );
 
 export const selectSubsequentCashFlowStatements = createSelector(
-  (state: any, parentStatementId: string) => ({
-    cashflow: state.cashflow,
-    parentStatementId,
-  }),
-  ({ cashflow, parentStatementId }): CashFlowSummary[] => {
-    let cashFlows = cashflow.cashFlows;
-
-    const summaryNodes: CashFlowSummary[] = [];
-    for (const cashFlowSlot in cashFlows) {
-      const cashFlowBySlot: CashFlowStatement = cashFlows[cashFlowSlot];
-      if (
-        cashFlowBySlot.parentRef &&
-        cashFlowBySlot.parentRef != parentStatementId
-      ) {
-        continue;
-      }
-      const accountingPeriod = getAccountingPeriodFromSlotKey(cashFlowSlot);
-      if (!accountingPeriod) {
-        continue;
-      }
-
-      const cashFlow: CashFlowSummary = {
-        id: cashFlowBySlot.id,
-        parentRef: cashFlowBySlot.parentRef,
-        statementType: cashFlowBySlot.statementType,
-        startPeriod: accountingPeriod.startPeriod,
-        endPeriod: accountingPeriod.endPeriod,
-        inflow: cashFlowBySlot.income.total,
-        outflow: cashFlowBySlot.expense.total,
-        difference: cashFlowBySlot.income.total - cashFlowBySlot.expense.total,
-        currency: 'SGD',
-      };
-
-      summaryNodes.push(cashFlow);
-    }
-
-    return summaryNodes;
-  }
+  [
+    (state: any) => state.cashflow.cashFlowSummaries,
+    (state: any, parentStatementId: string) => parentStatementId,
+  ],
+  (cashFlowSummaries, parentStatementId): CashFlowSummary[] =>
+    cashFlowSummaries[parentStatementId]
 );
 
 export default cashflowSlice.reducer;

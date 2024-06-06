@@ -12,6 +12,7 @@ import {
   selectCashFlowStoreStatus,
   selectCashFlowSummary,
   selectSubsequentCashFlowStatements,
+  computeSubsequentCashFlowSummaries,
 } from '@/states/features/cashflow/cashflow.slice';
 import { CashFlowNode } from '@/components/cashflow/CashFlowNode';
 import 'reactflow/dist/style.css';
@@ -58,7 +59,10 @@ export const CashFlowView = () => {
   }, [flowViewStatus, cashFlowSummary.id]);
 
   useEffect(() => {
-    if (flowViewStatus !== 'initial_node_load') {
+    if (
+      flowViewStatus !== 'initial_node_load' &&
+      flowViewStatus !== 'post_add_transaction'
+    ) {
       return;
     }
     if (
@@ -91,7 +95,7 @@ export const CashFlowView = () => {
       return;
     }
 
-    if (latestExpandedNodeId) {
+    if (latestExpandedNodeId && subsequentCashFlows) {
       dispatch(
         addCashFlows({
           targetNodeId: latestExpandedNodeId,
@@ -140,6 +144,7 @@ export const CashFlowView = () => {
     if (event.button === 0) {
       dispatch(handleNodeMouseDoubleClick(node));
       const { id, startPeriod, endPeriod } = node.data;
+      dispatch(computeSubsequentCashFlowSummaries(id));
       setSelectedParentStatementId(id);
       dispatch(
         getTransactions({

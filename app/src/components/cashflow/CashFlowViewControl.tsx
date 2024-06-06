@@ -20,8 +20,10 @@ import {
 } from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
+  GetTransactionRequest,
   getTransactions,
   selectAccountingPeriod,
+  selectCashFlowSummary,
   setCashFlowAccountingPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
 import {
@@ -69,6 +71,7 @@ export const CashFlowViewControl = () => {
   );
   const [isSubmitButtonEnabled, setIsSubmitButtonEnabled] =
     useState<boolean>(true);
+  const overallCashFlowSummary = useAppSelector(selectCashFlowSummary);
 
   const {
     trigger,
@@ -101,7 +104,9 @@ export const CashFlowViewControl = () => {
 
   const onSubmit: SubmitHandler<Input> = async (data: Input) => {
     console.log(`Setting accounting period: ${JSON.stringify(data)}`);
-    const cashflowAccountingPeriod: SerializableAccountingPeriod = {
+    const cashflowAccountingPeriod: GetTransactionRequest = {
+      append: false,
+      parentStatementSlotId: overallCashFlowSummary.id,
       startPeriod: new Date(data.startPeriod).toISOString(),
       endPeriod: new Date(data.endPeriod).toISOString(),
     };

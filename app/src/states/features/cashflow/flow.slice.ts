@@ -41,6 +41,7 @@ export type AddCashFlowPayload = {
 export type FlowViewStatus =
   | 'initial_node_load'
   | 'initial_node_load_complete'
+  | 'post_add_transaction'
   | 'node_expansion'
   | 'node_expansion_completed';
 
@@ -168,8 +169,9 @@ const flowSlice = createSlice({
       }
     },
     setInitialCashFlows: (state, action: PayloadAction<FlowPayload>) => {
-      const { rootCashFlowSummary, cashFlowSummaries } = action.payload;
+      state.expandedNodes = [];
 
+      const { rootCashFlowSummary, cashFlowSummaries } = action.payload;
       const cashFlowNodes: Node<CashFlowNodeData>[] = [];
       const cashFlowEdges: Edge[] = [];
 
@@ -227,7 +229,7 @@ const flowSlice = createSlice({
       const generatedCashFlowNodes = generateCashFlowNodes(
         state,
         sortedCashFlowSummaries,
-        targetNode?.position.x ?? 0 + 480,
+        (targetNode?.position.x ?? 0) + 480,
         10
       );
       const generatedEdges = generateNodeEdges(
@@ -238,8 +240,12 @@ const flowSlice = createSlice({
       nodes.push(...generatedCashFlowNodes);
       edges.push(...generatedEdges);
 
+      state.nodes = nodes;
       state.edges = edges;
       state.flowViewStatus = 'node_expansion_completed';
+    },
+    setFlowViewToPostAdd: (state) => {
+      state.flowViewStatus = 'post_add_transaction';
     },
     handleNodeMouseEnter: (state, action: PayloadAction<Node>) => {
       const mouseEnteredNode = action.payload;
@@ -321,6 +327,7 @@ export const {
   handleNodeMouseEnter,
   handleNodeMouseLeave,
   handleNodeMouseDoubleClick,
+  setFlowViewToPostAdd,
 } = flowSlice.actions;
 export const selectCurrentAccountingPeriod = (state: any) =>
   state.flow.currentChosenAccountingPeriod;
