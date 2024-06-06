@@ -38,7 +38,9 @@ type Status =
 type CashFlowState = {
   overallCashFlowForPeriod: SerializableCashFlowSummary;
   cashFlows: CashFlowStatements;
-  cashFlowSummaries: { [parentStatementId: string]: CashFlowSummary[] };
+  cashFlowSummaries: {
+    [parentStatementId: string]: SerializableCashFlowSummary[];
+  };
   status: Status;
   error?: any;
 };
@@ -374,7 +376,7 @@ const cashflowSlice = createSlice({
       const parentStatementId: string = action.payload;
       const cashFlows = state.cashFlows;
 
-      const summaryNodes: CashFlowSummary[] = [];
+      const summaryNodes: SerializableCashFlowSummary[] = [];
       for (const cashFlowSlot in cashFlows) {
         const cashFlowBySlot: CashFlowStatement = cashFlows[cashFlowSlot];
         if (
@@ -388,12 +390,12 @@ const cashflowSlice = createSlice({
           continue;
         }
 
-        const cashFlow: CashFlowSummary = {
+        const cashFlow: SerializableCashFlowSummary = {
           id: cashFlowBySlot.id,
           parentRef: cashFlowBySlot.parentRef,
           statementType: cashFlowBySlot.statementType,
-          startPeriod: accountingPeriod.startPeriod,
-          endPeriod: accountingPeriod.endPeriod,
+          startPeriod: accountingPeriod.startPeriod.toISOString(),
+          endPeriod: accountingPeriod.endPeriod.toISOString(),
           inflow: cashFlowBySlot.income.total,
           outflow: cashFlowBySlot.expense.total,
           difference:
@@ -461,10 +463,10 @@ export const selectInitialCashFlowStatements = createSelector(
     (state: any) => state.cashflow,
     (state: any) => state.overallCashFlowForPeriod,
   ],
-  (cashflow, overallCashFlowForPeriod): CashFlowSummary[] => {
+  (cashflow, overallCashFlowForPeriod): SerializableCashFlowSummary[] => {
     let cashFlows = cashflow.cashFlows;
 
-    const summaryNodes: CashFlowSummary[] = [];
+    const summaryNodes: SerializableCashFlowSummary[] = [];
     for (const cashFlowSlot in cashFlows) {
       const cashFlowBySlot: CashFlowStatement = cashFlows[cashFlowSlot];
       if (
@@ -479,12 +481,12 @@ export const selectInitialCashFlowStatements = createSelector(
         continue;
       }
 
-      const cashFlow: CashFlowSummary = {
+      const cashFlow: SerializableCashFlowSummary = {
         id: cashFlowBySlot.id,
         parentRef: cashFlowBySlot.parentRef,
         statementType: cashFlowBySlot.statementType,
-        startPeriod: accountingPeriod.startPeriod,
-        endPeriod: accountingPeriod.endPeriod,
+        startPeriod: accountingPeriod.startPeriod.toISOString(),
+        endPeriod: accountingPeriod.endPeriod.toISOString(),
         inflow: cashFlowBySlot.income.total,
         outflow: cashFlowBySlot.expense.total,
         difference: cashFlowBySlot.income.total - cashFlowBySlot.expense.total,
@@ -503,7 +505,7 @@ export const selectSubsequentCashFlowStatements = createSelector(
     (state: any) => state.cashflow.cashFlowSummaries,
     (state: any, parentStatementId: string) => parentStatementId,
   ],
-  (cashFlowSummaries, parentStatementId): CashFlowSummary[] =>
+  (cashFlowSummaries, parentStatementId): SerializableCashFlowSummary[] =>
     cashFlowSummaries[parentStatementId]
 );
 

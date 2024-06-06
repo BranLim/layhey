@@ -43,6 +43,7 @@ export type FlowViewStatus =
   | 'initial_node_load_complete'
   | 'post_add_transaction'
   | 'node_expansion'
+  | 'node_expansion_processing'
   | 'node_expansion_completed';
 
 export type FlowViewState = {
@@ -219,6 +220,8 @@ const flowSlice = createSlice({
       state.flowViewStatus = 'initial_node_load_complete';
     },
     addCashFlows: (state, action: PayloadAction<AddCashFlowPayload>) => {
+      state.flowViewStatus = 'node_expansion_processing';
+
       const { targetNodeId, cashFlowSummaries } = action.payload;
 
       const nodes: Node<CashFlowNodeData>[] = [...state.nodes];
@@ -314,6 +317,7 @@ const flowSlice = createSlice({
           state.expandedNodes = Array.from(expandedNodes);
         }
       }
+      state.flowViewStatus = 'node_expansion';
     },
   },
 });

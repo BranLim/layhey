@@ -80,8 +80,8 @@ export const CashFlowView = () => {
       },
       cashFlowSummaries: allCashFlowsForPeriod.map((cashFlowForPeriod) => ({
         ...cashFlowForPeriod,
-        startPeriod: cashFlowForPeriod.startPeriod?.toISOString() ?? '',
-        endPeriod: cashFlowForPeriod.endPeriod?.toISOString() ?? '',
+        startPeriod: cashFlowForPeriod.startPeriod,
+        endPeriod: cashFlowForPeriod.endPeriod,
       })),
     };
     dispatch(setInitialCashFlows(payload));
@@ -89,26 +89,30 @@ export const CashFlowView = () => {
 
   useEffect(() => {
     if (
-      flowViewStatus !== 'node_expansion' &&
-      cashFlowStoreStateStatus !== 'load_complete'
+      flowViewStatus === 'node_expansion' &&
+      cashFlowStoreStateStatus === 'load_complete' &&
+      latestExpandedNodeId &&
+      subsequentCashFlows &&
+      selectedParentStatementId
     ) {
-      return;
-    }
-
-    if (latestExpandedNodeId && subsequentCashFlows) {
       dispatch(
         addCashFlows({
           targetNodeId: latestExpandedNodeId,
           cashFlowSummaries: subsequentCashFlows.map((cashFlowForPeriod) => ({
             ...cashFlowForPeriod,
             parentRef: selectedParentStatementId,
-            startPeriod: cashFlowForPeriod.startPeriod?.toISOString() ?? '',
-            endPeriod: cashFlowForPeriod.endPeriod?.toISOString() ?? '',
+            startPeriod: cashFlowForPeriod.startPeriod,
+            endPeriod: cashFlowForPeriod.endPeriod,
           })),
         })
       );
     }
-  }, [cashFlowStoreStateStatus, flowViewStatus, latestExpandedNodeId]);
+  }, [
+    cashFlowStoreStateStatus,
+    flowViewStatus,
+    latestExpandedNodeId,
+    selectedParentStatementId,
+  ]);
 
   const handleNodesChange = (changes: NodeChange[]) => {
     changes.forEach((change) => {
@@ -137,16 +141,14 @@ export const CashFlowView = () => {
     dispatch(handleNodeMouseEnter(node));
   };
 
-  const handleMouseDoubleClick = (
+  const handleMouseDoubleClick = async (
     event: React.MouseEvent,
     node: Node<CashFlowNodeData>
   ) => {
     if (event.button === 0) {
       dispatch(handleNodeMouseDoubleClick(node));
       const { id, startPeriod, endPeriod } = node.data;
-      dispatch(computeSubsequentCashFlowSummaries(id));
-      setSelectedParentStatementId(id);
-      dispatch(
+      await dispatch(
         getTransactions({
           startPeriod,
           endPeriod,
@@ -154,6 +156,8 @@ export const CashFlowView = () => {
           parentStatementSlotId: id,
         })
       );
+      dispatch(computeSubsequentCashFlowSummaries(id));
+      setSelectedParentStatementId(id);
     }
   };
 
