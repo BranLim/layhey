@@ -109,6 +109,9 @@ const generateCashFlowNodes = (
       draggable: true,
       focusable: true,
       data: {
+        id: cashFlowSummary.id,
+        parentRef: cashFlowSummary.parentRef,
+        statementType: cashFlowSummary.statementType,
         startPeriod: cashFlowSummary.startPeriod,
         endPeriod: cashFlowSummary.endPeriod,
         inflow: cashFlowSummary.inflow,
@@ -171,6 +174,9 @@ const flowSlice = createSlice({
         draggable: true,
         focusable: true,
         data: {
+          id: rootCashFlowSummary.id,
+          parentRef: rootCashFlowSummary.parentRef,
+          statementType: rootCashFlowSummary.statementType,
           startPeriod: rootCashFlowSummary.startPeriod,
           endPeriod: rootCashFlowSummary.endPeriod,
           inflow: rootCashFlowSummary.inflow,

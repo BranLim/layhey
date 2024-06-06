@@ -11,21 +11,21 @@ import {
   TransactionResponse,
 } from '@/types/Transaction';
 import {
-  CashFlow,
+  CashFlowStatement,
   CashFlowStatements,
+  CashFlowStatementType,
   CashFlowSummary,
   SerializableCashFlowSummary,
 } from '@/types/CashFlow';
 import { isTransactionDateWithin, toFormattedDate } from '@/utils/date.utils';
-import {
-  AccountingPeriodSlot,
-  SerializableAccountingPeriod,
-} from '@/types/AccountingPeriod';
+import { AccountingPeriodSlot } from '@/types/AccountingPeriod';
 import {
   computeAccountingPeriodSlots,
   getAccountingPeriodFromSlotKey,
   getAccountingPeriodSlot,
 } from '@/lib/helpers/accounting.helper';
+import { v4 as uuidv4 } from 'uuid';
+import { end } from '@popperjs/core';
 
 type Status =
   | 'idle'
@@ -58,6 +58,9 @@ type GetTransactionRequest = {
 
 const initialState: CashFlowState = {
   overallCashFlowForPeriod: {
+    id: `${uuidv4()}`,
+    parentRef: undefined,
+    statementType: 'Summary',
     startPeriod: '',
     endPeriod: '',
     inflow: 0,
@@ -69,28 +72,31 @@ const initialState: CashFlowState = {
   status: 'idle',
 };
 
-const initialiseCashFlowByPeriod = (
+const initialiseCashFlowStatementSlots = (
   state: any,
-  accountingPeriodSlots: AccountingPeriodSlot[]
+  accountingPeriodSlots: AccountingPeriodSlot[],
+  statementType: CashFlowStatementType = 'Summary',
+  parentSlotRef: string | undefined = undefined
 ): void => {
   accountingPeriodSlots.forEach((slot) => {
     if (!state.cashFlows[slot.key]) {
       state.cashFlows[slot.key] = {
+        id: `${uuidv4()}`,
+        parentRef: parentSlotRef,
+        statementType,
         accountingPeriod: {
           startPeriod: slot.startPeriod.toISOString(),
           endPeriod: slot.endPeriod.toISOString(),
         },
         income: {
           type: 'income',
-          period: slot.key,
           total: 0,
         },
         expense: {
           type: 'expense',
-          period: slot.key,
           total: 0,
         },
-      };
+      } satisfies CashFlowStatement;
     }
   });
 };
@@ -181,18 +187,26 @@ const getTransactionsReducer = (
     endPeriod,
   } = action.payload;
 
+  let parentRef = undefined;
   let accountingPeriodSlots: AccountingPeriodSlot[] = [];
   if (appendToExistingTransactions) {
+    //    parentRef = findAccountingPeriodSlot(startPeriod, endPeriod);
     accountingPeriodSlots = getAccountingPeriodSlots(startPeriod, endPeriod);
   } else {
     state.cashFlows = {};
+    parentRef = state.overallCashFlowForPeriod;
     accountingPeriodSlots = getAccountingPeriodSlots(
       state.overallCashFlowForPeriod.startPeriod,
       state.overallCashFlowForPeriod.endPeriod
     );
   }
 
-  initialiseCashFlowByPeriod(state, accountingPeriodSlots);
+  initialiseCashFlowStatementSlots(
+    state,
+    accountingPeriodSlots,
+    'Summary',
+    parentRef
+  );
 
   let totalIncome = 0;
   let totalExpense = 0;
@@ -258,7 +272,7 @@ const addTransactionReducer = (
     budgetStartPeriod,
     budgetEndPeriod
   );
-  initialiseCashFlowByPeriod(state, accountingPeriodSlots);
+  initialiseCashFlowStatementSlots(state, accountingPeriodSlots);
 
   transactions.forEach((transaction: TransactionResponse) => {
     const { mode, amount, date } = transaction;
@@ -379,6 +393,9 @@ export const selectCashFlowSummary = createSelector(
   (state: any) => state.cashflow.overallCashFlowForPeriod,
   (cashFlowSummary: SerializableCashFlowSummary) =>
     ({
+      id: cashFlowSummary.id,
+      parentRef: cashFlowSummary.parentRef,
+      statementType: cashFlowSummary.statementType,
       startPeriod: new Date(cashFlowSummary.startPeriod),
       endPeriod: new Date(cashFlowSummary.endPeriod),
       inflow: cashFlowSummary.inflow,
@@ -394,13 +411,16 @@ export const selectAllCashFlowSummaryForAccountingPeriod = createSelector(
 
     const summaryNodes: CashFlowSummary[] = [];
     for (const cashFlowSlot in cashFlows) {
-      const cashFlowBySlots = cashFlows[cashFlowSlot];
+      const cashFlowBySlots: CashFlowStatement = cashFlows[cashFlowSlot];
       const accountingPeriod = getAccountingPeriodFromSlotKey(cashFlowSlot);
       if (!accountingPeriod) {
         continue;
       }
 
       const cashFlow: CashFlowSummary = {
+        id: cashFlowBySlots.id,
+        parentRef: cashFlowBySlots.parentRef,
+        statementType: cashFlowBySlots.statementType,
         startPeriod: accountingPeriod.startPeriod,
         endPeriod: accountingPeriod.endPeriod,
         inflow: cashFlowBySlots.income.total,

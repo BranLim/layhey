@@ -35,6 +35,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       getTransactions({
         startPeriod: toFormattedDate(accountingPeriodStart, 'yyyy-MM-dd'),
         endPeriod: toFormattedDate(accountingPeriodEnd, 'yyyy-MM-dd'),
+        append: false,
       })
     );
   }

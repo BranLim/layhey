@@ -1,24 +1,40 @@
 import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
 
 export type CashFlowType = 'income' | 'expense';
+export type CashFlowStatementType = 'Summary' | 'Income' | 'Expense';
 
 export type CashFlowStatements = {
   [key: string]: CashFlowStatement;
 };
 
-export type CashFlowStatement = {
+type Statement = {
+  id: string;
+  parentRef?: string;
+  statementType: CashFlowStatementType;
+};
+
+export type CashFlowStatement = Statement & {
   accountingPeriod: SerializableAccountingPeriod;
   income: CashFlow;
   expense: CashFlow;
 };
 
+export type IncomeStatement = Statement & {
+  accountingPeriod: SerializableAccountingPeriod;
+  income: CashFlow;
+};
+
+export type ExpenseStatement = Statement & {
+  accountingPeriod: SerializableAccountingPeriod;
+  expense: CashFlow;
+};
+
 export type CashFlow = {
   type: CashFlowType;
-  period: string;
   total: number;
 };
 
-export type CashFlowSummary = {
+export type CashFlowSummary = Statement & {
   startPeriod?: Date;
   endPeriod?: Date;
   inflow: number;
@@ -30,10 +46,11 @@ export type CashFlowSummary = {
 export type SerializableCashFlowSummary = Omit<
   CashFlowSummary,
   'startPeriod' | 'endPeriod'
-> & {
-  startPeriod: string;
-  endPeriod: string;
-};
+> &
+  Statement & {
+    startPeriod: string;
+    endPeriod: string;
+  };
 
 export type CashFlowNodeData = SerializableCashFlowSummary & {
   rootNode?: boolean;
