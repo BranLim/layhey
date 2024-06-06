@@ -46,6 +46,7 @@ type CashFlowState = {
 type GetTransactionResponse = {
   transactions: TransactionResponse[];
   appendToExistingTransactions: boolean;
+  parentStatementSlotId?: string;
   startPeriod: string;
   endPeriod: string;
 };
@@ -54,6 +55,7 @@ type GetTransactionRequest = {
   startPeriod: string;
   endPeriod: string;
   append: boolean;
+  parentStatementSlotId?: string;
 };
 
 const initialState: CashFlowState = {
@@ -169,6 +171,7 @@ export const getTransactions = createAsyncThunk(
     }
     return {
       appendToExistingTransactions: append,
+      parentStatementSlotId: getTransactionRequest.parentStatementSlotId,
       transactions: (await response.json()) as TransactionResponse[],
       startPeriod: new Date(requestStartPeriod).toISOString(),
       endPeriod: new Date(requestEndPeriod).toISOString(),
@@ -183,6 +186,7 @@ const getTransactionsReducer = (
   const {
     transactions: transactionDtos,
     appendToExistingTransactions,
+    parentStatementSlotId,
     startPeriod,
     endPeriod,
   } = action.payload;
@@ -190,7 +194,7 @@ const getTransactionsReducer = (
   let parentRef = undefined;
   let accountingPeriodSlots: AccountingPeriodSlot[] = [];
   if (appendToExistingTransactions) {
-    //    parentRef = findAccountingPeriodSlot(startPeriod, endPeriod);
+    parentRef = parentStatementSlotId;
     accountingPeriodSlots = getAccountingPeriodSlots(startPeriod, endPeriod);
   } else {
     state.cashFlows = {};
@@ -229,7 +233,9 @@ const getTransactionsReducer = (
           };
           state.cashFlows[slot.key].income = updatedIncome;
 
-          totalIncome += transaction.amount;
+          if (!appendToExistingTransactions) {
+            totalIncome += transaction.amount;
+          }
           break;
         case TransactionMode.Expense:
           const updatedExpense = {
@@ -238,7 +244,9 @@ const getTransactionsReducer = (
           };
           state.cashFlows[slot.key].expense = updatedExpense;
 
-          totalExpense += transaction.amount;
+          if (!appendToExistingTransactions) {
+            totalExpense += transaction.amount;
+          }
           break;
       }
     });
@@ -246,9 +254,11 @@ const getTransactionsReducer = (
     state.error = error;
   }
 
-  state.overallCashFlowForPeriod.inflow = totalIncome;
-  state.overallCashFlowForPeriod.outflow = totalExpense;
-  state.overallCashFlowForPeriod.difference = totalIncome - totalExpense;
+  if (!appendToExistingTransactions) {
+    state.overallCashFlowForPeriod.inflow = totalIncome;
+    state.overallCashFlowForPeriod.outflow = totalExpense;
+    state.overallCashFlowForPeriod.difference = totalIncome - totalExpense;
+  }
   state.status = 'load_complete';
 };
 

@@ -7,6 +7,7 @@ import ReactFlow, {
 } from 'reactflow';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
+  getTransactions,
   selectAllCashFlowSummaryForAccountingPeriod,
   selectCashFlowStoreStatus,
   selectCashFlowSummary,
@@ -26,6 +27,7 @@ import {
   selectLatestExpandedNode,
 } from '@/states/features/cashflow/flow.slice';
 import { Loading } from '@/components/common/Loading';
+import { CashFlowNodeData } from '@/types/CashFlow';
 
 const nodeDragThreshold = 6;
 export const defaultViewPort = { x: 10, y: 20, zoom: 0.8 };
@@ -65,17 +67,6 @@ export const CashFlowView = () => {
     dispatch(setInitialCashFlows(payload));
   }, [dispatch, cashFlowStoreStateStatus]);
 
-  useEffect(() => {
-    if (
-      cashFlowStoreStateStatus !== 'compute_completed' &&
-      cashFlowStoreStateStatus !== 'load_complete' &&
-      !latestExpandedNode
-    ) {
-      return;
-    }
-    //dispatch(getTransactions());
-  }, [dispatch, cashFlowStoreStateStatus]);
-
   const handleNodesChange = (changes: NodeChange[]) => {
     changes.forEach((change) => {
       switch (change.type) {
@@ -89,17 +80,35 @@ export const CashFlowView = () => {
     });
   };
 
-  const handleMouseLeave = (event: React.MouseEvent, node: Node) => {
+  const handleMouseLeave = (
+    event: React.MouseEvent,
+    node: Node<CashFlowNodeData>
+  ) => {
     dispatch(handleNodeMouseLeave(node));
   };
 
-  const handleMouseEnter = (event: React.MouseEvent, node: Node) => {
+  const handleMouseEnter = (
+    event: React.MouseEvent,
+    node: Node<CashFlowNodeData>
+  ) => {
     dispatch(handleNodeMouseEnter(node));
   };
 
-  const handleMouseDoubleClick = (event: React.MouseEvent, node: Node) => {
+  const handleMouseDoubleClick = (
+    event: React.MouseEvent,
+    node: Node<CashFlowNodeData>
+  ) => {
     if (event.button === 0) {
       dispatch(handleNodeMouseDoubleClick(node));
+      const { id, startPeriod, endPeriod } = node.data;
+      dispatch(
+        getTransactions({
+          startPeriod,
+          endPeriod,
+          append: true,
+          parentStatementSlotId: id,
+        })
+      );
     }
   };
 
