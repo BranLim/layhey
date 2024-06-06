@@ -8,11 +8,10 @@ import ReactFlow, {
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
   getTransactions,
-  selectInitialCashFlowStatements,
   selectCashFlowStoreStatus,
-  selectCashFlowSummary,
-  selectSubsequentCashFlowStatements,
-  computeSubsequentCashFlowSummaries,
+  selectOverallCashFlowSummary,
+  selectCashFlowStatements,
+  generateCashFlowSummaryGraph,
 } from '@/states/features/cashflow/cashflow.slice';
 import { CashFlowNode } from '@/components/cashflow/CashFlowNode';
 import 'reactflow/dist/style.css';
@@ -41,73 +40,78 @@ export const CashFlowView = () => {
   const nodeTypes = useMemo(() => ({ cashFlowNode: CashFlowNode }), []);
   const cashFlowStoreStateStatus = useAppSelector(selectCashFlowStoreStatus);
   const flowViewStatus = useAppSelector(selectFlowViewStatus);
-  const cashFlowSummary = useAppSelector(selectCashFlowSummary);
+  const overallCashFlowSummary = useAppSelector(selectOverallCashFlowSummary);
   const [selectedParentStatementId, setSelectedParentStatementId] =
-    useState<string>('');
+    useState<string>(overallCashFlowSummary.id);
   const latestExpandedNodeId = useAppSelector(selectLatestExpandedNodeId);
-  const allCashFlowsForPeriod = useAppSelector(selectInitialCashFlowStatements);
-  const subsequentCashFlows = useAppSelector((state) =>
-    selectSubsequentCashFlowStatements(state, selectedParentStatementId)
+  const cashFlowStatements = useAppSelector((state) =>
+    selectCashFlowStatements(state, selectedParentStatementId)
   );
   const nodes = useAppSelector(selectFlowNodes);
   const edges = useAppSelector(selectFlowEdges);
 
   useEffect(() => {
-    if (flowViewStatus === 'initial_node_load') {
-      setSelectedParentStatementId(cashFlowSummary.id);
+    if (
+      flowViewStatus === 'post_add_transaction' &&
+      cashFlowStoreStateStatus === 'post_add_transaction_completed'
+    ) {
+      setSelectedParentStatementId(overallCashFlowSummary.id);
     }
-  }, [flowViewStatus, cashFlowSummary.id]);
+  }, [flowViewStatus, cashFlowStoreStateStatus]);
 
   useEffect(() => {
     if (
-      flowViewStatus !== 'initial_node_load' &&
-      flowViewStatus !== 'post_add_transaction'
+      (flowViewStatus === 'initial_node_load' ||
+        flowViewStatus === 'post_add_transaction') &&
+      (cashFlowStoreStateStatus === 'post_add_transaction_completed' ||
+        cashFlowStoreStateStatus === 'get_transactions_completed' ||
+        cashFlowStoreStateStatus === 'post_generate_cashflow_summary_graph')
     ) {
-      return;
-    }
-    if (
-      cashFlowStoreStateStatus !== 'compute_completed' &&
-      cashFlowStoreStateStatus !== 'load_complete'
-    ) {
-      return;
-    }
+      dispatch(generateCashFlowSummaryGraph(selectedParentStatementId));
 
-    const payload: FlowPayload = {
-      rootCashFlowSummary: {
-        ...cashFlowSummary,
-        startPeriod: cashFlowSummary.startPeriod?.toISOString() ?? '',
-        endPeriod: cashFlowSummary.endPeriod?.toISOString() ?? '',
-      },
-      cashFlowSummaries: allCashFlowsForPeriod.map((cashFlowForPeriod) => ({
-        ...cashFlowForPeriod,
-        startPeriod: cashFlowForPeriod.startPeriod,
-        endPeriod: cashFlowForPeriod.endPeriod,
-      })),
-    };
-    dispatch(setInitialCashFlows(payload));
-  }, [dispatch, cashFlowStoreStateStatus, flowViewStatus]);
-
-  useEffect(() => {
-    if (
-      flowViewStatus === 'node_expansion' &&
-      cashFlowStoreStateStatus === 'load_complete' &&
-      latestExpandedNodeId &&
-      subsequentCashFlows &&
-      selectedParentStatementId
-    ) {
-      dispatch(
-        addCashFlows({
-          targetNodeId: latestExpandedNodeId,
-          cashFlowSummaries: subsequentCashFlows.map((cashFlowForPeriod) => ({
+      if (cashFlowStatements) {
+        const payload: FlowPayload = {
+          rootCashFlowSummary: {
+            ...overallCashFlowSummary,
+            startPeriod:
+              overallCashFlowSummary.startPeriod?.toISOString() ?? '',
+            endPeriod: overallCashFlowSummary.endPeriod?.toISOString() ?? '',
+          },
+          cashFlowSummaries: cashFlowStatements.map((cashFlowForPeriod) => ({
             ...cashFlowForPeriod,
-            parentRef: selectedParentStatementId,
             startPeriod: cashFlowForPeriod.startPeriod,
             endPeriod: cashFlowForPeriod.endPeriod,
           })),
-        })
-      );
+        };
+        dispatch(setInitialCashFlows(payload));
+      }
+      return;
+    }
+    if (
+      flowViewStatus === 'node_expansion' &&
+      (cashFlowStoreStateStatus === 'get_transactions_completed' ||
+        cashFlowStoreStateStatus === 'post_generate_cashflow_summary_graph') &&
+      latestExpandedNodeId &&
+      selectedParentStatementId
+    ) {
+      dispatch(generateCashFlowSummaryGraph(selectedParentStatementId));
+
+      if (cashFlowStatements) {
+        dispatch(
+          addCashFlows({
+            targetNodeId: latestExpandedNodeId,
+            cashFlowSummaries: cashFlowStatements.map((cashFlowForPeriod) => ({
+              ...cashFlowForPeriod,
+              parentRef: selectedParentStatementId,
+              startPeriod: cashFlowForPeriod.startPeriod,
+              endPeriod: cashFlowForPeriod.endPeriod,
+            })),
+          })
+        );
+      }
     }
   }, [
+    dispatch,
     cashFlowStoreStateStatus,
     flowViewStatus,
     latestExpandedNodeId,
@@ -148,6 +152,7 @@ export const CashFlowView = () => {
     if (event.button === 0) {
       dispatch(handleNodeMouseDoubleClick(node));
       const { id, startPeriod, endPeriod } = node.data;
+      setSelectedParentStatementId(id);
       await dispatch(
         getTransactions({
           startPeriod,
@@ -156,8 +161,6 @@ export const CashFlowView = () => {
           parentStatementSlotId: id,
         })
       );
-      dispatch(computeSubsequentCashFlowSummaries(id));
-      setSelectedParentStatementId(id);
     }
   };
 

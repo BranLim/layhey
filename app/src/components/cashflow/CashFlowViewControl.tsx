@@ -23,7 +23,7 @@ import {
   GetTransactionRequest,
   getTransactions,
   selectAccountingPeriod,
-  selectCashFlowSummary,
+  selectOverallCashFlowSummary,
   setCashFlowAccountingPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
 import {
@@ -71,7 +71,7 @@ export const CashFlowViewControl = () => {
   );
   const [isSubmitButtonEnabled, setIsSubmitButtonEnabled] =
     useState<boolean>(true);
-  const overallCashFlowSummary = useAppSelector(selectCashFlowSummary);
+  const overallCashFlowSummary = useAppSelector(selectOverallCashFlowSummary);
 
   const {
     trigger,

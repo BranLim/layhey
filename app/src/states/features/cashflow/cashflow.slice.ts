@@ -28,11 +28,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 type Status =
   | 'idle'
-  | 'loading'
-  | 'load_complete'
-  | 'recompute'
-  | 'computing'
-  | 'compute_completed'
+  | 'pre_get_transactions'
+  | 'get_transactions'
+  | 'get_transactions_completed'
+  | 'pre_add_transaction'
+  | 'post_add_transaction'
+  | 'post_add_transaction_completed'
+  | 'generate_cashflow_summary_graph'
+  | 'post_generate_cashflow_summary_graph'
   | 'error';
 
 type CashFlowState = {
@@ -262,13 +265,15 @@ const getTransactionsReducer = (
     state.overallCashFlowForPeriod.outflow = totalExpense;
     state.overallCashFlowForPeriod.difference = totalIncome - totalExpense;
   }
-  state.status = 'load_complete';
+  state.status = 'get_transactions_completed';
 };
 
 const addTransactionReducer = (
   state: any,
   action: PayloadAction<TransactionResponse[]>
 ) => {
+  state.status = 'post_add_transaction';
+
   const transactions = action.payload;
   if (!transactions) {
     return;
@@ -349,7 +354,7 @@ const addTransactionReducer = (
     state.overallCashFlowForPeriod.difference =
       state.overallCashFlowForPeriod.inflow -
       state.overallCashFlowForPeriod.outflow;
-    state.status = 'compute_completed';
+    state.status = 'post_add_transaction_completed';
   });
 };
 
@@ -369,10 +374,9 @@ const cashflowSlice = createSlice({
         endPeriod
       ).toISOString();
     },
-    computeSubsequentCashFlowSummaries: (
-      state,
-      action: PayloadAction<string>
-    ) => {
+    generateCashFlowSummaryGraph: (state, action: PayloadAction<string>) => {
+      state.status = 'generate_cashflow_summary_graph';
+
       const parentStatementId: string = action.payload;
       const cashFlows = state.cashFlows;
 
@@ -406,12 +410,13 @@ const cashflowSlice = createSlice({
         summaryNodes.push(cashFlow);
       }
       state.cashFlowSummaries[parentStatementId] = summaryNodes;
+      state.status = 'post_generate_cashflow_summary_graph';
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(getTransactions.pending, (state, action) => {
-        state.status = 'loading';
+        state.status = 'pre_get_transactions';
         if (state.error) {
           state.error = undefined;
         }
@@ -422,19 +427,21 @@ const cashflowSlice = createSlice({
         state.error = action.error;
       })
       .addCase(addTransaction.pending, (state, action) => {
-        state.status = 'computing';
+        state.status = 'pre_add_transaction';
         if (state.error) {
           state.error = undefined;
         }
       })
-      .addCase(addTransaction.fulfilled, addTransactionReducer);
+      .addCase(addTransaction.fulfilled, addTransactionReducer)
+      .addCase(addTransaction.rejected, (state, action) => {
+        state.status = 'error';
+        state.error = action.error;
+      });
   },
 });
 
-export const {
-  setCashFlowAccountingPeriod,
-  computeSubsequentCashFlowSummaries,
-} = cashflowSlice.actions;
+export const { setCashFlowAccountingPeriod, generateCashFlowSummaryGraph } =
+  cashflowSlice.actions;
 export const selectCashFlowStoreStatus = (state: any) => state.cashflow.status;
 export const selectAccountingPeriod = createSelector(
   (state: any) => state.cashflow.overallCashFlowForPeriod,
@@ -443,7 +450,7 @@ export const selectAccountingPeriod = createSelector(
     endPeriod: cashFlowSummary.endPeriod,
   })
 );
-export const selectCashFlowSummary = createSelector(
+export const selectOverallCashFlowSummary = createSelector(
   (state: any) => state.cashflow.overallCashFlowForPeriod,
   (cashFlowSummary: SerializableCashFlowSummary) =>
     ({
@@ -457,50 +464,7 @@ export const selectCashFlowSummary = createSelector(
       difference: cashFlowSummary.difference,
     }) as CashFlowSummary
 );
-
-export const selectInitialCashFlowStatements = createSelector(
-  [
-    (state: any) => state.cashflow,
-    (state: any) => state.overallCashFlowForPeriod,
-  ],
-  (cashflow, overallCashFlowForPeriod): SerializableCashFlowSummary[] => {
-    let cashFlows = cashflow.cashFlows;
-
-    const summaryNodes: SerializableCashFlowSummary[] = [];
-    for (const cashFlowSlot in cashFlows) {
-      const cashFlowBySlot: CashFlowStatement = cashFlows[cashFlowSlot];
-      if (
-        cashFlowBySlot.parentRef &&
-        overallCashFlowForPeriod &&
-        cashFlowBySlot.parentRef != overallCashFlowForPeriod.id
-      ) {
-        continue;
-      }
-      const accountingPeriod = getAccountingPeriodFromSlotKey(cashFlowSlot);
-      if (!accountingPeriod) {
-        continue;
-      }
-
-      const cashFlow: SerializableCashFlowSummary = {
-        id: cashFlowBySlot.id,
-        parentRef: cashFlowBySlot.parentRef,
-        statementType: cashFlowBySlot.statementType,
-        startPeriod: accountingPeriod.startPeriod.toISOString(),
-        endPeriod: accountingPeriod.endPeriod.toISOString(),
-        inflow: cashFlowBySlot.income.total,
-        outflow: cashFlowBySlot.expense.total,
-        difference: cashFlowBySlot.income.total - cashFlowBySlot.expense.total,
-        currency: 'SGD',
-      };
-
-      summaryNodes.push(cashFlow);
-    }
-
-    return summaryNodes;
-  }
-);
-
-export const selectSubsequentCashFlowStatements = createSelector(
+export const selectCashFlowStatements = createSelector(
   [
     (state: any) => state.cashflow.cashFlowSummaries,
     (state: any, parentStatementId: string) => parentStatementId,

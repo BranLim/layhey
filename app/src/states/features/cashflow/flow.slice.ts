@@ -233,7 +233,7 @@ const flowSlice = createSlice({
         state,
         sortedCashFlowSummaries,
         (targetNode?.position.x ?? 0) + 480,
-        10
+        (targetNode?.position.y ?? 0) + 10
       );
       const generatedEdges = generateNodeEdges(
         targetNodeId,

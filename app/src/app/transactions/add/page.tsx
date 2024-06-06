@@ -32,15 +32,12 @@ import {
 import { NumericFormat } from 'react-number-format';
 import { closeModal } from '@/states/common/modal.slice';
 import { addTransaction } from '@/states/features/cashflow/cashflow.slice';
-import { useAppDispatch, useAppSelector } from '@/states/hooks';
+import { useAppDispatch } from '@/states/hooks';
 import { getCurrentDate, toFormattedDate } from '@/utils/date.utils';
 import { AdvancedSetting } from '@/types/AdvancedSetting';
 import { ScheduleRadioGroup } from '@/components/common/ScheduleRadioGroup';
 import { TransactionCategoryList } from '@/components/common/TransactionCategoryList';
-import {
-  selectFlowViewStatus,
-  setFlowViewToPostAdd,
-} from '@/states/features/cashflow/flow.slice';
+import { setFlowViewToPostAdd } from '@/states/features/cashflow/flow.slice';
 
 const defaultInterval = 'monthly';
 
