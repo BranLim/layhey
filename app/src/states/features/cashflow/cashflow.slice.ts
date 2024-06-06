@@ -457,8 +457,11 @@ export const selectInitialCashFlowStatements = createSelector(
 );
 
 export const selectSubsequentCashFlowStatements = createSelector(
-  [(state: any) => state.cashflow, (parentStatementId) => parentStatementId],
-  (cashflow, parentStatementId): CashFlowSummary[] => {
+  (state: any, parentStatementId: string) => ({
+    cashflow: state.cashflow,
+    parentStatementId,
+  }),
+  ({ cashflow, parentStatementId }): CashFlowSummary[] => {
     let cashFlows = cashflow.cashFlows;
 
     const summaryNodes: CashFlowSummary[] = [];

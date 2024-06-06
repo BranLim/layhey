@@ -214,6 +214,7 @@ const flowSlice = createSlice({
 
       state.nodes = cashFlowNodes;
       state.edges = cashFlowEdges;
+      state.flowViewStatus = 'initial_node_load_complete';
     },
     addCashFlows: (state, action: PayloadAction<AddCashFlowPayload>) => {
       const { targetNodeId, cashFlowSummaries } = action.payload;
@@ -238,7 +239,7 @@ const flowSlice = createSlice({
       edges.push(...generatedEdges);
 
       state.edges = edges;
-      state.flowViewStatus = 'initial_node_load_complete';
+      state.flowViewStatus = 'node_expansion_completed';
     },
     handleNodeMouseEnter: (state, action: PayloadAction<Node>) => {
       const mouseEnteredNode = action.payload;
@@ -328,7 +329,7 @@ export const selectFlowEdges = (state: any) => state.flow.edges;
 export const selectNodeStyle = (state: any, nodeId: string) =>
   state.flow.nodeStyles[nodeId];
 export const selectFlowViewStatus = (state: any) => state.flow.flowViewStatus;
-export const selectLatestExpandedNode = (state: any) => {
+export const selectLatestExpandedNodeId = (state: any) => {
   return state.flow.expandedNodes === undefined ||
     state.flow.expandedNodes.length === 0
     ? undefined
