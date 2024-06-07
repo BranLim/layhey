@@ -28,6 +28,7 @@ import {
   selectLatestExpandedNodeId,
   selectFlowViewStatus,
   addCashFlows,
+  setOverallCashFlowNode,
 } from '@/states/features/cashflow/flow.slice';
 import { Loading } from '@/components/common/Loading';
 import { CashFlowNodeData } from '@/types/CashFlow';
@@ -59,6 +60,23 @@ export const CashFlowView = () => {
     }
   }, [flowViewStatus, cashFlowStoreStateStatus]);
 
+  useEffect(() => {
+    if (
+      cashFlowStoreStateStatus === 'reload_cashflows' ||
+      cashFlowStoreStateStatus === 'post_add_transaction_completed' ||
+      cashFlowStoreStateStatus === 'get_transactions_completed'
+    ) {
+      dispatch(
+        setOverallCashFlowNode({
+          ...overallCashFlowSummary,
+          startPeriod: overallCashFlowSummary.startPeriod?.toISOString() ?? '',
+          endPeriod: overallCashFlowSummary.endPeriod?.toISOString() ?? '',
+        })
+      );
+    }
+  }, [dispatch, cashFlowStoreStateStatus]);
+
+  /*
   useEffect(() => {
     if (
       (flowViewStatus === 'initial_node_load' ||
@@ -118,7 +136,7 @@ export const CashFlowView = () => {
     latestExpandedNodeId,
     selectedParentStatementId,
   ]);
-
+*/
   const handleNodesChange = (changes: NodeChange[]) => {
     changes.forEach((change) => {
       switch (change.type) {

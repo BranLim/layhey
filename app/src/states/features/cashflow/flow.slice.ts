@@ -170,6 +170,60 @@ const flowSlice = createSlice({
       }
       state.flowViewStatus = 'initial_node_load';
     },
+    setOverallCashFlowNode: (
+      state,
+      action: PayloadAction<SerializableCashFlowSummary>
+    ) => {
+      const overallCashFlowSummary: SerializableCashFlowSummary =
+        action.payload;
+
+      const cashFlowNodes: Node<CashFlowNodeData>[] = [...state.nodes];
+
+      let rootNode: Node<CashFlowNodeData> = cashFlowNodes[0];
+      if (rootNode) {
+        cashFlowNodes[0] = {
+          ...rootNode,
+          data: {
+            ...rootNode.data,
+            id: overallCashFlowSummary.id,
+            parentRef: overallCashFlowSummary.parentRef,
+            statementType: overallCashFlowSummary.statementType,
+            startPeriod: overallCashFlowSummary.startPeriod,
+            endPeriod: overallCashFlowSummary.endPeriod,
+            inflow: overallCashFlowSummary.inflow,
+            outflow: overallCashFlowSummary.outflow,
+            difference: overallCashFlowSummary.difference,
+          },
+        };
+      } else {
+        rootNode = {
+          id: uuidv4(),
+          type: 'cashFlowNode',
+          position: { x: 0, y: 10 },
+          sourcePosition: Position.Right,
+          targetPosition: Position.Left,
+          draggable: true,
+          focusable: true,
+          data: {
+            id: overallCashFlowSummary.id,
+            parentRef: overallCashFlowSummary.parentRef,
+            statementType: overallCashFlowSummary.statementType,
+            startPeriod: overallCashFlowSummary.startPeriod,
+            endPeriod: overallCashFlowSummary.endPeriod,
+            inflow: overallCashFlowSummary.inflow,
+            outflow: overallCashFlowSummary.outflow,
+            difference: overallCashFlowSummary.difference,
+            currency: 'SGD',
+            rootNode: true,
+          },
+        };
+        applyDefaultNodeStyle(state, rootNode.id);
+        cashFlowNodes.push(rootNode);
+      }
+
+      state.nodes = cashFlowNodes;
+    },
+    setCashFlowStatementBreakdownNodes: (state, action) => {},
     setInitialCashFlows: (state, action: PayloadAction<FlowPayload>) => {
       state.expandedNodes = [];
 
@@ -327,6 +381,7 @@ const flowSlice = createSlice({
 
 export const {
   setCurrentAccountingPeriod,
+  setOverallCashFlowNode,
   setInitialCashFlows,
   addCashFlows,
   handleNodeSelection,

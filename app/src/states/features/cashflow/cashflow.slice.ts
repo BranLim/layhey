@@ -23,9 +23,13 @@ import {
   computeAccountingPeriodSlots,
   getAccountingPeriodFromSlotKey,
   getAccountingPeriodSlot,
-  getMatchingAccountingPeriodSlots,
+  getMatchingCashFlowStatementPeriodSlots,
 } from '@/lib/helpers/accounting.helper';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  FlowViewState,
+  setOverallCashFlowNode,
+} from '@/states/features/cashflow/flow.slice';
 
 type Status =
   | 'idle'
@@ -144,6 +148,75 @@ export const addTransaction = createAsyncThunk(
     }
     const transactions = (await response.json()) as TransactionResponse[];
     return transactions;
+  }
+);
+
+const getTransaction = async (
+  startPeriod: string,
+  endPeriod: string
+): Promise<TransactionResponse[]> => {
+  const formattedStartPeriod = toFormattedDate(
+    new Date(startPeriod),
+    'yyyy-MM-dd'
+  );
+  const formattedEndPeriod = toFormattedDate(new Date(endPeriod), 'yyyy-MM-dd');
+
+  const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${formattedStartPeriod}&endPeriod=${formattedEndPeriod}`;
+  const response = await fetch(apiPath, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8',
+    },
+  });
+  if (!response.ok) {
+    throw new Error(
+      `Error get transactions for the period: ${startPeriod} - ${endPeriod}`
+    );
+  }
+
+  return (await response.json()) as TransactionResponse[];
+};
+
+export const getOverallCashFlowSummary = createAsyncThunk<
+  void,
+  GetTransactionRequest,
+  {
+    state: {
+      cashflow: CashFlowState;
+      flow: FlowViewState;
+    };
+  }
+>(
+  'cashflow/getOverallCashFlowSummary',
+  async (request: GetTransactionRequest, { dispatch, getState }) => {
+    const { startPeriod, endPeriod, append } = request;
+    const state = getState();
+
+    const transactions: TransactionResponse[] = await getTransaction(
+      startPeriod,
+      endPeriod
+    );
+
+    let totalIncome = 0;
+    let totalExpense = 0;
+    transactions.forEach((transaction) => {
+      switch (transaction.mode) {
+        case TransactionMode.Income:
+          totalIncome += transaction.amount;
+          break;
+        case TransactionMode.Expense:
+          totalExpense += transaction.amount;
+          break;
+      }
+    });
+    state.cashflow.overallCashFlowForPeriod.inflow = totalIncome;
+    state.cashflow.overallCashFlowForPeriod.outflow = totalExpense;
+    state.cashflow.overallCashFlowForPeriod.difference =
+      totalIncome - totalExpense;
+
+    dispatch(
+      setOverallCashFlowNode({ ...state.cashflow.overallCashFlowForPeriod })
+    );
   }
 );
 
@@ -308,16 +381,17 @@ const addTransactionReducer = (
     ) {
       return;
     }
-    const amatchingAcountingPeriodSlots = getMatchingAccountingPeriodSlots(
-      accountingPeriodSlots,
-      new Date(transaction.date)
-    );
+    const matchingCashFlowStatementPeriodSlots =
+      getMatchingCashFlowStatementPeriodSlots(
+        accountingPeriodSlots,
+        new Date(transaction.date)
+      );
 
-    if (!amatchingAcountingPeriodSlots) {
+    if (!matchingCashFlowStatementPeriodSlots) {
       return;
     }
 
-    amatchingAcountingPeriodSlots.forEach((accountingPeriodSlot) => {
+    matchingCashFlowStatementPeriodSlots.forEach((accountingPeriodSlot) => {
       const cashFlowForPeriod = state.cashFlows[accountingPeriodSlot.key];
       switch (mode) {
         case TransactionMode.Income:

@@ -245,7 +245,7 @@ const getAccountingPeriodSlot = (
   );
 };
 
-const getMatchingAccountingPeriodSlots = (
+const getMatchingCashFlowStatementPeriodSlots = (
   accountingPeriods: AccountingPeriodSlot[],
   transactionDate: Date
 ): AccountingPeriodSlot[] | undefined => {
@@ -296,5 +296,5 @@ export {
   computeAccountingPeriodSlots,
   getAccountingPeriodSlot,
   getAccountingPeriodFromSlotKey,
-  getMatchingAccountingPeriodSlots,
+  getMatchingCashFlowStatementPeriodSlots,
 };
