@@ -244,6 +244,38 @@ const getAccountingPeriodSlot = (
   );
 };
 
+const getMatchingAccountingPeriodSlots = (
+  accountingPeriods: AccountingPeriodSlot[],
+  transactionDate: Date
+): AccountingPeriodSlot[] | undefined => {
+  if (!accountingPeriods) {
+    return undefined;
+  }
+  const allMatchingSlots = accountingPeriods?.filter(
+    (value) =>
+      value.startPeriod <= transactionDate && value.endPeriod >= transactionDate
+  );
+  if (!allMatchingSlots || allMatchingSlots.length === 0) {
+    return undefined;
+  }
+  allMatchingSlots.sort(
+    (slot1: AccountingPeriodSlot, slot2: AccountingPeriodSlot) => {
+      const slo1Time = slot1.endPeriod.getTime() - slot1.startPeriod.getTime();
+      const slot2Time = slot2.endPeriod.getTime() - slot2.startPeriod.getTime();
+
+      if (slo1Time > slot2Time) {
+        return 1;
+      }
+      if (slo1Time < slot2Time) {
+        return -1;
+      }
+
+      return 0;
+    }
+  );
+  return allMatchingSlots;
+};
+
 const getAccountingPeriodFromSlotKey = (
   slotKey: string
 ): AccountingPeriod | undefined => {
@@ -263,4 +295,5 @@ export {
   computeAccountingPeriodSlots,
   getAccountingPeriodSlot,
   getAccountingPeriodFromSlotKey,
+  getMatchingAccountingPeriodSlots,
 };

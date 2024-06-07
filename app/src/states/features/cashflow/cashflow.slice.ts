@@ -23,6 +23,7 @@ import {
   computeAccountingPeriodSlots,
   getAccountingPeriodFromSlotKey,
   getAccountingPeriodSlot,
+  getMatchingAccountingPeriodSlots,
 } from '@/lib/helpers/accounting.helper';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -306,56 +307,61 @@ const addTransactionReducer = (
     ) {
       return;
     }
-    const accountingPeriodSlot = getAccountingPeriodSlot(
+    const amatchingAcountingPeriodSlots = getMatchingAccountingPeriodSlots(
       accountingPeriodSlots,
       new Date(transaction.date)
     );
-    if (!accountingPeriodSlot) {
+
+    if (!amatchingAcountingPeriodSlots) {
       return;
     }
 
-    const cashFlowForPeriod = state.cashFlows[accountingPeriodSlot.key];
-    switch (mode) {
-      case TransactionMode.Income:
-        console.log('Updating income');
+    amatchingAcountingPeriodSlots.forEach((accountingPeriodSlot) => {
+      const cashFlowForPeriod = state.cashFlows[accountingPeriodSlot.key];
+      switch (mode) {
+        case TransactionMode.Income:
+          console.log('Updating income');
 
-        const updatedIncome = {
-          ...cashFlowForPeriod.income,
-          total: cashFlowForPeriod.income.total + amount,
-        };
-        state.cashFlows[accountingPeriodSlot.key].income = updatedIncome;
-        console.log(JSON.stringify(updatedIncome));
+          const updatedIncome = {
+            ...cashFlowForPeriod.income,
+            total: cashFlowForPeriod.income.total + amount,
+          };
+          state.cashFlows[accountingPeriodSlot.key].income = updatedIncome;
+          console.log(JSON.stringify(updatedIncome));
 
-        let totalIncome = 0;
-        for (const key in state.cashFlows) {
-          const cashFlowForMonth = state.cashFlows[key];
-          totalIncome += cashFlowForMonth.income.total;
-        }
-        state.overallCashFlowForPeriod.inflow = totalIncome;
-        break;
-      case TransactionMode.Expense:
-        console.log('Updating expense');
+          break;
+        case TransactionMode.Expense:
+          console.log('Updating expense');
 
-        const updatedExpense = {
-          ...cashFlowForPeriod.expense,
-          total: cashFlowForPeriod.expense.total + amount,
-        };
-        state.cashFlows[accountingPeriodSlot.key].expense = updatedExpense;
-        console.log(JSON.stringify(updatedExpense));
+          const updatedExpense = {
+            ...cashFlowForPeriod.expense,
+            total: cashFlowForPeriod.expense.total + amount,
+          };
+          state.cashFlows[accountingPeriodSlot.key].expense = updatedExpense;
+          console.log(JSON.stringify(updatedExpense));
 
-        let totalExpense = 0;
-        for (const key in state.cashFlows) {
-          const cashFlowForMonth = state.cashFlows[key];
-          totalExpense += cashFlowForMonth.expense.total;
-        }
-        state.overallCashFlowForPeriod.outflow = totalExpense;
-        break;
-    }
-    state.overallCashFlowForPeriod.difference =
-      state.overallCashFlowForPeriod.inflow -
-      state.overallCashFlowForPeriod.outflow;
-    state.status = 'post_add_transaction_completed';
+          break;
+      }
+    });
   });
+
+  const rootStatementId = state.overallCashFlowForPeriod.id;
+  let totalExpense = 0;
+  let totalIncome = 0;
+  for (const key in state.cashFlows) {
+    const cashFlow = state.cashFlows[key];
+    if (cashFlow.parentRef === rootStatementId) {
+      totalExpense += cashFlow.expense.total;
+      totalIncome += cashFlow.income.total;
+    }
+  }
+
+  state.overallCashFlowForPeriod.inflow = totalIncome;
+  state.overallCashFlowForPeriod.outflow = totalExpense;
+  state.overallCashFlowForPeriod.difference =
+    state.overallCashFlowForPeriod.inflow -
+    state.overallCashFlowForPeriod.outflow;
+  state.status = 'post_add_transaction_completed';
 };
 
 const cashflowSlice = createSlice({

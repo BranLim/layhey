@@ -294,29 +294,31 @@ const flowSlice = createSlice({
       const foundNode = state.nodes.find(
         (node) => node.id === nodeDoubleClicked.id
       );
-      if (foundNode) {
-        if (foundNode.data.isExpanded) {
-          foundNode.data.isExpanded = false;
-          const expandedNodes = new Set(state.expandedNodes);
-          expandedNodes.delete(foundNode.id);
-          state.expandedNodes = Array.from(expandedNodes);
-
-          const tempEdges = [...state.edges];
-          const tempNodes = [...state.nodes];
-
-          const edgesToDelete = tempEdges.filter(
-            (edge) => edge.target === foundNode.id
-          );
-          tempNodes.filter((node) =>
-            edgesToDelete.find((edge) => edge.source !== node.id)
-          );
-        } else {
-          foundNode.data.isExpanded = true;
-          const expandedNodes = new Set(state.expandedNodes);
-          expandedNodes.add(foundNode.id);
-          state.expandedNodes = Array.from(expandedNodes);
-        }
+      if (!foundNode) {
+        return;
       }
+      if (foundNode.data.isExpanded) {
+        foundNode.data.isExpanded = false;
+        const expandedNodes = new Set(state.expandedNodes);
+        expandedNodes.delete(foundNode.id);
+        state.expandedNodes = Array.from(expandedNodes);
+
+        const tempEdges = [...state.edges];
+        const tempNodes = [...state.nodes];
+
+        const edgesToDelete = tempEdges.filter(
+          (edge) => edge.target === foundNode.id
+        );
+        tempNodes.filter((node) =>
+          edgesToDelete.find((edge) => edge.source !== node.id)
+        );
+      } else {
+        foundNode.data.isExpanded = true;
+        const expandedNodes = new Set(state.expandedNodes);
+        expandedNodes.add(foundNode.id);
+        state.expandedNodes = Array.from(expandedNodes);
+      }
+
       state.flowViewStatus = 'node_expansion';
     },
   },
