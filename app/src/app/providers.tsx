@@ -9,7 +9,7 @@ import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
 import { setCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slice';
 import {
   getTransactions,
-  setCashFlowAccountingPeriod,
+  setOverallCashFlowAccountingPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
 import { getAccountingPeriods } from '@/states/features/accounting/accounting.slice';
 import { getCurrentYear, toFormattedDate } from '@/utils/date.utils';
@@ -29,7 +29,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     };
 
     newStore.dispatch(setCurrentAccountingPeriod(accountingPeriod));
-    newStore.dispatch(setCashFlowAccountingPeriod(accountingPeriod));
+    newStore.dispatch(setOverallCashFlowAccountingPeriod(accountingPeriod));
     newStore.dispatch(getAccountingPeriods());
     newStore.dispatch(
       getTransactions({

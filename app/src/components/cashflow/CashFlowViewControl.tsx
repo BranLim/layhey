@@ -20,11 +20,12 @@ import {
 } from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
+  generateCashFlowSummaryGraph,
   GetTransactionRequest,
   getTransactions,
   selectAccountingPeriod,
   selectOverallCashFlowSummary,
-  setCashFlowAccountingPeriod,
+  setOverallCashFlowAccountingPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
 import {
   calculateNumberOfDays,
@@ -45,7 +46,10 @@ import {
   SerializableAccountingPeriod,
   UserAccountingPeriod,
 } from '@/types/AccountingPeriod';
-import { selectCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slice';
+import {
+  selectCurrentAccountingPeriod,
+  setCurrentAccountingPeriod,
+} from '@/states/features/cashflow/flow.slice';
 
 type Input = {
   startPeriod: Date;
@@ -104,21 +108,26 @@ export const CashFlowViewControl = () => {
 
   const onSubmit: SubmitHandler<Input> = async (data: Input) => {
     console.log(`Setting accounting period: ${JSON.stringify(data)}`);
-    const cashflowAccountingPeriod: GetTransactionRequest = {
-      append: false,
-      parentStatementSlotId: overallCashFlowSummary.id,
+    const serialisedAccountingPeriod: SerializableAccountingPeriod = {
       startPeriod: new Date(data.startPeriod).toISOString(),
       endPeriod: new Date(data.endPeriod).toISOString(),
     };
-    dispatch(setCashFlowAccountingPeriod(cashflowAccountingPeriod));
+    const cashflowAccountingPeriod: GetTransactionRequest = {
+      append: false,
+      parentStatementSlotId: overallCashFlowSummary.id,
+      ...serialisedAccountingPeriod,
+    };
+    dispatch(setOverallCashFlowAccountingPeriod(cashflowAccountingPeriod));
+    dispatch(setCurrentAccountingPeriod(serialisedAccountingPeriod));
     await dispatch(getTransactions(cashflowAccountingPeriod));
+    dispatch(generateCashFlowSummaryGraph(overallCashFlowSummary.id));
   };
 
   const onReset = () => {
     setValue('startPeriod', startOfYear);
     setValue('endPeriod', endOfYear);
     dispatch(
-      setCashFlowAccountingPeriod({
+      setOverallCashFlowAccountingPeriod({
         startPeriod: startOfYear.toISOString(),
         endPeriod: endOfYear.toISOString(),
       })

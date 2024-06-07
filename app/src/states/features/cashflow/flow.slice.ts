@@ -168,6 +168,7 @@ const flowSlice = createSlice({
       if (accountingPeriod) {
         state.currentChosenAccountingPeriod = accountingPeriod;
       }
+      state.flowViewStatus = 'initial_node_load';
     },
     setInitialCashFlows: (state, action: PayloadAction<FlowPayload>) => {
       state.expandedNodes = [];

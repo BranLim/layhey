@@ -86,17 +86,18 @@ const generateDaySlots = (
     59,
     999
   );
-  for (let i = 0; i < Accounting_Period_Days_In_Week; i++) {
+
+  while (currentDate < endPeriod) {
+    if (nextDate > endPeriod) {
+      nextDate = endPeriod;
+    }
     periods.push({
       startPeriod: currentDate,
       endPeriod: nextDate,
       key: getAccountingSlotKey(currentDate, nextDate),
     });
-    currentDate = addDate(currentDate, { days: 1 });
+    currentDate = nextDate;
     nextDate = addDate(nextDate, { days: 1 });
-    if (nextDate > endPeriod) {
-      nextDate = endPeriod;
-    }
   }
   return periods;
 };

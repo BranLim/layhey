@@ -29,6 +29,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 type Status =
   | 'idle'
+  | 'reload_cashflows'
   | 'pre_get_transactions'
   | 'get_transactions'
   | 'get_transactions_completed'
@@ -368,7 +369,7 @@ const cashflowSlice = createSlice({
   name: 'cashflow',
   initialState: initialCashFlowState,
   reducers: {
-    setCashFlowAccountingPeriod: (
+    setOverallCashFlowAccountingPeriod: (
       state,
       action: PayloadAction<{ startPeriod: string; endPeriod: string }>
     ) => {
@@ -379,6 +380,7 @@ const cashflowSlice = createSlice({
       state.overallCashFlowForPeriod.endPeriod = new Date(
         endPeriod
       ).toISOString();
+      state.status = 'reload_cashflows';
     },
     generateCashFlowSummaryGraph: (state, action: PayloadAction<string>) => {
       state.status = 'generate_cashflow_summary_graph';
@@ -446,8 +448,10 @@ const cashflowSlice = createSlice({
   },
 });
 
-export const { setCashFlowAccountingPeriod, generateCashFlowSummaryGraph } =
-  cashflowSlice.actions;
+export const {
+  setOverallCashFlowAccountingPeriod,
+  generateCashFlowSummaryGraph,
+} = cashflowSlice.actions;
 export const selectCashFlowStoreStatus = (state: any) => state.cashflow.status;
 export const selectAccountingPeriod = createSelector(
   (state: any) => state.cashflow.overallCashFlowForPeriod,
