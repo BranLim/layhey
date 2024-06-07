@@ -63,7 +63,8 @@ export const CashFlowView = () => {
     if (
       (flowViewStatus === 'initial_node_load' ||
         flowViewStatus === 'post_add_transaction') &&
-      (cashFlowStoreStateStatus === 'post_add_transaction_completed' ||
+      (cashFlowStoreStateStatus === 'reload_cashflows' ||
+        cashFlowStoreStateStatus === 'post_add_transaction_completed' ||
         cashFlowStoreStateStatus === 'get_transactions_completed' ||
         cashFlowStoreStateStatus === 'post_generate_cashflow_summary_graph')
     ) {
