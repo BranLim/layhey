@@ -197,8 +197,7 @@ export const getOverallCashFlowSummary = createAsyncThunk<
 >(
   'cashflow/getOverallCashFlowSummary',
   async (request: GetTransactionRequest, { dispatch, getState }) => {
-    const { startPeriod, endPeriod, append } = request;
-    const state = getState();
+    const { startPeriod, endPeriod } = request;
 
     const transactions: TransactionResponse[] = await getTransaction(
       startPeriod,
@@ -226,9 +225,12 @@ export const getOverallCashFlowSummary = createAsyncThunk<
       } as CashflowCalculationResult)
     );
 
-    dispatch(
-      setOverallCashFlowNode({ ...state.cashflow.overallCashFlowForPeriod })
-    );
+    const state = getState();
+    if (state.cashflow.status === 'updated_overall_cashflows') {
+      dispatch(
+        setOverallCashFlowNode({ ...state.cashflow.overallCashFlowForPeriod })
+      );
+    }
   }
 );
 

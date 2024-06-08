@@ -21,6 +21,7 @@ import {
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
   generateCashFlowSummaryGraph,
+  getOverallCashFlowSummary,
   GetTransactionRequest,
   getTransactions,
   selectAccountingPeriod,
@@ -108,19 +109,13 @@ export const CashFlowViewControl = () => {
 
   const onSubmit: SubmitHandler<Input> = async (data: Input) => {
     console.log(`Setting accounting period: ${JSON.stringify(data)}`);
-    const serialisedAccountingPeriod: SerializableAccountingPeriod = {
+    const request: GetTransactionRequest = {
       startPeriod: new Date(data.startPeriod).toISOString(),
       endPeriod: new Date(data.endPeriod).toISOString(),
-    };
-    const cashflowAccountingPeriod: GetTransactionRequest = {
       append: false,
-      parentStatementSlotId: overallCashFlowSummary.id,
-      ...serialisedAccountingPeriod,
     };
-    dispatch(setOverallCashFlowAccountingPeriod(cashflowAccountingPeriod));
-    dispatch(setCurrentAccountingPeriod(serialisedAccountingPeriod));
-    await dispatch(getTransactions(cashflowAccountingPeriod));
-    dispatch(generateCashFlowSummaryGraph(overallCashFlowSummary.id));
+
+    dispatch(getOverallCashFlowSummary(request));
   };
 
   const onReset = () => {
