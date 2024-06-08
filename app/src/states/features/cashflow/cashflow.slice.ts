@@ -20,7 +20,6 @@ import {
 import { isTransactionDateWithin, toFormattedDate } from '@/utils/date.utils';
 import {
   AccountingPeriodSlot,
-  SerializableAccountingPeriod,
   SerializableAccountingPeriodSlot,
 } from '@/types/AccountingPeriod';
 import {
@@ -38,21 +37,13 @@ import {
 
 type Status =
   | 'idle'
-  | 'initial_load_complete'
+  | 'error'
   | 'pending_get_overall_cashflow'
   | 'completed_get_overall_cashflow'
-  | 'reload_cashflows'
-  | 'updating_overall_cashflows'
   | 'updated_overall_cashflows'
-  | 'pre_get_transactions'
-  | 'get_transactions'
-  | 'get_transactions_completed'
-  | 'pre_add_transaction'
-  | 'post_add_transaction'
-  | 'post_add_transaction_completed'
-  | 'generate_cashflow_summary_graph'
-  | 'post_generate_cashflow_summary_graph'
-  | 'error';
+  | 'pending_get_cashflows'
+  | 'completed_get_cashflows'
+  | 'pending_add_transactions';
 
 type CashFlowState = {
   overallCashFlowForPeriod: SerializableCashFlowSummary;
@@ -60,7 +51,9 @@ type CashFlowState = {
   cashFlowSummaries: {
     [parentStatementId: string]: SerializableCashFlowSummary[];
   };
+  previousStatus?: Status;
   status: Status;
+  initialLoad: boolean;
   error?: any;
 };
 
@@ -113,7 +106,9 @@ const initialCashFlowState: CashFlowState = {
   },
   cashFlows: {},
   cashFlowSummaries: {},
+  previousStatus: undefined,
   status: 'idle',
+  initialLoad: false,
 };
 
 const initialiseCashFlowStatementSlots = (
@@ -467,6 +462,11 @@ const cashflowSlice = createSlice({
   name: 'cashflow',
   initialState: initialCashFlowState,
   reducers: {
+    setInitialLoadCompleted: (state) => {
+      if (!state.initialLoad) {
+        state.initialLoad = true;
+      }
+    },
     setOverallCashFlowStatementPeriod: (
       state,
       action: PayloadAction<{ startPeriod: string; endPeriod: string }>
@@ -478,14 +478,11 @@ const cashflowSlice = createSlice({
       state.overallCashFlowForPeriod.endPeriod = new Date(
         endPeriod
       ).toISOString();
-      state.status = 'reload_cashflows';
     },
     setOverallCashFlow: (
       state,
       action: PayloadAction<CashflowCalculationResult>
     ) => {
-      state.status = 'updating_overall_cashflows';
-
       const { totalIncome, totalExpense, difference } = action.payload;
 
       state.overallCashFlowForPeriod.inflow = totalIncome;
@@ -529,8 +526,6 @@ const cashflowSlice = createSlice({
       );
     },
     generateCashFlowSummaryGraph: (state, action: PayloadAction<string>) => {
-      state.status = 'generate_cashflow_summary_graph';
-
       const parentStatementId: string = action.payload;
       const cashFlows = state.cashFlows;
 
@@ -564,7 +559,6 @@ const cashflowSlice = createSlice({
         summaryNodes.push(cashFlow);
       }
       state.cashFlowSummaries[parentStatementId] = summaryNodes;
-      state.status = 'post_generate_cashflow_summary_graph';
     },
   },
   extraReducers: (builder) => {
@@ -583,20 +577,20 @@ const cashflowSlice = createSlice({
         state.error = action.error;
       })
       .addCase(getCashFlows.pending, (state, action) => {
-        state.status = 'pre_get_transactions';
+        state.status = 'pending_get_cashflows';
         if (state.error) {
           state.error = undefined;
         }
       })
       .addCase(getCashFlows.fulfilled, (state, action) => {
-        state.status = 'get_transactions_completed';
+        state.status = 'completed_get_cashflows';
       })
       .addCase(getCashFlows.rejected, (state, action) => {
         state.status = 'error';
         state.error = action.error;
       })
       .addCase(addTransaction.pending, (state, action) => {
-        state.status = 'pre_add_transaction';
+        state.status = 'pending_add_transactions';
         if (state.error) {
           state.error = undefined;
         }
@@ -610,6 +604,7 @@ const cashflowSlice = createSlice({
 });
 
 export const {
+  setInitialLoadCompleted,
   setOverallCashFlowStatementPeriod,
   generateCashFlowSummaryGraph,
   setOverallCashFlow,
@@ -646,5 +641,8 @@ export const selectCashFlowStatements = createSelector(
   (cashFlowSummaries, parentStatementId): SerializableCashFlowSummary[] =>
     cashFlowSummaries[parentStatementId]
 );
+
+export const selectIsInitialLoadCompleted = (state: any) =>
+  state.cashflow.initialLoad;
 
 export default cashflowSlice.reducer;

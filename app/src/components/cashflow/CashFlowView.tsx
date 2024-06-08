@@ -9,7 +9,9 @@ import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
   getCashFlows,
   selectCashFlowStoreStatus,
+  selectIsInitialLoadCompleted,
   selectOverallCashFlowSummary,
+  setInitialLoadCompleted,
 } from '@/states/features/cashflow/cashflow.slice';
 import { CashFlowNode } from '@/components/cashflow/CashFlowNode';
 import 'reactflow/dist/style.css';
@@ -33,13 +35,16 @@ export const CashFlowView = () => {
   const dispatch = useAppDispatch();
   const nodeTypes = useMemo(() => ({ cashFlowNode: CashFlowNode }), []);
   const cashFlowStoreStateStatus = useAppSelector(selectCashFlowStoreStatus);
-  const flowViewStatus = useAppSelector(selectFlowViewStatus);
+  const initialLoadCompleted = useAppSelector(selectIsInitialLoadCompleted);
   const overallCashFlowSummary = useAppSelector(selectOverallCashFlowSummary);
   const nodes = useAppSelector(selectFlowNodes);
   const edges = useAppSelector(selectFlowEdges);
 
   useEffect(() => {
-    if (cashFlowStoreStateStatus === 'completed_get_overall_cashflow') {
+    if (
+      !initialLoadCompleted &&
+      cashFlowStoreStateStatus === 'completed_get_overall_cashflow'
+    ) {
       console.log(
         `CashFlowView: Load cashflows. Current Store Status: ${cashFlowStoreStateStatus}`
       );
@@ -52,8 +57,9 @@ export const CashFlowView = () => {
           parentNodeId: nodes[0].id,
         })
       );
+      dispatch(setInitialLoadCompleted());
     }
-  }, [dispatch, cashFlowStoreStateStatus]);
+  }, [dispatch, initialLoadCompleted]);
 
   const handleNodesChange = (changes: NodeChange[]) => {
     changes.forEach((change) => {

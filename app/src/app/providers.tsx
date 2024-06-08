@@ -8,7 +8,6 @@ import { ReactFlowProvider } from 'reactflow';
 import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
 import { setCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slice';
 import {
-  getCashFlows,
   getOverallCashFlowSummary,
   setOverallCashFlowStatementPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
@@ -18,6 +17,7 @@ import { getCurrentYear, toFormattedDate } from '@/utils/date.utils';
 const currentYear = getCurrentYear();
 const accountingPeriodStart = new Date(currentYear, 0, 1);
 const accountingPeriodEnd = new Date(currentYear, 11, 31);
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const storeRef = useRef<AppStore>();
   if (!storeRef.current) {
