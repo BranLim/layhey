@@ -34,6 +34,8 @@ import {
 type Status =
   | 'idle'
   | 'reload_cashflows'
+  | 'updating_overall_cashflows'
+  | 'updated_overall_cashflows'
   | 'pre_get_transactions'
   | 'get_transactions'
   | 'get_transactions_completed'
@@ -470,10 +472,14 @@ const cashflowSlice = createSlice({
       state,
       action: PayloadAction<CashflowCalculationResult>
     ) => {
+      state.status = 'updating_overall_cashflows';
+
       const { totalIncome, totalExpense, difference } = action.payload;
       state.overallCashFlowForPeriod.inflow = totalIncome;
       state.overallCashFlowForPeriod.outflow = totalExpense;
       state.overallCashFlowForPeriod.difference = difference;
+
+      state.status = 'updated_overall_cashflows';
     },
     generateCashFlowSummaryGraph: (state, action: PayloadAction<string>) => {
       state.status = 'generate_cashflow_summary_graph';
