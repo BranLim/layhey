@@ -10,7 +10,7 @@ import { setCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slic
 import {
   getOverallCashFlowSummary,
   getTransactions,
-  setOverallCashFlowAccountingPeriod,
+  setOverallCashFlowStatementPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
 import { getAccountingPeriods } from '@/states/features/accounting/accounting.slice';
 import { getCurrentYear, toFormattedDate } from '@/utils/date.utils';
@@ -30,7 +30,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     };
 
     newStore.dispatch(setCurrentAccountingPeriod(accountingPeriod));
-    newStore.dispatch(setOverallCashFlowAccountingPeriod(accountingPeriod));
+    newStore.dispatch(setOverallCashFlowStatementPeriod(accountingPeriod));
     newStore.dispatch(getAccountingPeriods());
     newStore.dispatch(
       getOverallCashFlowSummary({

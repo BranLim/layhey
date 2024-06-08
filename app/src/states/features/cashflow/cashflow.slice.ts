@@ -457,7 +457,7 @@ const cashflowSlice = createSlice({
   name: 'cashflow',
   initialState: initialCashFlowState,
   reducers: {
-    setOverallCashFlowAccountingPeriod: (
+    setOverallCashFlowStatementPeriod: (
       state,
       action: PayloadAction<{ startPeriod: string; endPeriod: string }>
     ) => {
@@ -563,7 +563,7 @@ const cashflowSlice = createSlice({
 });
 
 export const {
-  setOverallCashFlowAccountingPeriod,
+  setOverallCashFlowStatementPeriod,
   generateCashFlowSummaryGraph,
   setOverallCashFlow,
 } = cashflowSlice.actions;

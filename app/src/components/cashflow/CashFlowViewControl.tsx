@@ -26,7 +26,7 @@ import {
   getTransactions,
   selectAccountingPeriod,
   selectOverallCashFlowSummary,
-  setOverallCashFlowAccountingPeriod,
+  setOverallCashFlowStatementPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
 import {
   calculateNumberOfDays,
@@ -87,6 +87,7 @@ export const CashFlowViewControl = () => {
     formState: { errors },
     control,
   } = useForm<Input>({ defaultValues: defaultViewOptionValues });
+
   const reactFlow = useReactFlow();
   useEffect(() => {
     if (selectedPeriodPreset && selectedAccountingPeriodPreset) {
@@ -97,6 +98,19 @@ export const CashFlowViewControl = () => {
       setValue('endPeriod', endOfYear);
     }
   }, [selectedPeriodPreset]);
+
+  const updateCashFlowView = (startPeriod: Date, endPeriod: Date) => {
+    const accountingPeriod: SerializableAccountingPeriod = {
+      startPeriod: startPeriod.toISOString(),
+      endPeriod: endPeriod.toISOString(),
+    };
+    const request: GetTransactionRequest = {
+      ...accountingPeriod,
+      append: false,
+    };
+    dispatch(setOverallCashFlowStatementPeriod(accountingPeriod));
+    dispatch(getOverallCashFlowSummary(request));
+  };
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
@@ -109,24 +123,13 @@ export const CashFlowViewControl = () => {
 
   const onSubmit: SubmitHandler<Input> = async (data: Input) => {
     console.log(`Setting accounting period: ${JSON.stringify(data)}`);
-    const request: GetTransactionRequest = {
-      startPeriod: new Date(data.startPeriod).toISOString(),
-      endPeriod: new Date(data.endPeriod).toISOString(),
-      append: false,
-    };
-
-    dispatch(getOverallCashFlowSummary(request));
+    updateCashFlowView(data.startPeriod, data.endPeriod);
   };
 
   const onReset = () => {
     setValue('startPeriod', startOfYear);
     setValue('endPeriod', endOfYear);
-    dispatch(
-      setOverallCashFlowAccountingPeriod({
-        startPeriod: startOfYear.toISOString(),
-        endPeriod: endOfYear.toISOString(),
-      })
-    );
+    updateCashFlowView(startOfYear, endOfYear);
   };
 
   return (
