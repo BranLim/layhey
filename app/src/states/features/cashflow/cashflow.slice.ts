@@ -54,6 +54,12 @@ type CashFlowState = {
   error?: any;
 };
 
+type CashflowCalculationResult = {
+  totalIncome: number;
+  totalExpense: number;
+  difference: number;
+};
+
 type GetTransactionResponse = {
   transactions: TransactionResponse[];
   appendToExistingTransactions: boolean;
@@ -209,10 +215,14 @@ export const getOverallCashFlowSummary = createAsyncThunk<
           break;
       }
     });
-    state.cashflow.overallCashFlowForPeriod.inflow = totalIncome;
-    state.cashflow.overallCashFlowForPeriod.outflow = totalExpense;
-    state.cashflow.overallCashFlowForPeriod.difference =
-      totalIncome - totalExpense;
+
+    dispatch(
+      setOverallCashFlow({
+        totalExpense: totalExpense,
+        totalIncome: totalIncome,
+        difference: totalIncome - totalExpense,
+      } as CashflowCalculationResult)
+    );
 
     dispatch(
       setOverallCashFlowNode({ ...state.cashflow.overallCashFlowForPeriod })
@@ -456,6 +466,15 @@ const cashflowSlice = createSlice({
       ).toISOString();
       state.status = 'reload_cashflows';
     },
+    setOverallCashFlow: (
+      state,
+      action: PayloadAction<CashflowCalculationResult>
+    ) => {
+      const { totalIncome, totalExpense, difference } = action.payload;
+      state.overallCashFlowForPeriod.inflow = totalIncome;
+      state.overallCashFlowForPeriod.outflow = totalExpense;
+      state.overallCashFlowForPeriod.difference = difference;
+    },
     generateCashFlowSummaryGraph: (state, action: PayloadAction<string>) => {
       state.status = 'generate_cashflow_summary_graph';
 
@@ -497,6 +516,19 @@ const cashflowSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getOverallCashFlowSummary.pending, (state, action) => {
+        state.status = 'pre_get_transactions';
+        if (state.error) {
+          state.error = undefined;
+        }
+      })
+      .addCase(getOverallCashFlowSummary.fulfilled, (state, action) => {
+        state.status = 'get_transactions_completed';
+      })
+      .addCase(getOverallCashFlowSummary.rejected, (state, action) => {
+        state.status = 'error';
+        state.error = action.error;
+      })
       .addCase(getTransactions.pending, (state, action) => {
         state.status = 'pre_get_transactions';
         if (state.error) {
@@ -525,6 +557,7 @@ const cashflowSlice = createSlice({
 export const {
   setOverallCashFlowAccountingPeriod,
   generateCashFlowSummaryGraph,
+  setOverallCashFlow,
 } = cashflowSlice.actions;
 export const selectCashFlowStoreStatus = (state: any) => state.cashflow.status;
 export const selectAccountingPeriod = createSelector(

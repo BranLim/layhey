@@ -59,7 +59,7 @@ export const CashFlowView = () => {
       setSelectedParentStatementId(overallCashFlowSummary.id);
     }
   }, [flowViewStatus, cashFlowStoreStateStatus]);
-
+  /*
   useEffect(() => {
     if (
       cashFlowStoreStateStatus === 'reload_cashflows' ||
@@ -75,6 +75,7 @@ export const CashFlowView = () => {
       );
     }
   }, [dispatch, cashFlowStoreStateStatus]);
+  */
 
   /*
   useEffect(() => {
