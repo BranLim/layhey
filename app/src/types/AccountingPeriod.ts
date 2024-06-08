@@ -16,6 +16,10 @@ export type SerializableAccountingPeriod = {
   endPeriod: string;
 };
 
+export type SerializableAccountingPeriodSlot = SerializableAccountingPeriod & {
+  key: string;
+};
+
 export type AccountingPeriodIdentifier = {
   id?: string;
   name: string;

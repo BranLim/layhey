@@ -8,8 +8,8 @@ import { ReactFlowProvider } from 'reactflow';
 import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
 import { setCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slice';
 import {
+  getCashFlows,
   getOverallCashFlowSummary,
-  getTransactions,
   setOverallCashFlowStatementPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
 import { getAccountingPeriods } from '@/states/features/accounting/accounting.slice';
@@ -37,16 +37,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
         startPeriod: toFormattedDate(accountingPeriodStart, 'yyyy-MM-dd'),
         endPeriod: toFormattedDate(accountingPeriodEnd, 'yyyy-MM-dd'),
         append: false,
+        parentStatementSlotId: '',
+        parentNodeId: '',
       })
     );
-    /*
-    newStore.dispatch(
-      getTransactions({
-        startPeriod: toFormattedDate(accountingPeriodStart, 'yyyy-MM-dd'),
-        endPeriod: toFormattedDate(accountingPeriodEnd, 'yyyy-MM-dd'),
-        append: false,
-      })
-    );*/
   }
 
   return (

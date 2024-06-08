@@ -36,6 +36,7 @@ export type FlowPayload = {
 export type AddCashFlowPayload = {
   cashFlowSummaries: SerializableCashFlowSummary[];
   targetNodeId: string;
+  append: boolean;
 };
 
 export type FlowViewStatus =
@@ -275,32 +276,37 @@ const flowSlice = createSlice({
       state.flowViewStatus = 'initial_node_load_complete';
     },
     addCashFlows: (state, action: PayloadAction<AddCashFlowPayload>) => {
-      state.flowViewStatus = 'node_expansion_processing';
+      try {
+        console.log('Adding cashflow nodes');
+        const { targetNodeId, cashFlowSummaries, append } = action.payload;
 
-      const { targetNodeId, cashFlowSummaries } = action.payload;
+        const nodes: Node<CashFlowNodeData>[] = append
+          ? [...state.nodes]
+          : [state.nodes[0]];
+        const edges: Edge[] = append ? [...state.edges] : [];
 
-      const nodes: Node<CashFlowNodeData>[] = [...state.nodes];
-      const edges: Edge[] = [...state.edges];
+        const targetNode = nodes.find((node) => node.id === targetNodeId);
+        const sortedCashFlowSummaries =
+          sortCashFlowSummaries(cashFlowSummaries);
+        const generatedCashFlowNodes = generateCashFlowNodes(
+          state,
+          sortedCashFlowSummaries,
+          (targetNode?.position.x ?? 0) + 480,
+          (targetNode?.position.y ?? 0) + 10
+        );
+        const generatedEdges = generateNodeEdges(
+          targetNodeId,
+          generatedCashFlowNodes.map((node) => node.id)
+        );
 
-      const targetNode = nodes.find((node) => node.id === targetNodeId);
-      const sortedCashFlowSummaries = sortCashFlowSummaries(cashFlowSummaries);
-      const generatedCashFlowNodes = generateCashFlowNodes(
-        state,
-        sortedCashFlowSummaries,
-        (targetNode?.position.x ?? 0) + 480,
-        (targetNode?.position.y ?? 0) + 10
-      );
-      const generatedEdges = generateNodeEdges(
-        targetNodeId,
-        generatedCashFlowNodes.map((node) => node.id)
-      );
+        nodes.push(...generatedCashFlowNodes);
+        edges.push(...generatedEdges);
 
-      nodes.push(...generatedCashFlowNodes);
-      edges.push(...generatedEdges);
-
-      state.nodes = nodes;
-      state.edges = edges;
-      state.flowViewStatus = 'node_expansion_completed';
+        state.nodes = nodes;
+        state.edges = edges;
+      } catch (error) {
+        console.log(error);
+      }
     },
     setFlowViewToPostAdd: (state) => {
       state.flowViewStatus = 'post_add_transaction';
@@ -395,6 +401,7 @@ export const selectCurrentAccountingPeriod = (state: any) =>
   state.flow.currentChosenAccountingPeriod;
 export const selectFlowNodes = (state: any) => state.flow.nodes;
 export const selectFlowEdges = (state: any) => state.flow.edges;
+export const selectRootNode = (state: any) => state.flow.nodes[0];
 export const selectNodeStyle = (state: any, nodeId: string) =>
   state.flow.nodeStyles[nodeId];
 export const selectFlowViewStatus = (state: any) => state.flow.flowViewStatus;

@@ -1,30 +1,20 @@
 import {
-  Box,
   Button,
   FormControl,
-  FormErrorMessage,
   FormLabel,
   Heading,
   HStack,
   Input,
   Select,
-  VStack,
   Text,
-  Flex,
+  VStack,
 } from '@chakra-ui/react';
-import {
-  Controller,
-  SubmitHandler,
-  useForm,
-  ValidateResult,
-} from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
-  generateCashFlowSummaryGraph,
+  getCashFlows,
   getOverallCashFlowSummary,
   GetTransactionRequest,
-  getTransactions,
-  selectAccountingPeriod,
   selectOverallCashFlowSummary,
   setOverallCashFlowStatementPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
@@ -36,10 +26,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useReactFlow } from 'reactflow';
 import { defaultViewPort } from '@/components/cashflow/CashFlowView';
-import { error } from '@chakra-ui/utils';
 import {
-  getAccountingPeriods,
-  selectAccountingStoreStatus,
   selectPresetAccountingPeriod,
   selectPresetAccountingPeriods,
 } from '@/states/features/accounting/accounting.slice';
@@ -47,10 +34,7 @@ import {
   SerializableAccountingPeriod,
   UserAccountingPeriod,
 } from '@/types/AccountingPeriod';
-import {
-  selectCurrentAccountingPeriod,
-  setCurrentAccountingPeriod,
-} from '@/states/features/cashflow/flow.slice';
+import { selectRootNode } from '@/states/features/cashflow/flow.slice';
 
 type Input = {
   startPeriod: Date;
@@ -77,10 +61,10 @@ export const CashFlowViewControl = () => {
   const [isSubmitButtonEnabled, setIsSubmitButtonEnabled] =
     useState<boolean>(true);
   const overallCashFlowSummary = useAppSelector(selectOverallCashFlowSummary);
+  const overallCashFlowSummaryNode = useAppSelector(selectRootNode);
 
   const {
     trigger,
-    setError,
     handleSubmit,
     setValue,
     getValues,
@@ -107,9 +91,12 @@ export const CashFlowViewControl = () => {
     const request: GetTransactionRequest = {
       ...accountingPeriod,
       append: false,
+      parentStatementSlotId: overallCashFlowSummary.id,
+      parentNodeId: overallCashFlowSummaryNode.id,
     };
     dispatch(setOverallCashFlowStatementPeriod(accountingPeriod));
     dispatch(getOverallCashFlowSummary(request));
+    dispatch(getCashFlows(request));
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
