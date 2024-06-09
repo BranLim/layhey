@@ -23,14 +23,14 @@ import {
   SerializableAccountingPeriodSlot,
 } from '@/types/AccountingPeriod';
 import {
-  computeAccountingPeriodSlots,
+  computeCashFlowStatementPeriods,
   getAccountingPeriodFromSlotKey,
   getAccountingPeriodSlot,
   getMatchingCashFlowStatementPeriodSlots,
-} from '@/lib/helpers/accounting.helper';
+} from '@/lib/helpers/cashflow.helper';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  addCashFlows,
+  showCashFlows,
   FlowViewState,
   setOverallCashFlowNode,
 } from '@/states/features/cashflow/flow.slice';
@@ -147,7 +147,7 @@ const getAccountingPeriodSlots = (
   const accountingStartPeriod = new Date(startPeriod);
   const accountingEndPeriod = new Date(endPeriod);
 
-  return computeAccountingPeriodSlots(
+  return computeCashFlowStatementPeriods(
     accountingStartPeriod,
     accountingEndPeriod
   );
@@ -312,7 +312,6 @@ export const getCashFlows = createAsyncThunk<
       }
 
       currentState = getState();
-
       const cashFlowForPeriod = currentState.cashflow.cashFlows[slot.key];
       switch (transaction.mode) {
         case TransactionMode.Income:
@@ -349,9 +348,8 @@ export const getCashFlows = createAsyncThunk<
     dispatch(generateCashFlowSummaryGraph(parentRef));
 
     currentState = getState();
-
     dispatch(
-      addCashFlows({
+      showCashFlows({
         targetNodeId: parentNodeId,
         cashFlowSummaries: [
           ...currentState.cashflow.cashFlowSummaries[parentStatementSlotId],

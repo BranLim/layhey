@@ -224,58 +224,7 @@ const flowSlice = createSlice({
 
       state.nodes = cashFlowNodes;
     },
-    setCashFlowStatementBreakdownNodes: (state, action) => {},
-    setInitialCashFlows: (state, action: PayloadAction<FlowPayload>) => {
-      state.expandedNodes = [];
-
-      const { rootCashFlowSummary, cashFlowSummaries } = action.payload;
-      const cashFlowNodes: Node<CashFlowNodeData>[] = [];
-      const cashFlowEdges: Edge[] = [];
-
-      const rootNode: Node<CashFlowNodeData> = {
-        id: uuidv4(),
-        type: 'cashFlowNode',
-        position: { x: 0, y: 10 },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-        draggable: true,
-        focusable: true,
-        data: {
-          id: rootCashFlowSummary.id,
-          parentRef: rootCashFlowSummary.parentRef,
-          statementType: rootCashFlowSummary.statementType,
-          startPeriod: rootCashFlowSummary.startPeriod,
-          endPeriod: rootCashFlowSummary.endPeriod,
-          inflow: rootCashFlowSummary.inflow,
-          outflow: rootCashFlowSummary.outflow,
-          difference: rootCashFlowSummary.difference,
-          currency: 'SGD',
-          rootNode: true,
-        },
-      };
-      applyDefaultNodeStyle(state, rootNode.id);
-      cashFlowNodes.push(rootNode);
-
-      const sortedCashFlowSummaries = sortCashFlowSummaries(cashFlowSummaries);
-      const generatedCashFlowNodes = generateCashFlowNodes(
-        state,
-        sortedCashFlowSummaries,
-        480,
-        10
-      );
-      const generatedNodeEdges = generateNodeEdges(
-        rootNode.id,
-        generatedCashFlowNodes.map((node) => node.id)
-      );
-
-      cashFlowNodes.push(...generatedCashFlowNodes);
-      cashFlowEdges.push(...generatedNodeEdges);
-
-      state.nodes = cashFlowNodes;
-      state.edges = cashFlowEdges;
-      state.flowViewStatus = 'initial_node_load_complete';
-    },
-    addCashFlows: (state, action: PayloadAction<AddCashFlowPayload>) => {
+    showCashFlows: (state, action: PayloadAction<AddCashFlowPayload>) => {
       try {
         console.log('Adding cashflow nodes');
         const { targetNodeId, cashFlowSummaries, append } = action.payload;
@@ -388,8 +337,7 @@ const flowSlice = createSlice({
 export const {
   setCurrentAccountingPeriod,
   setOverallCashFlowNode,
-  setInitialCashFlows,
-  addCashFlows,
+  showCashFlows,
   handleNodeSelection,
   handleNodeMove,
   handleNodeMouseEnter,

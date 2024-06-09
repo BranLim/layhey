@@ -22,7 +22,7 @@ import {
   toFormattedDate,
 } from '@/utils/date.utils';
 
-const computeAccountingPeriodSlots = (
+const computeCashFlowStatementPeriods = (
   accountingStartPeriod: Date,
   accountingEndPeriod: Date
 ): AccountingPeriodSlot[] => {
@@ -293,7 +293,7 @@ const getAccountingSlotKey = (startDate: Date, endDate: Date) =>
   `${toFormattedDate(startDate, 'yyyyMMdd')}_${toFormattedDate(endDate, 'yyyyMMdd')}`;
 
 export {
-  computeAccountingPeriodSlots,
+  computeCashFlowStatementPeriods,
   getAccountingPeriodSlot,
   getAccountingPeriodFromSlotKey,
   getMatchingCashFlowStatementPeriodSlots,

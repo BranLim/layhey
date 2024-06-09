@@ -1,5 +1,5 @@
 import { describe, it } from '@jest/globals';
-import { computeAccountingPeriodSlots } from '@/lib/helpers/accounting.helper';
+import { computeCashFlowStatementPeriods } from '@/lib/helpers/cashflow.helper';
 import { AccountingPeriod } from '@/types/AccountingPeriod';
 import expect from 'expect';
 
@@ -10,7 +10,7 @@ describe('AccountingAction tests', () => {
       const endPeriod = new Date(2024, 0, 7, 23, 59, 59);
 
       const accountingPeriods: AccountingPeriod[] =
-        computeAccountingPeriodSlots(startPeriod, endPeriod);
+        computeCashFlowStatementPeriods(startPeriod, endPeriod);
 
       expect(accountingPeriods.length).toBe(7);
     });
@@ -19,7 +19,7 @@ describe('AccountingAction tests', () => {
       const endPeriod = new Date(2024, 0, 9, 23, 59, 59);
 
       const accountingPeriods: AccountingPeriod[] =
-        computeAccountingPeriodSlots(startPeriod, endPeriod);
+        computeCashFlowStatementPeriods(startPeriod, endPeriod);
 
       expect(accountingPeriods.length).toBe(7);
     });
@@ -30,7 +30,7 @@ describe('AccountingAction tests', () => {
       const endPeriod = new Date(2024, 0, 12, 23, 59, 59);
 
       const accountingPeriods: AccountingPeriod[] =
-        computeAccountingPeriodSlots(startPeriod, endPeriod);
+        computeCashFlowStatementPeriods(startPeriod, endPeriod);
 
       expect(accountingPeriods.length).toBe(2);
     });
@@ -39,7 +39,7 @@ describe('AccountingAction tests', () => {
       const endPeriod = new Date(2024, 0, 16, 23, 59, 59);
 
       const accountingPeriods: AccountingPeriod[] =
-        computeAccountingPeriodSlots(startPeriod, endPeriod);
+        computeCashFlowStatementPeriods(startPeriod, endPeriod);
 
       expect(accountingPeriods.length).toBe(3);
     });
@@ -48,7 +48,7 @@ describe('AccountingAction tests', () => {
       const endPeriod = new Date(2024, 0, 28, 23, 59, 59);
 
       const accountingPeriods: AccountingPeriod[] =
-        computeAccountingPeriodSlots(startPeriod, endPeriod);
+        computeCashFlowStatementPeriods(startPeriod, endPeriod);
 
       expect(accountingPeriods.length).toBe(4);
     });
@@ -57,7 +57,7 @@ describe('AccountingAction tests', () => {
       const endPeriod = new Date(2024, 0, 28, 23, 59, 59);
 
       const accountingPeriods: AccountingPeriod[] =
-        computeAccountingPeriodSlots(startPeriod, endPeriod);
+        computeCashFlowStatementPeriods(startPeriod, endPeriod);
 
       expect(accountingPeriods.length).toBe(4);
     });
@@ -66,7 +66,7 @@ describe('AccountingAction tests', () => {
       const endPeriod = new Date(2024, 0, 30, 23, 59, 59);
 
       const accountingPeriods: AccountingPeriod[] =
-        computeAccountingPeriodSlots(startPeriod, endPeriod);
+        computeCashFlowStatementPeriods(startPeriod, endPeriod);
 
       expect(accountingPeriods.length).toBe(5);
     });
@@ -78,7 +78,7 @@ describe('AccountingAction tests', () => {
       const endPeriod = new Date(2024, 11, 31, 23, 59, 59);
 
       const accountingPeriods: AccountingPeriod[] =
-        computeAccountingPeriodSlots(startPeriod, endPeriod);
+        computeCashFlowStatementPeriods(startPeriod, endPeriod);
 
       expect(accountingPeriods.length).toBe(12);
     });
@@ -87,7 +87,7 @@ describe('AccountingAction tests', () => {
       const endPeriod = new Date(2024, 11, 31, 23, 59, 59);
 
       const accountingPeriods: AccountingPeriod[] =
-        computeAccountingPeriodSlots(startPeriod, endPeriod);
+        computeCashFlowStatementPeriods(startPeriod, endPeriod);
 
       expect(accountingPeriods.length).toBe(12);
       expect(accountingPeriods[0]).toMatchObject({
@@ -102,7 +102,7 @@ describe('AccountingAction tests', () => {
       const endPeriod = new Date(2025, 0, 31, 23, 59, 59);
 
       const accountingPeriods: AccountingPeriod[] =
-        computeAccountingPeriodSlots(startPeriod, endPeriod);
+        computeCashFlowStatementPeriods(startPeriod, endPeriod);
 
       expect(accountingPeriods.length).toBe(2);
     });

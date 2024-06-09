@@ -59,7 +59,7 @@ export const CashFlowView = () => {
       );
       dispatch(setInitialLoadCompleted());
     }
-  }, [dispatch, initialLoadCompleted]);
+  }, [dispatch, cashFlowStoreStateStatus, initialLoadCompleted]);
 
   const handleNodesChange = (changes: NodeChange[]) => {
     changes.forEach((change) => {
