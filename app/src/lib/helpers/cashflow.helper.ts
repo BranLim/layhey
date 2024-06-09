@@ -3,7 +3,7 @@ import {
   Accounting_Period_Days_In_Week,
   Accounting_Period_Days_In_Year,
   AccountingPeriod,
-  AccountingPeriodSlot,
+  StatementPeriodSlot,
 } from '@/types/AccountingPeriod';
 import {
   differenceInCalendarDays,
@@ -25,7 +25,7 @@ import {
 const computeCashFlowStatementPeriods = (
   accountingStartPeriod: Date,
   accountingEndPeriod: Date
-): AccountingPeriodSlot[] => {
+): StatementPeriodSlot[] => {
   if (!isDate(accountingStartPeriod) || !isDate(accountingEndPeriod)) {
     throw new Error(
       'accountingStartPeriod or accountingEndPeriod must be date type'
@@ -35,8 +35,8 @@ const computeCashFlowStatementPeriods = (
   const diffInDays =
     differenceInCalendarDays(accountingEndPeriod, accountingStartPeriod) + 1;
 
-  const periods: AccountingPeriodSlot[] = [];
-  let slots: AccountingPeriodSlot[] = [];
+  const periods: StatementPeriodSlot[] = [];
+  let slots: StatementPeriodSlot[] = [];
   if (diffInDays <= Accounting_Period_Days_In_Month) {
     if (diffInDays <= Accounting_Period_Days_In_Week) {
       slots = generateDaySlots(accountingStartPeriod, accountingEndPeriod);
@@ -58,7 +58,7 @@ const computeCashFlowStatementPeriods = (
 const generateDaySlots = (
   accountingStartPeriod: Date,
   accountingEndPeriod: Date
-): AccountingPeriodSlot[] => {
+): StatementPeriodSlot[] => {
   const endPeriod = new Date(
     accountingEndPeriod.getFullYear(),
     accountingEndPeriod.getMonth(),
@@ -68,7 +68,7 @@ const generateDaySlots = (
     59,
     999
   );
-  const periods: AccountingPeriodSlot[] = [];
+  const periods: StatementPeriodSlot[] = [];
   let currentDate = new Date(
     accountingStartPeriod.getFullYear(),
     accountingStartPeriod.getMonth(),
@@ -105,7 +105,7 @@ const generateDaySlots = (
 const generateWeekSlots = (
   accountingStartPeriod: Date,
   accountingEndPeriod: Date
-): AccountingPeriodSlot[] => {
+): StatementPeriodSlot[] => {
   const endPeriod = new Date(
     accountingEndPeriod.getFullYear(),
     accountingEndPeriod.getMonth(),
@@ -133,7 +133,7 @@ const generateWeekSlots = (
     59,
     999
   );
-  const periods: AccountingPeriodSlot[] = [];
+  const periods: StatementPeriodSlot[] = [];
   for (let i = 0; i < diffInWeeks; i++) {
     if (!isSunday(currentDate)) {
       nextDate = getSunday(currentDate);
@@ -155,7 +155,7 @@ const generateWeekSlots = (
 const generateMonthSlot = (
   accountingStartPeriod: Date,
   accountingEndPeriod: Date
-): AccountingPeriodSlot[] => {
+): StatementPeriodSlot[] => {
   const endPeriod = new Date(
     accountingEndPeriod.getFullYear(),
     accountingEndPeriod.getMonth(),
@@ -175,7 +175,7 @@ const generateMonthSlot = (
     59,
     999
   );
-  const periods: AccountingPeriodSlot[] = [];
+  const periods: StatementPeriodSlot[] = [];
   while (currentDate < endPeriod) {
     if (!isLastDayOfMonth(currentDate)) {
       nextDate = getMonthEnd(currentDate);
@@ -197,7 +197,7 @@ const generateMonthSlot = (
 const generateYearSlot = (
   accountingStartPeriod: Date,
   accountingEndPeriod: Date
-): AccountingPeriodSlot[] => {
+): StatementPeriodSlot[] => {
   const endPeriod = new Date(
     accountingEndPeriod.getFullYear(),
     accountingEndPeriod.getMonth(),
@@ -217,7 +217,7 @@ const generateYearSlot = (
     59,
     999
   );
-  const periods: AccountingPeriodSlot[] = [];
+  const periods: StatementPeriodSlot[] = [];
   while (currentDate < endPeriod) {
     nextDate = getYearEnd(currentDate);
 
@@ -236,9 +236,9 @@ const generateYearSlot = (
 };
 
 const getAccountingPeriodSlot = (
-  accountingPeriods: AccountingPeriodSlot[],
+  accountingPeriods: StatementPeriodSlot[],
   transactionDate: Date
-): AccountingPeriodSlot | undefined => {
+): StatementPeriodSlot | undefined => {
   return accountingPeriods?.find(
     (value) =>
       value.startPeriod <= transactionDate && value.endPeriod >= transactionDate
@@ -246,9 +246,9 @@ const getAccountingPeriodSlot = (
 };
 
 const getMatchingCashFlowStatementPeriodSlots = (
-  accountingPeriods: AccountingPeriodSlot[],
+  accountingPeriods: StatementPeriodSlot[],
   transactionDate: Date
-): AccountingPeriodSlot[] | undefined => {
+): StatementPeriodSlot[] | undefined => {
   if (!accountingPeriods) {
     return undefined;
   }
@@ -260,7 +260,7 @@ const getMatchingCashFlowStatementPeriodSlots = (
     return undefined;
   }
   allMatchingSlots.sort(
-    (slot1: AccountingPeriodSlot, slot2: AccountingPeriodSlot) => {
+    (slot1: StatementPeriodSlot, slot2: StatementPeriodSlot) => {
       const slo1Time = slot1.endPeriod.getTime() - slot1.startPeriod.getTime();
       const slot2Time = slot2.endPeriod.getTime() - slot2.startPeriod.getTime();
 

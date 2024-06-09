@@ -7,7 +7,7 @@ export type AccountingPeriod = {
   endPeriod: Date;
 };
 
-export type AccountingPeriodSlot = AccountingPeriod & {
+export type StatementPeriodSlot = AccountingPeriod & {
   key: string;
 };
 
@@ -16,7 +16,7 @@ export type SerializableAccountingPeriod = {
   endPeriod: string;
 };
 
-export type SerializableAccountingPeriodSlot = SerializableAccountingPeriod & {
+export type SerializableStatementPeriodSlot = SerializableAccountingPeriod & {
   key: string;
 };
 

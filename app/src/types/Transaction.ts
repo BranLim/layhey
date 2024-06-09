@@ -7,6 +7,7 @@ export enum TransactionMode {
 
 export enum TransactionSource {
   Cash = 'Cash',
+  Cheque = 'Cheque',
   CreditCard = 'Credit Card',
   DirectDebit = 'Direct Debit',
 }

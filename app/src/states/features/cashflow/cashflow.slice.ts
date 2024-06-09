@@ -10,17 +10,11 @@ import {
   TransactionRequest,
   TransactionResponse,
 } from '@/types/Transaction';
+import CashFlow from '@/types/CashFlow';
+import { isTransactionDateWithin } from '@/utils/date.utils';
 import {
-  CashFlowStatement,
-  CashFlowStatements,
-  CashFlowStatementType,
-  CashFlowSummary,
-  SerializableCashFlowSummary,
-} from '@/types/CashFlow';
-import { isTransactionDateWithin, toFormattedDate } from '@/utils/date.utils';
-import {
-  AccountingPeriodSlot,
-  SerializableAccountingPeriodSlot,
+  SerializableStatementPeriodSlot,
+  StatementPeriodSlot,
 } from '@/types/AccountingPeriod';
 import {
   computeCashFlowStatementPeriods,
@@ -30,10 +24,13 @@ import {
 } from '@/lib/helpers/cashflow.helper';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  showCashFlows,
   FlowViewState,
   setOverallCashFlowNode,
+  showCashFlows,
 } from '@/states/features/cashflow/flow.slice';
+import { getTransactions } from '@/states/features/cashflow/api/transactions.api';
+import { toSerializableStatementPeriods } from '@/lib/mappers/accountingPeriod.mapper';
+import SetCashFlowRequest = CashFlow.SetCashFlowRequest;
 
 type Status =
   | 'idle'
@@ -41,15 +38,17 @@ type Status =
   | 'pending_get_overall_cashflow'
   | 'completed_get_overall_cashflow'
   | 'updated_overall_cashflows'
+  | 'updated_cashflows'
   | 'pending_get_cashflows'
   | 'completed_get_cashflows'
-  | 'pending_add_transactions';
+  | 'pending_add_transactions'
+  | 'completed_add_transactions';
 
 type CashFlowState = {
-  overallCashFlowForPeriod: SerializableCashFlowSummary;
-  cashFlows: CashFlowStatements;
+  overallCashFlowForPeriod: CashFlow.SerializableCashFlowSummary;
+  cashFlows: CashFlow.CashFlowStatements;
   cashFlowSummaries: {
-    [parentStatementId: string]: SerializableCashFlowSummary[];
+    [parentStatementId: string]: CashFlow.SerializableCashFlowSummary[];
   };
   previousStatus?: Status;
   status: Status;
@@ -63,23 +62,9 @@ type CashflowCalculationResult = {
   difference: number;
 };
 
-type GetTransactionResponse = {
-  transactions: TransactionResponse[];
-  appendToExistingTransactions: boolean;
-  parentStatementSlotId?: string;
-  startPeriod: string;
-  endPeriod: string;
-};
-
-type SetCashFlowRequest = {
-  key: string;
-  type: TransactionMode;
-  total: number;
-};
-
 type CashFlowInitialisationRequest = {
-  statementPeriodSlots: SerializableAccountingPeriodSlot[];
-  statementType: CashFlowStatementType;
+  statementPeriodSlots: SerializableStatementPeriodSlot[];
+  statementType: CashFlow.CashFlowStatementType;
   parentSlotRef?: string;
   append: boolean;
 };
@@ -113,8 +98,8 @@ const initialCashFlowState: CashFlowState = {
 
 const initialiseCashFlowStatementSlots = (
   state: any,
-  accountingPeriodSlots: AccountingPeriodSlot[],
-  statementType: CashFlowStatementType = 'Summary',
+  accountingPeriodSlots: StatementPeriodSlot[],
+  statementType: CashFlow.CashFlowStatementType = 'Summary',
   parentSlotRef: string | undefined = undefined
 ): void => {
   accountingPeriodSlots.forEach((slot) => {
@@ -135,7 +120,7 @@ const initialiseCashFlowStatementSlots = (
           type: 'expense',
           total: 0,
         },
-      } satisfies CashFlowStatement;
+      } satisfies CashFlow.CashFlowStatement;
     }
   });
 };
@@ -143,7 +128,7 @@ const initialiseCashFlowStatementSlots = (
 const getAccountingPeriodSlots = (
   startPeriod: string,
   endPeriod: string
-): AccountingPeriodSlot[] => {
+): StatementPeriodSlot[] => {
   const accountingStartPeriod = new Date(startPeriod);
   const accountingEndPeriod = new Date(endPeriod);
 
@@ -153,11 +138,18 @@ const getAccountingPeriodSlots = (
   );
 };
 
-export const addTransaction = createAsyncThunk(
+export const addTransaction = createAsyncThunk<
+  void,
+  AddTransactionRequest,
+  {
+    state: {
+      cashflow: CashFlowState;
+      flow: FlowViewState;
+    };
+  }
+>(
   'cashflow/addTransactions',
-  async (
-    newTransaction: AddTransactionRequest
-  ): Promise<TransactionResponse[]> => {
+  async (newTransaction: AddTransactionRequest): Promise<void> => {
     const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`;
     const response = await fetch(apiPath, {
       method: 'POST',
@@ -172,191 +164,6 @@ export const addTransaction = createAsyncThunk(
       throw new Error('Error adding new transaction');
     }
     const transactions = (await response.json()) as TransactionResponse[];
-    return transactions;
-  }
-);
-
-const getTransactions = async (
-  startPeriod: string,
-  endPeriod: string
-): Promise<TransactionResponse[]> => {
-  const formattedStartPeriod = toFormattedDate(
-    new Date(startPeriod),
-    'yyyy-MM-dd'
-  );
-  const formattedEndPeriod = toFormattedDate(new Date(endPeriod), 'yyyy-MM-dd');
-
-  const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${formattedStartPeriod}&endPeriod=${formattedEndPeriod}`;
-  const response = await fetch(apiPath, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json;charset=UTF-8',
-    },
-  });
-  if (!response.ok) {
-    throw new Error(
-      `Error get transactions for the period: ${startPeriod} - ${endPeriod}`
-    );
-  }
-
-  return (await response.json()) as TransactionResponse[];
-};
-
-export const getOverallCashFlowSummary = createAsyncThunk<
-  void,
-  GetTransactionRequest,
-  {
-    state: {
-      cashflow: CashFlowState;
-      flow: FlowViewState;
-    };
-  }
->(
-  'cashflow/getOverallCashFlowSummary',
-  async (request: GetTransactionRequest, { dispatch, getState }) => {
-    const { startPeriod, endPeriod } = request;
-
-    const transactions: TransactionResponse[] = await getTransactions(
-      startPeriod,
-      endPeriod
-    );
-
-    let totalIncome = 0;
-    let totalExpense = 0;
-    transactions.forEach((transaction) => {
-      switch (transaction.mode) {
-        case TransactionMode.Income:
-          totalIncome += transaction.amount;
-          break;
-        case TransactionMode.Expense:
-          totalExpense += transaction.amount;
-          break;
-      }
-    });
-
-    dispatch(
-      setOverallCashFlow({
-        totalExpense: totalExpense,
-        totalIncome: totalIncome,
-        difference: totalIncome - totalExpense,
-      } as CashflowCalculationResult)
-    );
-
-    const state = getState();
-    if (state.cashflow.status === 'updated_overall_cashflows') {
-      dispatch(
-        setOverallCashFlowNode({ ...state.cashflow.overallCashFlowForPeriod })
-      );
-    }
-  }
-);
-
-export const getCashFlows = createAsyncThunk<
-  void,
-  GetTransactionRequest,
-  { state: { cashflow: CashFlowState; flow: FlowViewState } }
->(
-  'cashflow/getCashFlow',
-  async (request: GetTransactionRequest, { dispatch, getState }) => {
-    const {
-      startPeriod,
-      endPeriod,
-      append,
-      parentNodeId,
-      parentStatementSlotId,
-    } = request;
-
-    console.log('Getting Cashflows');
-    let currentState = getState();
-
-    let parentRef = currentState.cashflow.overallCashFlowForPeriod.id;
-    let accountingPeriodSlots: AccountingPeriodSlot[] = [];
-    if (append) {
-      parentRef = parentStatementSlotId;
-      accountingPeriodSlots = getAccountingPeriodSlots(startPeriod, endPeriod);
-    } else {
-      accountingPeriodSlots = getAccountingPeriodSlots(
-        currentState.cashflow.overallCashFlowForPeriod.startPeriod,
-        currentState.cashflow.overallCashFlowForPeriod.endPeriod
-      );
-    }
-
-    dispatch(
-      setCashFlowStatementSlots({
-        statementPeriodSlots: accountingPeriodSlots.map((slot) => {
-          return {
-            ...slot,
-            startPeriod: slot.startPeriod.toISOString(),
-            endPeriod: slot.endPeriod.toISOString(),
-          } as SerializableAccountingPeriodSlot;
-        }),
-        parentSlotRef: parentRef,
-        statementType: 'Summary',
-        append: append,
-      })
-    );
-
-    const transactions: TransactionResponse[] = await getTransactions(
-      startPeriod,
-      endPeriod
-    );
-
-    transactions?.forEach((transaction: TransactionRequest) => {
-      const slot = getAccountingPeriodSlot(
-        accountingPeriodSlots,
-        new Date(transaction.date)
-      );
-
-      if (!slot) {
-        return;
-      }
-
-      currentState = getState();
-      const cashFlowForPeriod = currentState.cashflow.cashFlows[slot.key];
-      switch (transaction.mode) {
-        case TransactionMode.Income:
-          const updatedIncome = {
-            ...cashFlowForPeriod.income,
-            total: cashFlowForPeriod.income.total + transaction.amount,
-          };
-
-          dispatch(
-            setCashFlow({
-              key: slot.key,
-              type: TransactionMode.Income,
-              total: cashFlowForPeriod.income.total + transaction.amount,
-            } as SetCashFlowRequest)
-          );
-
-          break;
-        case TransactionMode.Expense:
-          const updatedExpense = {
-            ...cashFlowForPeriod.expense,
-            total: cashFlowForPeriod.expense.total + transaction.amount,
-          };
-          dispatch(
-            setCashFlow({
-              key: slot.key,
-              type: TransactionMode.Expense,
-              total: cashFlowForPeriod.expense.total + transaction.amount,
-            } as SetCashFlowRequest)
-          );
-          break;
-      }
-    });
-
-    dispatch(generateCashFlowSummaryGraph(parentRef));
-
-    currentState = getState();
-    dispatch(
-      showCashFlows({
-        targetNodeId: parentNodeId,
-        cashFlowSummaries: [
-          ...currentState.cashflow.cashFlowSummaries[parentStatementSlotId],
-        ],
-        append: append,
-      })
-    );
   }
 );
 
@@ -456,6 +263,161 @@ const addTransactionReducer = (
   state.status = 'post_add_transaction_completed';
 };
 
+export const getOverallCashFlowSummary = createAsyncThunk<
+  void,
+  GetTransactionRequest,
+  {
+    state: {
+      cashflow: CashFlowState;
+      flow: FlowViewState;
+    };
+  }
+>(
+  'cashflow/getOverallCashFlowSummary',
+  async (
+    request: GetTransactionRequest,
+    { dispatch, getState }
+  ): Promise<void> => {
+    const { startPeriod, endPeriod } = request;
+
+    const transactions: TransactionResponse[] = await getTransactions(
+      startPeriod,
+      endPeriod
+    );
+
+    let totalIncome = 0;
+    let totalExpense = 0;
+    transactions.forEach((transaction) => {
+      switch (transaction.mode) {
+        case TransactionMode.Income:
+          totalIncome += transaction.amount;
+          break;
+        case TransactionMode.Expense:
+          totalExpense += transaction.amount;
+          break;
+      }
+    });
+
+    dispatch(
+      setOverallCashFlow({
+        totalExpense: totalExpense,
+        totalIncome: totalIncome,
+        difference: totalIncome - totalExpense,
+      } as CashflowCalculationResult)
+    );
+
+    const state = getState();
+    if (state.cashflow.status === 'updated_overall_cashflows') {
+      dispatch(
+        setOverallCashFlowNode({ ...state.cashflow.overallCashFlowForPeriod })
+      );
+    }
+  }
+);
+
+export const getCashFlows = createAsyncThunk<
+  void,
+  GetTransactionRequest,
+  { state: { cashflow: CashFlowState; flow: FlowViewState } }
+>(
+  'cashflow/getCashFlow',
+  async (request: GetTransactionRequest, { dispatch, getState }) => {
+    const {
+      startPeriod,
+      endPeriod,
+      append,
+      parentNodeId,
+      parentStatementSlotId,
+    } = request;
+
+    console.log('Getting Cashflows');
+    let currentState = getState();
+
+    let parentRef = currentState.cashflow.overallCashFlowForPeriod.id;
+    let statementPeriods: StatementPeriodSlot[] = [];
+    if (append) {
+      parentRef = parentStatementSlotId;
+      statementPeriods = getAccountingPeriodSlots(startPeriod, endPeriod);
+    } else {
+      statementPeriods = getAccountingPeriodSlots(
+        currentState.cashflow.overallCashFlowForPeriod.startPeriod,
+        currentState.cashflow.overallCashFlowForPeriod.endPeriod
+      );
+    }
+
+    dispatch(
+      setCashFlowStatementSlots({
+        statementPeriodSlots: toSerializableStatementPeriods(statementPeriods),
+        parentSlotRef: parentRef,
+        statementType: 'Summary',
+        append: append,
+      })
+    );
+
+    const transactions: TransactionResponse[] = await getTransactions(
+      startPeriod,
+      endPeriod
+    );
+
+    transactions?.forEach((transaction: TransactionRequest) => {
+      const slot = getAccountingPeriodSlot(
+        statementPeriods,
+        new Date(transaction.date)
+      );
+
+      if (!slot) {
+        return;
+      }
+
+      currentState = getState();
+      const cashFlowForPeriod = currentState.cashflow.cashFlows[slot.key];
+      switch (transaction.mode) {
+        case TransactionMode.Income:
+          const updatedIncome = {
+            ...cashFlowForPeriod.income,
+            total: cashFlowForPeriod.income.total + transaction.amount,
+          };
+
+          dispatch(
+            setCashFlow({
+              key: slot.key,
+              type: TransactionMode.Income,
+              total: cashFlowForPeriod.income.total + transaction.amount,
+            } as SetCashFlowRequest)
+          );
+
+          break;
+        case TransactionMode.Expense:
+          const updatedExpense = {
+            ...cashFlowForPeriod.expense,
+            total: cashFlowForPeriod.expense.total + transaction.amount,
+          };
+          dispatch(
+            setCashFlow({
+              key: slot.key,
+              type: TransactionMode.Expense,
+              total: cashFlowForPeriod.expense.total + transaction.amount,
+            } as SetCashFlowRequest)
+          );
+          break;
+      }
+    });
+
+    dispatch(generateCashFlowSummaryGraph(parentRef));
+
+    currentState = getState();
+    dispatch(
+      showCashFlows({
+        targetNodeId: parentNodeId,
+        cashFlowSummaries: [
+          ...currentState.cashflow.cashFlowSummaries[parentStatementSlotId],
+        ],
+        append: append,
+      })
+    );
+  }
+);
+
 const cashflowSlice = createSlice({
   name: 'cashflow',
   initialState: initialCashFlowState,
@@ -487,6 +449,7 @@ const cashflowSlice = createSlice({
       state.overallCashFlowForPeriod.outflow = totalExpense;
       state.overallCashFlowForPeriod.difference = difference;
 
+      state.previousStatus = state.status;
       state.status = 'updated_overall_cashflows';
     },
     setCashFlow: (state, action: PayloadAction<SetCashFlowRequest>) => {
@@ -500,6 +463,8 @@ const cashflowSlice = createSlice({
           state.cashFlows[key].expense.total = total;
           break;
       }
+      state.previousStatus = state.status;
+      state.status = 'updated_cashflows';
     },
     setCashFlowStatementSlots: (
       state,
@@ -527,9 +492,10 @@ const cashflowSlice = createSlice({
       const parentStatementId: string = action.payload;
       const cashFlows = state.cashFlows;
 
-      const summaryNodes: SerializableCashFlowSummary[] = [];
+      const summaryNodes: CashFlow.SerializableCashFlowSummary[] = [];
       for (const cashFlowSlot in cashFlows) {
-        const cashFlowBySlot: CashFlowStatement = cashFlows[cashFlowSlot];
+        const cashFlowBySlot: CashFlow.CashFlowStatement =
+          cashFlows[cashFlowSlot];
         if (
           cashFlowBySlot.parentRef &&
           cashFlowBySlot.parentRef != parentStatementId
@@ -541,7 +507,7 @@ const cashflowSlice = createSlice({
           continue;
         }
 
-        const cashFlow: SerializableCashFlowSummary = {
+        const cashFlow: CashFlow.SerializableCashFlowSummary = {
           id: cashFlowBySlot.id,
           parentRef: cashFlowBySlot.parentRef,
           statementType: cashFlowBySlot.statementType,
@@ -593,7 +559,9 @@ const cashflowSlice = createSlice({
           state.error = undefined;
         }
       })
-      .addCase(addTransaction.fulfilled, addTransactionReducer)
+      .addCase(addTransaction.fulfilled, (state, action) => {
+        state.status = 'completed_add_transactions';
+      })
       .addCase(addTransaction.rejected, (state, action) => {
         state.status = 'error';
         state.error = action.error;
@@ -619,7 +587,7 @@ export const selectAccountingPeriod = createSelector(
 );
 export const selectOverallCashFlowSummary = createSelector(
   (state: any) => state.cashflow.overallCashFlowForPeriod,
-  (cashFlowSummary: SerializableCashFlowSummary) =>
+  (cashFlowSummary: CashFlow.SerializableCashFlowSummary) =>
     ({
       id: cashFlowSummary.id,
       parentRef: cashFlowSummary.parentRef,
@@ -629,14 +597,17 @@ export const selectOverallCashFlowSummary = createSelector(
       inflow: cashFlowSummary.inflow,
       outflow: cashFlowSummary.outflow,
       difference: cashFlowSummary.difference,
-    }) as CashFlowSummary
+    }) as CashFlow.CashFlowSummary
 );
 export const selectCashFlowStatements = createSelector(
   [
     (state: any) => state.cashflow.cashFlowSummaries,
     (state: any, parentStatementId: string) => parentStatementId,
   ],
-  (cashFlowSummaries, parentStatementId): SerializableCashFlowSummary[] =>
+  (
+    cashFlowSummaries,
+    parentStatementId
+  ): CashFlow.SerializableCashFlowSummary[] =>
     cashFlowSummaries[parentStatementId]
 );
 

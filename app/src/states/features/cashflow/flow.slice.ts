@@ -1,8 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {
-  CashFlowNodeData,
-  SerializableCashFlowSummary,
-} from '@/types/CashFlow';
+import CashFlow from '@/types/CashFlow';
 import {
   Edge,
   MarkerType,
@@ -29,12 +26,12 @@ const edgeMarkerEnd = {
 };
 
 export type FlowPayload = {
-  rootCashFlowSummary: SerializableCashFlowSummary;
-  cashFlowSummaries: SerializableCashFlowSummary[];
+  rootCashFlowSummary: CashFlow.SerializableCashFlowSummary;
+  cashFlowSummaries: CashFlow.SerializableCashFlowSummary[];
 };
 
 export type AddCashFlowPayload = {
-  cashFlowSummaries: SerializableCashFlowSummary[];
+  cashFlowSummaries: CashFlow.SerializableCashFlowSummary[];
   targetNodeId: string;
   append: boolean;
 };
@@ -50,9 +47,9 @@ export type FlowViewStatus =
 export type FlowViewState = {
   currentChosenAccountingPeriod: SerializableAccountingPeriod;
   expandedNodes: Array<string>;
-  nodes: Node<CashFlowNodeData>[];
+  nodes: Node<CashFlow.CashFlowNodeData>[];
   edges: Edge[];
-  selectedNode?: Node<CashFlowNodeData>;
+  selectedNode?: Node<CashFlow.CashFlowNodeData>;
   nodeStyles: Record<string, any>;
   flowViewStatus: FlowViewStatus;
 };
@@ -63,7 +60,7 @@ const initialState: FlowViewState = {
     endPeriod: '',
   },
   expandedNodes: Array<string>(),
-  nodes: Array<Node<CashFlowNodeData>>(),
+  nodes: Array<Node<CashFlow.CashFlowNodeData>>(),
   edges: Array<Edge>(),
   nodeStyles: {},
   flowViewStatus: 'initial_node_load',
@@ -76,7 +73,7 @@ const applyDefaultNodeStyle = (state: any, nodeId: string) => {
 };
 
 const sortCashFlowSummaries = (
-  cashFlowSummaries: SerializableCashFlowSummary[]
+  cashFlowSummaries: CashFlow.SerializableCashFlowSummary[]
 ) => {
   return cashFlowSummaries.sort((summary1, summary2) => {
     const start = new Date(summary1.startPeriod);
@@ -104,14 +101,14 @@ const sortCashFlowSummaries = (
 
 const generateCashFlowNodes = (
   state: any,
-  cashFlowSummaries: SerializableCashFlowSummary[],
+  cashFlowSummaries: CashFlow.SerializableCashFlowSummary[],
   xInitialPos: number,
   yInitialPos: number
-): Node<CashFlowNodeData>[] => {
-  const cashFlowNodes: Node<CashFlowNodeData>[] = [];
+): Node<CashFlow.CashFlowNodeData>[] => {
+  const cashFlowNodes: Node<CashFlow.CashFlowNodeData>[] = [];
   let y = yInitialPos;
   for (const cashFlowSummary of cashFlowSummaries) {
-    const node: Node<CashFlowNodeData> = {
+    const node: Node<CashFlow.CashFlowNodeData> = {
       id: `node-${uuidv4()}`,
       type: 'cashFlowNode',
       position: { x: xInitialPos, y: y },
@@ -173,14 +170,14 @@ const flowSlice = createSlice({
     },
     setOverallCashFlowNode: (
       state,
-      action: PayloadAction<SerializableCashFlowSummary>
+      action: PayloadAction<CashFlow.SerializableCashFlowSummary>
     ) => {
-      const overallCashFlowSummary: SerializableCashFlowSummary =
+      const overallCashFlowSummary: CashFlow.SerializableCashFlowSummary =
         action.payload;
 
-      const cashFlowNodes: Node<CashFlowNodeData>[] = [...state.nodes];
+      const cashFlowNodes: Node<CashFlow.CashFlowNodeData>[] = [...state.nodes];
 
-      let rootNode: Node<CashFlowNodeData> = cashFlowNodes[0];
+      let rootNode: Node<CashFlow.CashFlowNodeData> = cashFlowNodes[0];
       if (rootNode) {
         cashFlowNodes[0] = {
           ...rootNode,
@@ -229,7 +226,7 @@ const flowSlice = createSlice({
         console.log('Adding cashflow nodes');
         const { targetNodeId, cashFlowSummaries, append } = action.payload;
 
-        const nodes: Node<CashFlowNodeData>[] = append
+        const nodes: Node<CashFlow.CashFlowNodeData>[] = append
           ? [...state.nodes]
           : [state.nodes[0]];
         const edges: Edge[] = append ? [...state.edges] : [];

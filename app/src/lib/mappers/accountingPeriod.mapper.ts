@@ -1,6 +1,8 @@
 import { AccountingPeriodDocument } from '@/lib/models/accountingPeriod.model';
 import {
   GetUserAccountingPeriodsResponse,
+  SerializableStatementPeriodSlot,
+  StatementPeriodSlot,
   UserAccountingPeriod,
   UserAccountingPeriodResponse,
 } from '@/types/AccountingPeriod';
@@ -45,8 +47,21 @@ const toGetUserAccountingPeriodsResponse = (
   } as GetUserAccountingPeriodsResponse;
 };
 
+const toSerializableStatementPeriods = (
+  statementPeriods: StatementPeriodSlot[]
+): SerializableStatementPeriodSlot[] => {
+  return statementPeriods.map((slot) => {
+    return {
+      ...slot,
+      startPeriod: slot.startPeriod.toISOString(),
+      endPeriod: slot.endPeriod.toISOString(),
+    } as SerializableStatementPeriodSlot;
+  });
+};
+
 export {
   toUserAccountingPeriod,
   toUserAccountingPeriodResponse,
   toGetUserAccountingPeriodsResponse,
+  toSerializableStatementPeriods,
 };
