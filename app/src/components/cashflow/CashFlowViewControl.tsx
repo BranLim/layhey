@@ -14,7 +14,6 @@ import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
   getCashFlows,
   getOverallCashFlowSummary,
-  GetTransactionRequest,
   selectOverallCashFlowSummary,
   setOverallCashFlowStatementPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
@@ -35,6 +34,7 @@ import {
   UserAccountingPeriod,
 } from '@/types/AccountingPeriod';
 import { selectRootNode } from '@/states/features/cashflow/flow.slice';
+import { GetTransactionRequest } from '@/types/CashFlow';
 
 type Input = {
   startPeriod: Date;

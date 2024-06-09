@@ -10,6 +10,8 @@ import {
 } from 'reactflow';
 import { v4 as uuidv4 } from 'uuid';
 import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
+import { startAppListening } from '@/states/listeners';
+import { fetchRelevantCashFlowDetails } from '@/states/features/cashflow/cashflow.listener';
 
 const edgeColor = 'lightgray';
 
@@ -356,5 +358,10 @@ export const selectLatestExpandedNodeId = (state: any) => {
     ? undefined
     : state.flow.expandedNodes[state.flow.expandedNodes.length - 1];
 };
+
+startAppListening({
+  actionCreator: handleNodeMouseDoubleClick,
+  effect: fetchRelevantCashFlowDetails,
+});
 
 export default flowSlice.reducer;

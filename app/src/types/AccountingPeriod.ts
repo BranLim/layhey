@@ -1,3 +1,4 @@
+export const Accounting_Period_One_Day_In_Milliseconds = 1000 * 60 * 60 * 24;
 export const Accounting_Period_Days_In_Week = 7;
 export const Accounting_Period_Days_In_Month = 31;
 export const Accounting_Period_Days_In_Year = 366;

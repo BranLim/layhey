@@ -35,31 +35,8 @@ export const CashFlowView = () => {
   const dispatch = useAppDispatch();
   const nodeTypes = useMemo(() => ({ cashFlowNode: CashFlowNode }), []);
   const cashFlowStoreStateStatus = useAppSelector(selectCashFlowStoreStatus);
-  const initialLoadCompleted = useAppSelector(selectIsInitialLoadCompleted);
-  const overallCashFlowSummary = useAppSelector(selectOverallCashFlowSummary);
   const nodes = useAppSelector(selectFlowNodes);
   const edges = useAppSelector(selectFlowEdges);
-
-  useEffect(() => {
-    if (
-      !initialLoadCompleted &&
-      cashFlowStoreStateStatus === 'completed_get_overall_cashflow'
-    ) {
-      console.log(
-        `CashFlowView: Load cashflows. Current Store Status: ${cashFlowStoreStateStatus}`
-      );
-      dispatch(
-        getCashFlows({
-          startPeriod: overallCashFlowSummary.startPeriod?.toISOString() ?? '',
-          endPeriod: overallCashFlowSummary.endPeriod?.toISOString() ?? '',
-          append: true,
-          parentStatementSlotId: overallCashFlowSummary.id,
-          parentNodeId: nodes[0].id,
-        })
-      );
-      dispatch(setInitialLoadCompleted());
-    }
-  }, [dispatch, cashFlowStoreStateStatus, initialLoadCompleted]);
 
   const handleNodesChange = (changes: NodeChange[]) => {
     changes.forEach((change) => {
@@ -94,16 +71,6 @@ export const CashFlowView = () => {
   ) => {
     if (event.button === 0) {
       dispatch(handleNodeMouseDoubleClick(node));
-      const { id, startPeriod, endPeriod } = node.data;
-      await dispatch(
-        getCashFlows({
-          startPeriod,
-          endPeriod,
-          append: true,
-          parentNodeId: node.id,
-          parentStatementSlotId: id,
-        })
-      );
     }
   };
 

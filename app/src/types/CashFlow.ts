@@ -1,4 +1,7 @@
-import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
+import {
+  SerializableAccountingPeriod,
+  SerializableStatementPeriodSlot,
+} from '@/types/AccountingPeriod';
 import { TransactionMode } from '@/types/Transaction';
 
 namespace CashFlow {
@@ -65,6 +68,25 @@ namespace CashFlow {
   export type CashFlowNodeData = SerializableCashFlowSummary & {
     rootNode?: boolean;
     isExpanded?: boolean;
+  };
+
+  export type CashflowCalculationResult = {
+    totalIncome: number;
+    totalExpense: number;
+    difference: number;
+  };
+  export type CashFlowInitialisationRequest = {
+    statementPeriodSlots: SerializableStatementPeriodSlot[];
+    statementType: CashFlow.CashFlowStatementType;
+    parentSlotRef?: string;
+    append: boolean;
+  };
+  export type GetTransactionRequest = {
+    startPeriod: string;
+    endPeriod: string;
+    append: boolean;
+    parentNodeId: string;
+    parentStatementSlotId: string;
   };
 }
 

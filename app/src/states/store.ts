@@ -1,8 +1,9 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, createListenerMiddleware } from '@reduxjs/toolkit';
 import modalReducer from '@/states/common/modal.slice';
 import cashflowReducer from '@/states/features/cashflow/cashflow.slice';
 import flowReducer from './features/cashflow/flow.slice';
 import accountingReducer from './features/accounting/accounting.slice';
+import { listenerMiddleware } from '@/states/listeners';
 
 export const makeStore = () => {
   return configureStore({
@@ -13,13 +14,7 @@ export const makeStore = () => {
       accounting: accountingReducer,
     },
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        serializableCheck: {
-          ignoredActionPaths: [],
-          ignoredActions: [],
-          ignoredPaths: [],
-        },
-      }),
+      getDefaultMiddleware().prepend(listenerMiddleware.middleware),
   });
 };
 
