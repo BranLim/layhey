@@ -32,10 +32,12 @@ export type FlowPayload = {
   cashFlowSummaries: CashFlow.SerializableCashFlowSummary[];
 };
 
+type UpdateMode = 'Reset' | 'InPlace' | 'Append';
+
 export type AddCashFlowPayload = {
   cashFlowSummaries: CashFlow.SerializableCashFlowSummary[];
   targetNodeId: string;
-  append: boolean;
+  updateMode: UpdateMode;
 };
 
 export type FlowViewStatus =
@@ -226,29 +228,50 @@ const flowSlice = createSlice({
     showCashFlows: (state, action: PayloadAction<AddCashFlowPayload>) => {
       try {
         console.log('Adding cashflow nodes');
-        const { targetNodeId, cashFlowSummaries, append } = action.payload;
+        const { targetNodeId, cashFlowSummaries, updateMode } = action.payload;
 
-        const nodes: Node<CashFlow.CashFlowNodeData>[] = append
-          ? [...state.nodes]
-          : [state.nodes[0]];
-        const edges: Edge[] = append ? [...state.edges] : [];
+        const nodes: Node<CashFlow.CashFlowNodeData>[] =
+          updateMode === 'Append' ? [...state.nodes] : [state.nodes[0]];
+        const edges: Edge[] = updateMode === 'Append' ? [...state.edges] : [];
 
         const targetNode = nodes.find((node) => node.id === targetNodeId);
         const sortedCashFlowSummaries =
           sortCashFlowSummaries(cashFlowSummaries);
-        const generatedCashFlowNodes = generateCashFlowNodes(
-          state,
-          sortedCashFlowSummaries,
-          (targetNode?.position.x ?? 0) + 480,
-          (targetNode?.position.y ?? 0) + 10
-        );
-        const generatedEdges = generateNodeEdges(
-          targetNodeId,
-          generatedCashFlowNodes.map((node) => node.id)
-        );
 
-        nodes.push(...generatedCashFlowNodes);
-        edges.push(...generatedEdges);
+        if (updateMode === 'Append' || updateMode === 'Reset') {
+          const generatedCashFlowNodes = generateCashFlowNodes(
+            state,
+            sortedCashFlowSummaries,
+            (targetNode?.position.x ?? 0) + 480,
+            (targetNode?.position.y ?? 0) + 10
+          );
+          const generatedEdges = generateNodeEdges(
+            targetNodeId,
+            generatedCashFlowNodes.map((node) => node.id)
+          );
+
+          nodes.push(...generatedCashFlowNodes);
+          edges.push(...generatedEdges);
+        } else {
+          cashFlowSummaries.forEach((cashFlowSummary) => {
+            const node = nodes.find(
+              (node) => node.data.id === cashFlowSummary.id
+            );
+            if (node) {
+              node.data = {
+                id: cashFlowSummary.id,
+                parentRef: cashFlowSummary.parentRef,
+                statementType: cashFlowSummary.statementType,
+                startPeriod: cashFlowSummary.startPeriod,
+                endPeriod: cashFlowSummary.endPeriod,
+                inflow: cashFlowSummary.inflow,
+                outflow: cashFlowSummary.outflow,
+                difference: cashFlowSummary.difference,
+                currency: cashFlowSummary.currency,
+              };
+            }
+          });
+        }
 
         state.nodes = nodes;
         state.edges = edges;

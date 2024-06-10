@@ -33,8 +33,8 @@ const handleInitialCashFlowLoad = (
 const fetchRelevantCashFlowDetails = async (
   action: PayloadAction<Node<CashFlow.CashFlowNodeData>>,
   listenerApi: ListenerEffectAPI<RootState, AppDispatch>
-): void => {
-  console.log('Getting relevant cashflow detials');
+): Promise<void> => {
+  console.log('Getting relevant cashflow details');
 
   const node = action.payload;
 

@@ -34,7 +34,7 @@ import {
   UserAccountingPeriod,
 } from '@/types/AccountingPeriod';
 import { selectRootNode } from '@/states/features/cashflow/flow.slice';
-import { GetTransactionRequest } from '@/types/CashFlow';
+import CashFlow from '@/types/CashFlow';
 
 type Input = {
   startPeriod: Date;
@@ -88,7 +88,7 @@ export const CashFlowViewControl = () => {
       startPeriod: startPeriod.toISOString(),
       endPeriod: endPeriod.toISOString(),
     };
-    const request: GetTransactionRequest = {
+    const request: CashFlow.GetTransactionRequest = {
       ...accountingPeriod,
       append: false,
       parentStatementSlotId: overallCashFlowSummary.id,

@@ -157,7 +157,6 @@ export const addTransaction = createAsyncThunk<
     }
 
     let state = getState();
-    const parentRef = state.cashflow.overallCashFlowForPeriod.id;
     const budgetStartPeriod: string =
       state.cashflow.overallCashFlowForPeriod.startPeriod;
     const budgetEndPeriod: string =
@@ -238,20 +237,28 @@ export const addTransaction = createAsyncThunk<
       console.log(getErrorMessage(error));
     }
 
-    dispatch(generateCashFlowSummaryGraph(parentRef));
-
     state = getState();
-    /*
-    dispatch(
-      showCashFlows({
-        targetNodeId: parentNodeId,
-        cashFlowSummaries: [
-          ...state.cashflow.cashFlowSummaries[parentStatementSlotId],
-        ],
-        append: append,
-      })
-    );
-*/
+
+    const nodes = [...state.flow.nodes];
+    for (const node of nodes) {
+      if (node.data.rootNode || node.data.isExpanded) {
+        const nodeData = node.data;
+        dispatch(generateCashFlowSummaryGraph(nodeData.id));
+
+        state = getState();
+
+        dispatch(
+          showCashFlows({
+            targetNodeId: node.id,
+            cashFlowSummaries: [
+              ...state.cashflow.cashFlowSummaries[nodeData.id],
+            ],
+            updateMode: 'InPlace',
+          })
+        );
+      }
+    }
+
     state = getState();
     const rootStatementId = state.cashflow.overallCashFlowForPeriod.id;
     let totalExpense = 0;
@@ -414,7 +421,7 @@ export const getCashFlows = createAsyncThunk<
         cashFlowSummaries: [
           ...currentState.cashflow.cashFlowSummaries[parentStatementSlotId],
         ],
-        append: append,
+        updateMode: 'Append',
       })
     );
   }
