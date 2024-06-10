@@ -229,8 +229,13 @@ const flowSlice = createSlice({
         const { targetNodeId, cashFlowSummaries, updateMode } = action.payload;
 
         const nodes: Node<CashFlow.CashFlowNodeData>[] =
-          updateMode === 'Append' ? [...state.nodes] : [state.nodes[0]];
-        const edges: Edge[] = updateMode === 'Append' ? [...state.edges] : [];
+          updateMode === 'Append' || updateMode === 'InPlace'
+            ? [...state.nodes]
+            : [state.nodes[0]];
+        const edges: Edge[] =
+          updateMode === 'Append' || updateMode === 'InPlace'
+            ? [...state.edges]
+            : [];
 
         const targetNode = nodes.find((node) => node.id === targetNodeId);
         const sortedCashFlowSummaries =
@@ -252,20 +257,24 @@ const flowSlice = createSlice({
           edges.push(...generatedEdges);
         } else {
           cashFlowSummaries.forEach((cashFlowSummary) => {
-            const node = nodes.find(
+            const nodeIndex = nodes.findIndex(
               (node) => node.data.id === cashFlowSummary.id
             );
-            if (node) {
-              node.data = {
-                id: cashFlowSummary.id,
-                parentRef: cashFlowSummary.parentRef,
-                statementType: cashFlowSummary.statementType,
-                startPeriod: cashFlowSummary.startPeriod,
-                endPeriod: cashFlowSummary.endPeriod,
-                inflow: cashFlowSummary.inflow,
-                outflow: cashFlowSummary.outflow,
-                difference: cashFlowSummary.difference,
-                currency: cashFlowSummary.currency,
+
+            if (nodes[nodeIndex]) {
+              nodes[nodeIndex] = {
+                ...nodes[nodeIndex],
+                data: {
+                  id: cashFlowSummary.id,
+                  parentRef: cashFlowSummary.parentRef,
+                  statementType: cashFlowSummary.statementType,
+                  startPeriod: cashFlowSummary.startPeriod,
+                  endPeriod: cashFlowSummary.endPeriod,
+                  inflow: cashFlowSummary.inflow,
+                  outflow: cashFlowSummary.outflow,
+                  difference: cashFlowSummary.difference,
+                  currency: cashFlowSummary.currency,
+                },
               };
             }
           });

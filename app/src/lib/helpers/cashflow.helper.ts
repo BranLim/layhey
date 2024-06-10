@@ -297,4 +297,5 @@ export {
   getAccountingPeriodSlot,
   getAccountingPeriodFromSlotKey,
   getMatchingCashFlowStatementPeriodSlots,
+  getAccountingSlotKey,
 };

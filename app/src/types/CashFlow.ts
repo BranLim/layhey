@@ -90,9 +90,10 @@ namespace CashFlow {
     parentStatementSlotId: string;
   };
 
-  export type BuildCashFlowGraphRequest = {
+  export type UpdateCashFlowSummaryGraphNodeRequest = {
     parentStatementId: string;
-    updateMode: GraphUpdateMode;
+    statementId: string;
+    cashFlowStatementSlotKey: string;
   };
 }
 

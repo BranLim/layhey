@@ -17,6 +17,7 @@ import {
   computeCashFlowStatementPeriods,
   getAccountingPeriodFromSlotKey,
   getAccountingPeriodSlot,
+  getAccountingSlotKey,
   getMatchingCashFlowStatementPeriodSlots,
 } from '@/lib/helpers/cashflow.helper';
 import { v4 as uuidv4 } from 'uuid';
@@ -29,8 +30,8 @@ import { getTransactions } from '@/states/features/cashflow/api/transactions.api
 import { toSerializableStatementPeriods } from '@/lib/mappers/accountingPeriod.mapper';
 import { startAppListening } from '@/states/listeners';
 import { handleInitialCashFlowLoad } from '@/states/features/cashflow/cashflow.listener';
-import SetCashFlowRequest = CashFlow.SetCashFlowRequest;
 import { getErrorMessage } from '@/utils/error.utils';
+import SetCashFlowRequest = CashFlow.SetCashFlowRequest;
 
 startAppListening({
   predicate: (action, currentState, previousState) => {
@@ -239,29 +240,40 @@ export const addTransaction = createAsyncThunk<
 
     state = getState();
 
-    const nodes = [...state.flow.nodes];
-    for (const node of nodes) {
-      if (node.data.rootNode || node.data.isExpanded) {
+    try {
+      const nodes = [...state.flow.nodes];
+      for (const node of nodes) {
+        if (node.data.rootNode) {
+          continue;
+        }
+
         const nodeData = node.data;
         dispatch(
-          buildCashFlowSummaryGraph({
-            parentStatementId: nodeData.id,
-            updateMode: 'InPlace',
+          updateCashFlowSummaryGraphNode({
+            parentStatementId: nodeData.parentRef ?? '',
+            statementId: nodeData.id,
+            cashFlowStatementSlotKey: getAccountingSlotKey(
+              new Date(nodeData.startPeriod),
+              new Date(nodeData.endPeriod)
+            ),
           })
         );
 
         state = getState();
-
-        dispatch(
-          showCashFlows({
-            targetNodeId: node.id,
-            cashFlowSummaries: [
-              ...state.cashflow.cashFlowSummaries[nodeData.id],
-            ],
-            updateMode: 'InPlace',
-          })
-        );
+        if (node.data.parentRef) {
+          dispatch(
+            showCashFlows({
+              targetNodeId: node.id,
+              cashFlowSummaries: [
+                ...state.cashflow.cashFlowSummaries[node.data.parentRef],
+              ],
+              updateMode: 'InPlace',
+            })
+          );
+        }
       }
+    } catch (error) {
+      console.log(getErrorMessage(error));
     }
 
     state = getState();
@@ -417,12 +429,7 @@ export const getCashFlows = createAsyncThunk<
       }
     });
 
-    dispatch(
-      buildCashFlowSummaryGraph({
-        parentStatementId: parentRef,
-        updateMode: 'Append',
-      })
-    );
+    dispatch(buildCashFlowSummaryGraph(parentRef));
 
     currentState = getState();
     dispatch(
@@ -527,18 +534,11 @@ const cashflowSlice = createSlice({
         parentSlotRef
       );
     },
-    buildCashFlowSummaryGraph: (
-      state,
-      action: PayloadAction<CashFlow.BuildCashFlowGraphRequest>
-    ) => {
-      const { parentStatementId, updateMode } = action.payload;
+    buildCashFlowSummaryGraph: (state, action: PayloadAction<string>) => {
+      const parentStatementId = action.payload;
       const cashFlows = state.cashFlows;
       try {
-        const summaryNodes: CashFlow.SerializableCashFlowSummary[] =
-          updateMode === 'Reset' || !state.cashFlowSummaries[parentStatementId]
-            ? []
-            : [...state.cashFlowSummaries[parentStatementId]];
-
+        const summaryNodes: CashFlow.SerializableCashFlowSummary[] = [];
         for (const cashFlowSlot in cashFlows) {
           const cashFlowBySlot: CashFlow.CashFlowStatement =
             cashFlows[cashFlowSlot];
@@ -566,19 +566,40 @@ const cashflowSlice = createSlice({
             currency: 'SGD',
           };
 
-          if (updateMode === 'Reset' || updateMode === 'Append') {
-            summaryNodes.push(cashFlow);
-          } else {
-            const currentSummaryIndex = summaryNodes.findIndex(
-              (node) => node.id === cashFlowBySlot.id
-            );
-            summaryNodes[currentSummaryIndex] = cashFlow;
-          }
+          summaryNodes.push(cashFlow);
         }
         state.cashFlowSummaries[parentStatementId] = summaryNodes;
       } catch (error) {
         console.log(getErrorMessage(error));
       }
+    },
+    updateCashFlowSummaryGraphNode: (
+      state,
+      action: PayloadAction<CashFlow.UpdateCashFlowSummaryGraphNodeRequest>
+    ) => {
+      const { parentStatementId, statementId, cashFlowStatementSlotKey } =
+        action.payload;
+
+      if (!state.cashFlowSummaries[parentStatementId]) {
+        return;
+      }
+      const selectedCashFlow = state.cashFlows[cashFlowStatementSlotKey];
+      const summaryNodes: CashFlow.SerializableCashFlowSummary[] = [
+        ...state.cashFlowSummaries[parentStatementId],
+      ];
+
+      const summaryIndex = summaryNodes.findIndex(
+        (summary) => summary.id === statementId
+      );
+      summaryNodes[summaryIndex] = {
+        ...summaryNodes[summaryIndex],
+        inflow: selectedCashFlow.income.total,
+        outflow: selectedCashFlow.expense.total,
+        difference:
+          selectedCashFlow.income.total - selectedCashFlow.expense.total,
+      };
+
+      state.cashFlowSummaries[parentStatementId] = summaryNodes;
     },
   },
   extraReducers: (builder) => {
@@ -632,6 +653,7 @@ export const {
   setOverallCashFlow,
   setCashFlow,
   setCashFlowStatementSlots,
+  updateCashFlowSummaryGraphNode,
 } = cashflowSlice.actions;
 export const selectCashFlowStoreStatus = (state: any) => state.cashflow.status;
 export const selectAccountingPeriod = createSelector(
