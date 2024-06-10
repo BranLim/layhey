@@ -7,6 +7,7 @@ import { TransactionMode } from '@/types/Transaction';
 namespace CashFlow {
   export type CashFlowType = 'income' | 'expense';
   export type CashFlowStatementType = 'Summary' | 'Income' | 'Expense';
+  export type GraphUpdateMode = 'Reset' | 'InPlace' | 'Append';
 
   export type CashFlowStatements = {
     [key: string]: CashFlowStatement;
@@ -87,6 +88,11 @@ namespace CashFlow {
     append: boolean;
     parentNodeId: string;
     parentStatementSlotId: string;
+  };
+
+  export type BuildCashFlowGraphRequest = {
+    parentStatementId: string;
+    updateMode: GraphUpdateMode;
   };
 }
 

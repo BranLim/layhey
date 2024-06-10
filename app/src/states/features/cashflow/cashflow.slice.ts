@@ -243,7 +243,12 @@ export const addTransaction = createAsyncThunk<
     for (const node of nodes) {
       if (node.data.rootNode || node.data.isExpanded) {
         const nodeData = node.data;
-        dispatch(generateCashFlowSummaryGraph(nodeData.id));
+        dispatch(
+          buildCashFlowSummaryGraph({
+            parentStatementId: nodeData.id,
+            updateMode: 'InPlace',
+          })
+        );
 
         state = getState();
 
@@ -412,7 +417,12 @@ export const getCashFlows = createAsyncThunk<
       }
     });
 
-    dispatch(generateCashFlowSummaryGraph(parentRef));
+    dispatch(
+      buildCashFlowSummaryGraph({
+        parentStatementId: parentRef,
+        updateMode: 'Append',
+      })
+    );
 
     currentState = getState();
     dispatch(
@@ -517,41 +527,58 @@ const cashflowSlice = createSlice({
         parentSlotRef
       );
     },
-    generateCashFlowSummaryGraph: (state, action: PayloadAction<string>) => {
-      const parentStatementId: string = action.payload;
+    buildCashFlowSummaryGraph: (
+      state,
+      action: PayloadAction<CashFlow.BuildCashFlowGraphRequest>
+    ) => {
+      const { parentStatementId, updateMode } = action.payload;
       const cashFlows = state.cashFlows;
+      try {
+        const summaryNodes: CashFlow.SerializableCashFlowSummary[] =
+          updateMode === 'Reset' || !state.cashFlowSummaries[parentStatementId]
+            ? []
+            : [...state.cashFlowSummaries[parentStatementId]];
 
-      const summaryNodes: CashFlow.SerializableCashFlowSummary[] = [];
-      for (const cashFlowSlot in cashFlows) {
-        const cashFlowBySlot: CashFlow.CashFlowStatement =
-          cashFlows[cashFlowSlot];
-        if (
-          cashFlowBySlot.parentRef &&
-          cashFlowBySlot.parentRef != parentStatementId
-        ) {
-          continue;
+        for (const cashFlowSlot in cashFlows) {
+          const cashFlowBySlot: CashFlow.CashFlowStatement =
+            cashFlows[cashFlowSlot];
+          if (
+            cashFlowBySlot.parentRef &&
+            cashFlowBySlot.parentRef != parentStatementId
+          ) {
+            continue;
+          }
+          const accountingPeriod = getAccountingPeriodFromSlotKey(cashFlowSlot);
+          if (!accountingPeriod) {
+            continue;
+          }
+
+          const cashFlow: CashFlow.SerializableCashFlowSummary = {
+            id: cashFlowBySlot.id,
+            parentRef: cashFlowBySlot.parentRef,
+            statementType: cashFlowBySlot.statementType,
+            startPeriod: accountingPeriod.startPeriod.toISOString(),
+            endPeriod: accountingPeriod.endPeriod.toISOString(),
+            inflow: cashFlowBySlot.income.total,
+            outflow: cashFlowBySlot.expense.total,
+            difference:
+              cashFlowBySlot.income.total - cashFlowBySlot.expense.total,
+            currency: 'SGD',
+          };
+
+          if (updateMode === 'Reset' || updateMode === 'Append') {
+            summaryNodes.push(cashFlow);
+          } else {
+            const currentSummaryIndex = summaryNodes.findIndex(
+              (node) => node.id === cashFlowBySlot.id
+            );
+            summaryNodes[currentSummaryIndex] = cashFlow;
+          }
         }
-        const accountingPeriod = getAccountingPeriodFromSlotKey(cashFlowSlot);
-        if (!accountingPeriod) {
-          continue;
-        }
-
-        const cashFlow: CashFlow.SerializableCashFlowSummary = {
-          id: cashFlowBySlot.id,
-          parentRef: cashFlowBySlot.parentRef,
-          statementType: cashFlowBySlot.statementType,
-          startPeriod: accountingPeriod.startPeriod.toISOString(),
-          endPeriod: accountingPeriod.endPeriod.toISOString(),
-          inflow: cashFlowBySlot.income.total,
-          outflow: cashFlowBySlot.expense.total,
-          difference:
-            cashFlowBySlot.income.total - cashFlowBySlot.expense.total,
-          currency: 'SGD',
-        };
-
-        summaryNodes.push(cashFlow);
+        state.cashFlowSummaries[parentStatementId] = summaryNodes;
+      } catch (error) {
+        console.log(getErrorMessage(error));
       }
-      state.cashFlowSummaries[parentStatementId] = summaryNodes;
     },
   },
   extraReducers: (builder) => {
@@ -601,7 +628,7 @@ const cashflowSlice = createSlice({
 export const {
   setInitialLoadCompleted,
   setOverallCashFlowStatementPeriod,
-  generateCashFlowSummaryGraph,
+  buildCashFlowSummaryGraph,
   setOverallCashFlow,
   setCashFlow,
   setCashFlowStatementSlots,

@@ -32,12 +32,10 @@ export type FlowPayload = {
   cashFlowSummaries: CashFlow.SerializableCashFlowSummary[];
 };
 
-type UpdateMode = 'Reset' | 'InPlace' | 'Append';
-
 export type AddCashFlowPayload = {
   cashFlowSummaries: CashFlow.SerializableCashFlowSummary[];
   targetNodeId: string;
-  updateMode: UpdateMode;
+  updateMode: CashFlow.GraphUpdateMode;
 };
 
 export type FlowViewStatus =
