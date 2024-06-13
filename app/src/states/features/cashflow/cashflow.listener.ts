@@ -52,7 +52,7 @@ const fetchRelevantCashFlowDetails = async (
   };
 
   if (
-    endDate.getTime() - startDate.getTime() <
+    endDate.getTime() - startDate.getTime() <=
     Accounting_Period_One_Day_In_Milliseconds
   ) {
     listenerApi.dispatch(getCashFlowBreakdown(getCashFlowDetails));

@@ -12,7 +12,10 @@ import {
 } from '@/types/Transaction';
 import CashFlow from '@/types/CashFlow';
 import { isTransactionDateWithin } from '@/utils/date.utils';
-import { StatementPeriodSlot } from '@/types/AccountingPeriod';
+import {
+  SerializableAccountingPeriod,
+  StatementPeriodSlot,
+} from '@/types/AccountingPeriod';
 import {
   computeCashFlowStatementPeriods,
   getAccountingPeriodFromSlotKey,
@@ -32,6 +35,9 @@ import { startAppListening } from '@/states/listeners';
 import { handleInitialCashFlowLoad } from '@/states/features/cashflow/cashflow.listener';
 import { getErrorMessage } from '@/utils/error.utils';
 import SetCashFlowRequest = CashFlow.SetCashFlowRequest;
+import ExpenseStatement = CashFlow.ExpenseStatement;
+import IncomeStatement = CashFlow.IncomeStatement;
+import CashFlowStatement = CashFlow.CashFlowStatement;
 
 startAppListening({
   predicate: (action, currentState, previousState) => {
@@ -59,7 +65,11 @@ type CashFlowState = {
   overallCashFlowForPeriod: CashFlow.SerializableCashFlowSummary;
   cashFlows: CashFlow.CashFlowStatements;
   cashFlowSummaries: {
-    [parentStatementId: string]: CashFlow.SerializableCashFlowSummary[];
+    [parentStatementId: string]: (
+      | CashFlow.SerializableCashFlowSummary
+      | CashFlow.SerializableIncomeSummary
+      | CashFlow.SerializableExpenseSummary
+    )[];
   };
   previousStatus?: Status;
   status: Status;
@@ -110,7 +120,7 @@ const initialiseCashFlowStatementSlots = (
           type: 'expense',
           total: 0,
         },
-      } satisfies CashFlow.CashFlowStatement;
+      } as CashFlow.CashFlowStatement;
     }
   });
 };
@@ -209,28 +219,30 @@ export const addTransaction = createAsyncThunk<
         matchingCashFlowStatementPeriodSlots.forEach((slot) => {
           const state = getState();
           const cashFlowForPeriod = state.cashflow.cashFlows[slot.key];
-          switch (mode) {
-            case TransactionMode.Income:
-              console.log('Updating income');
+          if (cashFlowForPeriod.statementType === 'Summary') {
+            switch (mode) {
+              case TransactionMode.Income:
+                console.log('Updating income');
 
-              dispatch(
-                setCashFlow({
-                  key: slot.key,
-                  type: TransactionMode.Income,
-                  total: cashFlowForPeriod.income.total + transaction.amount,
-                } as SetCashFlowRequest)
-              );
-              break;
-            case TransactionMode.Expense:
-              console.log('Updating expense');
-              dispatch(
-                setCashFlow({
-                  key: slot.key,
-                  type: TransactionMode.Expense,
-                  total: cashFlowForPeriod.expense.total + transaction.amount,
-                } as SetCashFlowRequest)
-              );
-              break;
+                dispatch(
+                  setCashFlow({
+                    key: slot.key,
+                    type: TransactionMode.Income,
+                    total: cashFlowForPeriod.income.total + transaction.amount,
+                  } as SetCashFlowRequest)
+                );
+                break;
+              case TransactionMode.Expense:
+                console.log('Updating expense');
+                dispatch(
+                  setCashFlow({
+                    key: slot.key,
+                    type: TransactionMode.Expense,
+                    total: cashFlowForPeriod.expense.total + transaction.amount,
+                  } as SetCashFlowRequest)
+                );
+                break;
+            }
           }
         });
       });
@@ -282,7 +294,10 @@ export const addTransaction = createAsyncThunk<
     let totalIncome = 0;
     for (const key in state.cashflow.cashFlows) {
       const cashFlow = state.cashflow.cashFlows[key];
-      if (cashFlow.parentRef === rootStatementId) {
+      if (
+        cashFlow.parentRef === rootStatementId &&
+        cashFlow.statementType === 'Summary'
+      ) {
         totalExpense += cashFlow.expense.total;
         totalIncome += cashFlow.income.total;
       }
@@ -406,26 +421,28 @@ export const getCashFlows = createAsyncThunk<
 
       currentState = getState();
       const cashFlowForPeriod = currentState.cashflow.cashFlows[slot.key];
-      switch (transaction.mode) {
-        case TransactionMode.Income:
-          dispatch(
-            setCashFlow({
-              key: slot.key,
-              type: TransactionMode.Income,
-              total: cashFlowForPeriod.income.total + transaction.amount,
-            } as SetCashFlowRequest)
-          );
+      if (cashFlowForPeriod.statementType === 'Summary') {
+        switch (transaction.mode) {
+          case TransactionMode.Income:
+            dispatch(
+              setCashFlow({
+                key: slot.key,
+                type: TransactionMode.Income,
+                total: cashFlowForPeriod.income.total + transaction.amount,
+              } as SetCashFlowRequest)
+            );
 
-          break;
-        case TransactionMode.Expense:
-          dispatch(
-            setCashFlow({
-              key: slot.key,
-              type: TransactionMode.Expense,
-              total: cashFlowForPeriod.expense.total + transaction.amount,
-            } as SetCashFlowRequest)
-          );
-          break;
+            break;
+          case TransactionMode.Expense:
+            dispatch(
+              setCashFlow({
+                key: slot.key,
+                type: TransactionMode.Expense,
+                total: cashFlowForPeriod.expense.total + transaction.amount,
+              } as SetCashFlowRequest)
+            );
+            break;
+        }
       }
     });
 
@@ -453,14 +470,66 @@ export const getCashFlowBreakdown = createAsyncThunk<
   async (request: CashFlow.GetTransactionRequest, { dispatch, getState }) => {
     const { startPeriod, endPeriod, parentStatementSlotId, parentNodeId } =
       request;
-    const currentState = getState();
+    let currentState = getState();
+    try {
+      const transactions: TransactionResponse[] = await getTransactions(
+        startPeriod,
+        endPeriod
+      );
 
-    const transactions: TransactionResponse[] = await getTransactions(
-      startPeriod,
-      endPeriod
-    );
+      const expenseStatement: ExpenseStatement = {
+        id: `${uuidv4()}`,
+        parentRef: parentStatementSlotId,
+        statementType: 'Expense',
+        accountingPeriod: {
+          startPeriod: startPeriod,
+          endPeriod: endPeriod,
+        } as SerializableAccountingPeriod,
+        expense: {
+          total: 0,
+          type: 'expense',
+        },
+      };
+      const incomeStatement: IncomeStatement = {
+        id: `${uuidv4()}`,
+        parentRef: parentStatementSlotId,
+        statementType: 'Income',
+        accountingPeriod: {
+          startPeriod: startPeriod,
+          endPeriod: endPeriod,
+        } as SerializableAccountingPeriod,
+        income: {
+          total: 0,
+          type: 'expense',
+        },
+      };
+      transactions?.forEach((transaction: TransactionRequest) => {
+        switch (transaction.mode) {
+          case TransactionMode.Income:
+            incomeStatement.income.total += transaction.amount;
+            break;
+          case TransactionMode.Expense:
+            expenseStatement.expense.total += transaction.amount;
+            break;
+        }
+      });
 
-    transactions?.forEach((transaction: TransactionRequest) => {});
+      dispatch(buildCashFlowSummaryGraph(parentStatementSlotId));
+
+      currentState = getState();
+
+      dispatch(
+        showCashFlows({
+          targetNodeId: parentNodeId,
+          cashFlowSummaries: [
+            ...currentState.cashflow.cashFlowSummaries[parentStatementSlotId],
+          ],
+          updateMode: 'Append',
+        })
+      );
+    } catch (error) {
+      console.log(getErrorMessage(error));
+    }
   }
 );
 
@@ -503,10 +572,10 @@ const cashflowSlice = createSlice({
 
       switch (type) {
         case TransactionMode.Income:
-          state.cashFlows[key].income.total = total;
+          (state.cashFlows[key] as CashFlowStatement).income.total = total;
           break;
         case TransactionMode.Expense:
-          state.cashFlows[key].expense.total = total;
+          (state.cashFlows[key] as CashFlowStatement).expense.total = total;
           break;
       }
       state.previousStatus = state.status;
@@ -540,8 +609,7 @@ const cashflowSlice = createSlice({
       try {
         const summaryNodes: CashFlow.SerializableCashFlowSummary[] = [];
         for (const cashFlowSlot in cashFlows) {
-          const cashFlowBySlot: CashFlow.CashFlowStatement =
-            cashFlows[cashFlowSlot];
+          const cashFlowBySlot = cashFlows[cashFlowSlot];
           if (
             cashFlowBySlot.parentRef &&
             cashFlowBySlot.parentRef != parentStatementId
@@ -553,20 +621,22 @@ const cashflowSlice = createSlice({
             continue;
           }
 
-          const cashFlow: CashFlow.SerializableCashFlowSummary = {
-            id: cashFlowBySlot.id,
-            parentRef: cashFlowBySlot.parentRef,
-            statementType: cashFlowBySlot.statementType,
-            startPeriod: accountingPeriod.startPeriod.toISOString(),
-            endPeriod: accountingPeriod.endPeriod.toISOString(),
-            inflow: cashFlowBySlot.income.total,
-            outflow: cashFlowBySlot.expense.total,
-            difference:
-              cashFlowBySlot.income.total - cashFlowBySlot.expense.total,
-            currency: 'SGD',
-          };
+          if (cashFlowBySlot.statementType === 'Summary') {
+            const cashFlow: CashFlow.SerializableCashFlowSummary = {
+              id: cashFlowBySlot.id,
+              parentRef: cashFlowBySlot.parentRef,
+              statementType: cashFlowBySlot.statementType,
+              startPeriod: accountingPeriod.startPeriod.toISOString(),
+              endPeriod: accountingPeriod.endPeriod.toISOString(),
+              inflow: cashFlowBySlot.income.total,
+              outflow: cashFlowBySlot.expense.total,
+              difference:
+                cashFlowBySlot.income.total - cashFlowBySlot.expense.total,
+              currency: 'SGD',
+            };
 
-          summaryNodes.push(cashFlow);
+            summaryNodes.push(cashFlow);
+          }
         }
         state.cashFlowSummaries[parentStatementId] = summaryNodes;
       } catch (error) {
@@ -584,22 +654,27 @@ const cashflowSlice = createSlice({
         return;
       }
       const selectedCashFlow = state.cashFlows[cashFlowStatementSlotKey];
-      const summaryNodes: CashFlow.SerializableCashFlowSummary[] = [
-        ...state.cashFlowSummaries[parentStatementId],
-      ];
+      if (selectedCashFlow.statementType === 'Summary') {
+        const summaryNodes: (
+          | CashFlow.SerializableCashFlowSummary
+          | CashFlow.SerializableIncomeSummary
+          | CashFlow.SerializableExpenseSummary
+        )[] = [...state.cashFlowSummaries[parentStatementId]];
 
-      const summaryIndex = summaryNodes.findIndex(
-        (summary) => summary.id === statementId
-      );
-      summaryNodes[summaryIndex] = {
-        ...summaryNodes[summaryIndex],
-        inflow: selectedCashFlow.income.total,
-        outflow: selectedCashFlow.expense.total,
-        difference:
-          selectedCashFlow.income.total - selectedCashFlow.expense.total,
-      };
+        const summaryIndex = summaryNodes.findIndex(
+          (summary) => summary.id === statementId
+        );
+        summaryNodes[summaryIndex] = {
+          ...summaryNodes[summaryIndex],
+          inflow: selectedCashFlow.income.total,
+          outflow: selectedCashFlow.expense.total,
+          difference:
+            selectedCashFlow.income.total - selectedCashFlow.expense.total,
+        };
 
-      state.cashFlowSummaries[parentStatementId] = summaryNodes;
+        state.cashFlowSummaries[parentStatementId] = summaryNodes;
+      } else {
+      }
     },
   },
   extraReducers: (builder) => {

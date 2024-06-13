@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
 import { startAppListening } from '@/states/listeners';
 import { fetchRelevantCashFlowDetails } from '@/states/features/cashflow/cashflow.listener';
+import SerializableCashFlowSummary = CashFlow.SerializableCashFlowSummary;
 
 const edgeColor = 'lightgray';
 
@@ -33,7 +34,11 @@ export type FlowPayload = {
 };
 
 export type AddCashFlowPayload = {
-  cashFlowSummaries: CashFlow.SerializableCashFlowSummary[];
+  cashFlowSummaries: (
+    | CashFlow.SerializableCashFlowSummary
+    | CashFlow.SerializableIncomeSummary
+    | CashFlow.SerializableExpenseSummary
+  )[];
   targetNodeId: string;
   updateMode: CashFlow.GraphUpdateMode;
 };
@@ -49,9 +54,9 @@ export type FlowViewStatus =
 export type FlowViewState = {
   currentChosenAccountingPeriod: SerializableAccountingPeriod;
   expandedNodes: Array<string>;
-  nodes: Node<CashFlow.CashFlowNodeData>[];
+  nodes: Node<CashFlow.CashFlowNodeData | undefined>[];
   edges: Edge[];
-  selectedNode?: Node<CashFlow.CashFlowNodeData>;
+  selectedNode?: Node<CashFlow.CashFlowNodeData | undefined>;
   nodeStyles: Record<string, any>;
   flowViewStatus: FlowViewStatus;
 };
@@ -103,35 +108,56 @@ const sortCashFlowSummaries = (
 
 const generateCashFlowNodes = (
   state: any,
-  cashFlowSummaries: CashFlow.SerializableCashFlowSummary[],
+  cashFlowSummaries: (
+    | CashFlow.SerializableCashFlowSummary
+    | CashFlow.SerializableIncomeSummary
+    | CashFlow.SerializableExpenseSummary
+  )[],
   xInitialPos: number,
   yInitialPos: number
-): Node<CashFlow.CashFlowNodeData>[] => {
-  const cashFlowNodes: Node<CashFlow.CashFlowNodeData>[] = [];
+): Node<CashFlow.CashFlowNodeData | undefined>[] => {
+  const cashFlowNodes: Node<CashFlow.CashFlowNodeData | undefined>[] = [];
   let y = yInitialPos;
-  for (const cashFlowSummary of cashFlowSummaries) {
-    const node: Node<CashFlow.CashFlowNodeData> = {
+  if (cashFlowSummaries && cashFlowSummaries.length === 0) {
+    const node: Node = {
       id: `node-${uuidv4()}`,
-      type: 'cashFlowNode',
+      type: 'noDataNode',
       position: { x: xInitialPos, y: y },
       sourcePosition: Position.Right,
       targetPosition: Position.Left,
       draggable: true,
       focusable: true,
-      data: {
-        id: cashFlowSummary.id,
-        parentRef: cashFlowSummary.parentRef,
-        statementType: cashFlowSummary.statementType,
-        startPeriod: cashFlowSummary.startPeriod,
-        endPeriod: cashFlowSummary.endPeriod,
-        inflow: cashFlowSummary.inflow,
-        outflow: cashFlowSummary.outflow,
-        difference: cashFlowSummary.difference,
-        currency: cashFlowSummary.currency,
-      },
+      data: {},
     };
     cashFlowNodes.push(node);
-    applyDefaultNodeStyle(state, node.id);
+    return cashFlowNodes;
+  }
+
+  for (const cashFlowSummary of cashFlowSummaries) {
+    if (cashFlowSummary.statementType === 'Summary') {
+      const node: Node<CashFlow.CashFlowNodeData> = {
+        id: `node-${uuidv4()}`,
+        type: 'cashFlowNode',
+        position: { x: xInitialPos, y: y },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+        draggable: true,
+        focusable: true,
+        data: {
+          id: cashFlowSummary.id,
+          parentRef: cashFlowSummary.parentRef,
+          statementType: cashFlowSummary.statementType,
+          startPeriod: cashFlowSummary.startPeriod,
+          endPeriod: cashFlowSummary.endPeriod,
+          inflow: cashFlowSummary.inflow,
+          outflow: cashFlowSummary.outflow,
+          difference: cashFlowSummary.difference,
+          currency: cashFlowSummary.currency,
+        },
+      };
+      cashFlowNodes.push(node);
+      applyDefaultNodeStyle(state, node.id);
+    }
     y += 180;
   }
   return cashFlowNodes;
@@ -177,9 +203,12 @@ const flowSlice = createSlice({
       const overallCashFlowSummary: CashFlow.SerializableCashFlowSummary =
         action.payload;
 
-      const cashFlowNodes: Node<CashFlow.CashFlowNodeData>[] = [...state.nodes];
+      const cashFlowNodes: Node<CashFlow.CashFlowNodeData | undefined>[] = [
+        ...state.nodes,
+      ];
 
-      let rootNode: Node<CashFlow.CashFlowNodeData> = cashFlowNodes[0];
+      let rootNode: Node<CashFlow.CashFlowNodeData | undefined> =
+        cashFlowNodes[0];
       if (rootNode) {
         cashFlowNodes[0] = {
           ...rootNode,
@@ -193,7 +222,7 @@ const flowSlice = createSlice({
             inflow: overallCashFlowSummary.inflow,
             outflow: overallCashFlowSummary.outflow,
             difference: overallCashFlowSummary.difference,
-          },
+          } as CashFlow.CashFlowNodeData,
         };
       } else {
         rootNode = {
@@ -228,7 +257,7 @@ const flowSlice = createSlice({
         console.log('Adding cashflow nodes');
         const { targetNodeId, cashFlowSummaries, updateMode } = action.payload;
 
-        const nodes: Node<CashFlow.CashFlowNodeData>[] =
+        const nodes: Node<CashFlow.CashFlowNodeData | undefined>[] =
           updateMode === 'Append' || updateMode === 'InPlace'
             ? [...state.nodes]
             : [state.nodes[0]];
@@ -238,8 +267,15 @@ const flowSlice = createSlice({
             : [];
 
         const targetNode = nodes.find((node) => node.id === targetNodeId);
-        const sortedCashFlowSummaries =
-          sortCashFlowSummaries(cashFlowSummaries);
+
+        const summaryStatementsOnly = cashFlowSummaries.every(
+          (summary) => summary.statementType === 'Summary'
+        );
+        const sortedCashFlowSummaries = summaryStatementsOnly
+          ? sortCashFlowSummaries(
+              cashFlowSummaries as SerializableCashFlowSummary[]
+            )
+          : cashFlowSummaries;
 
         if (updateMode === 'Append' || updateMode === 'Reset') {
           const generatedCashFlowNodes = generateCashFlowNodes(
@@ -258,10 +294,13 @@ const flowSlice = createSlice({
         } else {
           cashFlowSummaries.forEach((cashFlowSummary) => {
             const nodeIndex = nodes.findIndex(
-              (node) => node.data.id === cashFlowSummary.id
+              (node) => node.data && node.data.id === cashFlowSummary.id
             );
 
-            if (nodes[nodeIndex]) {
+            if (
+              nodes[nodeIndex] &&
+              cashFlowSummary.statementType === 'Summary'
+            ) {
               nodes[nodeIndex] = {
                 ...nodes[nodeIndex],
                 data: {
@@ -312,7 +351,9 @@ const flowSlice = createSlice({
       action: PayloadAction<NodeSelectionChange>
     ) => {
       const changeEvent = action.payload;
-      const foundNode = state.nodes.find((node) => node.id === changeEvent.id);
+      const foundNode = state.nodes.find(
+        (node) => node && node.id === changeEvent.id
+      );
       if (foundNode) {
         foundNode.selected = changeEvent.selected;
       }
@@ -333,7 +374,7 @@ const flowSlice = createSlice({
       const foundNode = state.nodes.find(
         (node) => node.id === nodeDoubleClicked.id
       );
-      if (!foundNode) {
+      if (!foundNode || !foundNode.data) {
         return;
       }
       if (foundNode.data.isExpanded) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -6,13 +6,7 @@ import ReactFlow, {
   NodeChange,
 } from 'reactflow';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
-import {
-  getCashFlows,
-  selectCashFlowStoreStatus,
-  selectIsInitialLoadCompleted,
-  selectOverallCashFlowSummary,
-  setInitialLoadCompleted,
-} from '@/states/features/cashflow/cashflow.slice';
+import { selectCashFlowStoreStatus } from '@/states/features/cashflow/cashflow.slice';
 import { CashFlowNode } from '@/components/cashflow/CashFlowNode';
 import 'reactflow/dist/style.css';
 import {
@@ -23,17 +17,20 @@ import {
   handleNodeSelection,
   selectFlowEdges,
   selectFlowNodes,
-  selectFlowViewStatus,
 } from '@/states/features/cashflow/flow.slice';
 import { Loading } from '@/components/common/Loading';
 import CashFlow from '@/types/CashFlow';
+import { NoDataNode } from '@/components/cashflow/NoDataNode';
 
 const nodeDragThreshold = 6;
 export const defaultViewPort = { x: 10, y: 20, zoom: 0.8 };
 
 export const CashFlowView = () => {
   const dispatch = useAppDispatch();
-  const nodeTypes = useMemo(() => ({ cashFlowNode: CashFlowNode }), []);
+  const nodeTypes = useMemo(
+    () => ({ cashFlowNode: CashFlowNode, noDataNode: NoDataNode }),
+    []
+  );
   const cashFlowStoreStateStatus = useAppSelector(selectCashFlowStoreStatus);
   const nodes = useAppSelector(selectFlowNodes);
   const edges = useAppSelector(selectFlowEdges);

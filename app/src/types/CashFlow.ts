@@ -9,17 +9,19 @@ namespace CashFlow {
   export type CashFlowStatementType = 'Summary' | 'Income' | 'Expense';
   export type GraphUpdateMode = 'Reset' | 'InPlace' | 'Append';
 
-  export type CashFlowStatements = {
-    [key: string]: CashFlowStatement;
-  };
-
   type Statement = {
     id: string;
     parentRef?: string;
     statementType: CashFlowStatementType;
   };
 
+  export type CashFlow = {
+    type: CashFlowType;
+    total: number;
+  };
+
   export type CashFlowStatement = Statement & {
+    statementType: 'Summary';
     accountingPeriod: SerializableAccountingPeriod;
     income: CashFlow;
     expense: CashFlow;
@@ -31,20 +33,19 @@ namespace CashFlow {
     income: CashFlow;
   };
 
-  export type SetCashFlowRequest = {
-    key: string;
-    type: TransactionMode;
-    total: number;
-  };
-
   export type ExpenseStatement = Statement & {
     statementType: 'Expense';
     accountingPeriod: SerializableAccountingPeriod;
     expense: CashFlow;
   };
 
-  export type CashFlow = {
-    type: CashFlowType;
+  export type CashFlowStatements = {
+    [key: string]: CashFlowStatement | IncomeStatement | ExpenseStatement;
+  };
+
+  export type SetCashFlowRequest = {
+    key: string;
+    type: TransactionMode;
     total: number;
   };
 
@@ -64,6 +65,16 @@ namespace CashFlow {
     Statement & {
       startPeriod: string;
       endPeriod: string;
+    };
+
+  export type SerializableIncomeSummary = Statement &
+    Omit<IncomeStatement, 'income'> & {
+      total: number;
+    };
+
+  export type SerializableExpenseSummary = Statement &
+    Omit<ExpenseStatement, 'income'> & {
+      total: number;
     };
 
   export type CashFlowNodeData = SerializableCashFlowSummary & {
