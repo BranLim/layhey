@@ -73,11 +73,21 @@ namespace CashFlow {
     };
 
   export type SerializableExpenseSummary = Statement &
-    Omit<ExpenseStatement, 'income'> & {
+    Omit<ExpenseStatement, 'expense'> & {
       total: number;
     };
 
   export type CashFlowNodeData = SerializableCashFlowSummary & {
+    rootNode?: boolean;
+    isExpanded?: boolean;
+  };
+
+  export type IncomeNodeData = SerializableIncomeSummary & {
+    rootNode?: boolean;
+    isExpanded?: boolean;
+  };
+
+  export type ExpenseNodeData = SerializableExpenseSummary & {
     rootNode?: boolean;
     isExpanded?: boolean;
   };

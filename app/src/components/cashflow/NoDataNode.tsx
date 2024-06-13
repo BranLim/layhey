@@ -13,7 +13,7 @@ export const NoDataNode = (props: NodeProps<CashFlow.CashFlowNodeData>) => {
       <Box
         style={{ ...nodeStyle }}
         bg='whitesmoke'
-        width='xs'
+        width='3xs'
         border='3px solid black'
         borderRadius='12px'
         boxShadow='0px 0px 12px darkslategray'
@@ -24,12 +24,10 @@ export const NoDataNode = (props: NodeProps<CashFlow.CashFlowNodeData>) => {
           <Handle type='source' position={Position.Left} />
         )}
 
-        <Flex width='xs' align='center' justify='center'>
-          <Spacer />
-          <Text as={'b'} fontSize='lg' textAlign='center' height='100%'>
+        <Flex align='center' justify='center' height='100%'>
+          <Text as={'b'} fontSize='lg' verticalAlign='middle'>
             No data
           </Text>
-          <Spacer />
         </Flex>
       </Box>
     </>
