@@ -21,6 +21,7 @@ import {
 import { Loading } from '@/components/common/Loading';
 import CashFlow from '@/types/CashFlow';
 import { NoDataNode } from '@/components/cashflow/NoDataNode';
+import { IncomeExpenseNode } from '@/components/cashflow/DetailedStatementNode';
 
 const nodeDragThreshold = 6;
 export const defaultViewPort = { x: 10, y: 20, zoom: 0.8 };
@@ -28,7 +29,11 @@ export const defaultViewPort = { x: 10, y: 20, zoom: 0.8 };
 export const CashFlowView = () => {
   const dispatch = useAppDispatch();
   const nodeTypes = useMemo(
-    () => ({ cashFlowNode: CashFlowNode, noDataNode: NoDataNode }),
+    () => ({
+      cashFlowNode: CashFlowNode,
+      noDataNode: NoDataNode,
+      incomeExpenseNode: IncomeExpenseNode,
+    }),
     []
   );
   const cashFlowStoreStateStatus = useAppSelector(selectCashFlowStoreStatus);

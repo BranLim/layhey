@@ -13,6 +13,10 @@ import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
 import { startAppListening } from '@/states/listeners';
 import { fetchRelevantCashFlowDetails } from '@/states/features/cashflow/cashflow.listener';
 import SerializableCashFlowSummary = CashFlow.SerializableCashFlowSummary;
+import SerializableIncomeSummary = CashFlow.SerializableIncomeSummary;
+import SerializableExpenseSummary = CashFlow.SerializableExpenseSummary;
+import IncomeNodeData = CashFlow.IncomeNodeData;
+import ExpenseNodeData = CashFlow.ExpenseNodeData;
 
 const edgeColor = 'lightgray';
 
@@ -43,6 +47,12 @@ export type AddCashFlowPayload = {
   updateMode: CashFlow.GraphUpdateMode;
 };
 
+type FlowNodeData =
+  | CashFlow.CashFlowNodeData
+  | CashFlow.IncomeNodeData
+  | CashFlow.ExpenseNodeData
+  | undefined;
+
 export type FlowViewStatus =
   | 'initial_node_load'
   | 'initial_node_load_complete'
@@ -54,9 +64,9 @@ export type FlowViewStatus =
 export type FlowViewState = {
   currentChosenAccountingPeriod: SerializableAccountingPeriod;
   expandedNodes: Array<string>;
-  nodes: Node<CashFlow.CashFlowNodeData | undefined>[];
+  nodes: Node<FlowNodeData>[];
   edges: Edge[];
-  selectedNode?: Node<CashFlow.CashFlowNodeData | undefined>;
+  selectedNode?: Node<FlowNodeData>;
   nodeStyles: Record<string, any>;
   flowViewStatus: FlowViewStatus;
 };
@@ -115,8 +125,8 @@ const generateCashFlowNodes = (
   )[],
   xInitialPos: number,
   yInitialPos: number
-): Node<CashFlow.CashFlowNodeData | undefined>[] => {
-  const cashFlowNodes: Node<CashFlow.CashFlowNodeData | undefined>[] = [];
+): Node<FlowNodeData>[] => {
+  const cashFlowNodes: Node<FlowNodeData>[] = [];
   let y = yInitialPos;
   if (cashFlowSummaries && cashFlowSummaries.length === 0) {
     const node: Node = {
@@ -153,6 +163,52 @@ const generateCashFlowNodes = (
           outflow: cashFlowSummary.outflow,
           difference: cashFlowSummary.difference,
           currency: cashFlowSummary.currency,
+        },
+      };
+      cashFlowNodes.push(node);
+      applyDefaultNodeStyle(state, node.id);
+    } else if (cashFlowSummary.statementType === 'Income') {
+      const incomeStatement = cashFlowSummary as SerializableIncomeSummary;
+      const node: Node<CashFlow.IncomeNodeData> = {
+        id: `node-${uuidv4()}`,
+        type: 'incomeExpenseNode',
+        position: { x: xInitialPos, y: y },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+        draggable: true,
+        focusable: true,
+        data: {
+          id: incomeStatement.id,
+          parentRef: incomeStatement.parentRef,
+          statementType: incomeStatement.statementType,
+          accountingPeriod: {
+            startPeriod: incomeStatement.accountingPeriod.startPeriod,
+            endPeriod: incomeStatement.accountingPeriod.endPeriod,
+          },
+          total: incomeStatement.total,
+        },
+      };
+      cashFlowNodes.push(node);
+      applyDefaultNodeStyle(state, node.id);
+    } else if (cashFlowSummary.statementType === 'Expense') {
+      const expenseStatement = cashFlowSummary as SerializableExpenseSummary;
+      const node: Node<CashFlow.ExpenseNodeData> = {
+        id: `node-${uuidv4()}`,
+        type: 'incomeExpenseNode',
+        position: { x: xInitialPos, y: y },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+        draggable: true,
+        focusable: true,
+        data: {
+          id: expenseStatement.id,
+          parentRef: expenseStatement.parentRef,
+          statementType: expenseStatement.statementType,
+          accountingPeriod: {
+            startPeriod: expenseStatement.accountingPeriod.startPeriod,
+            endPeriod: expenseStatement.accountingPeriod.endPeriod,
+          },
+          total: expenseStatement.total,
         },
       };
       cashFlowNodes.push(node);
@@ -203,12 +259,9 @@ const flowSlice = createSlice({
       const overallCashFlowSummary: CashFlow.SerializableCashFlowSummary =
         action.payload;
 
-      const cashFlowNodes: Node<CashFlow.CashFlowNodeData | undefined>[] = [
-        ...state.nodes,
-      ];
+      const cashFlowNodes: Node<FlowNodeData>[] = [...state.nodes];
 
-      let rootNode: Node<CashFlow.CashFlowNodeData | undefined> =
-        cashFlowNodes[0];
+      let rootNode: Node<FlowNodeData> = cashFlowNodes[0];
       if (rootNode) {
         cashFlowNodes[0] = {
           ...rootNode,
@@ -257,7 +310,7 @@ const flowSlice = createSlice({
         console.log('Adding cashflow nodes');
         const { targetNodeId, cashFlowSummaries, updateMode } = action.payload;
 
-        const nodes: Node<CashFlow.CashFlowNodeData | undefined>[] =
+        const nodes: Node<FlowNodeData>[] =
           updateMode === 'Append' || updateMode === 'InPlace'
             ? [...state.nodes]
             : [state.nodes[0]];
@@ -315,6 +368,44 @@ const flowSlice = createSlice({
                   currency: cashFlowSummary.currency,
                 },
               };
+            } else if (
+              nodes[nodeIndex] &&
+              cashFlowSummary.statementType === 'Income'
+            ) {
+              const incomeSummary =
+                cashFlowSummary as SerializableIncomeSummary;
+              nodes[nodeIndex] = {
+                ...nodes[nodeIndex],
+                data: {
+                  id: incomeSummary.id,
+                  parentRef: incomeSummary.parentRef,
+                  statementType: incomeSummary.statementType,
+                  accountingPeriod: {
+                    startPeriod: incomeSummary.accountingPeriod.startPeriod,
+                    endPeriod: incomeSummary.accountingPeriod.endPeriod,
+                  },
+                  total: incomeSummary.total,
+                },
+              } as Node<IncomeNodeData>;
+            } else if (
+              nodes[nodeIndex] &&
+              cashFlowSummary.statementType === 'Expense'
+            ) {
+              const expenseSummary =
+                cashFlowSummary as SerializableExpenseSummary;
+              nodes[nodeIndex] = {
+                ...nodes[nodeIndex],
+                data: {
+                  id: expenseSummary.id,
+                  parentRef: expenseSummary.parentRef,
+                  statementType: expenseSummary.statementType,
+                  accountingPeriod: {
+                    startPeriod: expenseSummary.accountingPeriod.startPeriod,
+                    endPeriod: expenseSummary.accountingPeriod.endPeriod,
+                  },
+                  total: expenseSummary.total,
+                },
+              } as Node<ExpenseNodeData>;
             }
           });
         }

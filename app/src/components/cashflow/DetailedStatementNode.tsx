@@ -2,7 +2,7 @@ import { Handle, NodeProps, Position } from 'reactflow';
 import CashFlow from '@/types/CashFlow';
 import { useAppSelector } from '@/states/hooks';
 import { selectNodeStyle } from '@/states/features/cashflow/flow.slice';
-import { Box, Flex, Spacer, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, SimpleGrid, Spacer, Text, VStack } from '@chakra-ui/react';
 import React from 'react';
 import { toFormattedDate } from '@/utils/date.utils';
 
@@ -10,6 +10,12 @@ export const IncomeExpenseNode = (
   props: NodeProps<CashFlow.IncomeNodeData | CashFlow.ExpenseNodeData>
 ) => {
   const nodeStyle = useAppSelector((state) => selectNodeStyle(state, props.id));
+  const numberFormatter = new Intl.NumberFormat('en-SG', {
+    style: 'currency',
+    currency: 'SGD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
   return (
     <>
@@ -55,6 +61,20 @@ export const IncomeExpenseNode = (
               </Text>
             </Box>
           </Flex>
+          <SimpleGrid
+            width='xs'
+            columns={2}
+            rowGap={1}
+            columnGap={2}
+            padding={2}
+          >
+            <Text as={'b'} fontSize='lg'>
+              {props.data.statementType === 'Income' ? 'Income' : 'Expense'}
+            </Text>
+            <Text fontSize='lg' align='right'>
+              {numberFormatter.format(props.data.total)}
+            </Text>
+          </SimpleGrid>
         </VStack>
       </Box>
     </>

@@ -38,6 +38,9 @@ import SetCashFlowRequest = CashFlow.SetCashFlowRequest;
 import ExpenseStatement = CashFlow.ExpenseStatement;
 import IncomeStatement = CashFlow.IncomeStatement;
 import CashFlowStatement = CashFlow.CashFlowStatement;
+import ExpenseNodeData = CashFlow.ExpenseNodeData;
+import IncomeNodeData = CashFlow.IncomeNodeData;
+import { IncomeExpenseNode } from '@/components/cashflow/DetailedStatementNode';
 
 startAppListening({
   predicate: (action, currentState, previousState) => {
@@ -260,16 +263,52 @@ export const addTransaction = createAsyncThunk<
         }
 
         const nodeData = node.data;
-        dispatch(
-          updateCashFlowSummaryGraphNode({
-            parentStatementId: nodeData.parentRef ?? '',
-            statementId: nodeData.id,
-            cashFlowStatementSlotKey: getAccountingSlotKey(
-              new Date(nodeData.startPeriod),
-              new Date(nodeData.endPeriod)
-            ),
-          })
-        );
+        switch (nodeData.statementType) {
+          case 'Summary':
+            dispatch(
+              updateCashFlowSummaryGraphNode({
+                parentStatementId: nodeData.parentRef ?? '',
+                statementId: nodeData.id,
+                cashFlowStatementSlotKey: getAccountingSlotKey(
+                  new Date(nodeData.startPeriod),
+                  new Date(nodeData.endPeriod)
+                ),
+              })
+            );
+            break;
+          case 'Expense':
+            dispatch(
+              updateCashFlowSummaryGraphNode({
+                parentStatementId: nodeData.parentRef ?? '',
+                statementId: nodeData.id,
+                cashFlowStatementSlotKey: getAccountingSlotKey(
+                  new Date(
+                    (nodeData as ExpenseNodeData).accountingPeriod.startPeriod
+                  ),
+                  new Date(
+                    (nodeData as ExpenseNodeData).accountingPeriod.endPeriod
+                  )
+                ),
+              })
+            );
+            break;
+          case 'Income':
+            dispatch(
+              updateCashFlowSummaryGraphNode({
+                parentStatementId: nodeData.parentRef ?? '',
+                statementId: nodeData.id,
+                cashFlowStatementSlotKey: getAccountingSlotKey(
+                  new Date(
+                    (nodeData as IncomeNodeData).accountingPeriod.startPeriod
+                  ),
+                  new Date(
+                    (nodeData as IncomeNodeData).accountingPeriod.endPeriod
+                  )
+                ),
+              })
+            );
+            break;
+        }
 
         state = getState();
         if (node.data.parentRef) {
@@ -471,6 +510,19 @@ export const getCashFlowBreakdown = createAsyncThunk<
     const { startPeriod, endPeriod, parentStatementSlotId, parentNodeId } =
       request;
     let currentState = getState();
+    let statementPeriods: StatementPeriodSlot[] = getAccountingPeriodSlots(
+      startPeriod,
+      endPeriod
+    );
+    dispatch(
+      setCashFlowStatementSlots({
+        statementPeriodSlots: toSerializableStatementPeriods(statementPeriods),
+        parentSlotRef: parentStatementSlotId,
+        statementType: 'Summary',
+        append: true,
+      })
+    );
+
     try {
       const transactions: TransactionResponse[] = await getTransactions(
         startPeriod,
