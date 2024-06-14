@@ -285,10 +285,10 @@ const generateYearPeriods = (
 };
 
 const getAccountingPeriodSlot = (
-  accountingPeriods: StatementPeriodSlot[],
+  statementPeriods: StatementPeriodSlot[],
   transactionDate: Date
 ): StatementPeriodSlot | undefined => {
-  return accountingPeriods?.find(
+  return statementPeriods?.find(
     (value) =>
       value.startPeriod <= transactionDate && value.endPeriod >= transactionDate
   );

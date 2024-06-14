@@ -45,7 +45,7 @@ namespace CashFlow {
 
   export type SetCashFlowRequest = {
     key: string;
-    type: TransactionMode;
+    transactionMode: TransactionMode;
     statementType: CashFlowStatementType;
     total: number;
   };

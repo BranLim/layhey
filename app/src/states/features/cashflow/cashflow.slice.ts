@@ -7,7 +7,6 @@ import {
 import {
   AddTransactionRequest,
   TransactionMode,
-  TransactionRequest,
   TransactionResponse,
 } from '@/types/Transaction';
 import CashFlow from '@/types/CashFlow';
@@ -16,12 +15,8 @@ import { StatementPeriodSlot } from '@/types/AccountingPeriod';
 import {
   computeCashFlowStatementPeriods,
   getAccountingPeriodFromSlotKey,
-  getAccountingPeriodSlot,
   getMatchingCashFlowStatementPeriodSlots,
   getStatementPeriodKey,
-  isCashFlowStatement,
-  isExpenseStatement,
-  isIncomeStatement,
 } from '@/lib/helpers/cashflow.helper';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -205,16 +200,14 @@ export const addTransaction = createAsyncThunk<
     const budgetEndPeriod: string =
       state.cashflow.overallCashFlowForPeriod.endPeriod;
 
-    const accountingPeriodSlots = getCashFlowStatementPeriods(
+    const statementPeriods = getCashFlowStatementPeriods(
       budgetStartPeriod,
       budgetEndPeriod
     );
 
     dispatch(
       setCashFlowStatementPeriods({
-        statementPeriodSlots: toSerializableStatementPeriods(
-          accountingPeriodSlots
-        ),
+        statementPeriodSlots: toSerializableStatementPeriods(statementPeriods),
         parentSlotRef: state.cashflow.overallCashFlowForPeriod.id,
         statementType: 'Summary',
         append: true,
@@ -240,7 +233,7 @@ export const addTransaction = createAsyncThunk<
         }
         const matchingCashFlowStatementPeriodSlots =
           getMatchingCashFlowStatementPeriodSlots(
-            accountingPeriodSlots,
+            statementPeriods,
             new Date(transaction.date)
           );
 
@@ -259,7 +252,7 @@ export const addTransaction = createAsyncThunk<
                 dispatch(
                   setCashFlow({
                     key: slot.key,
-                    type: TransactionMode.Income,
+                    transactionMode: TransactionMode.Income,
                     total: cashFlowForPeriod.income.total + transaction.amount,
                   } as SetCashFlowRequest)
                 );
@@ -269,7 +262,7 @@ export const addTransaction = createAsyncThunk<
                 dispatch(
                   setCashFlow({
                     key: slot.key,
-                    type: TransactionMode.Expense,
+                    transactionMode: TransactionMode.Expense,
                     total: cashFlowForPeriod.expense.total + transaction.amount,
                   } as SetCashFlowRequest)
                 );
@@ -463,37 +456,39 @@ export const getCashFlows = createAsyncThunk<
       );
     }
 
-    if (statementPeriods && statementPeriods.length > 0) {
-      if (
-        statementPeriods.every(
-          (statement) =>
-            !statement.key.includes('_income') &&
-            !statement.key.includes('_expense')
-        )
-      ) {
+    if (!statementPeriods || statementPeriods.length < 1) {
+      return;
+    }
+
+    if (
+      statementPeriods.every(
+        (statement) =>
+          !statement.key.includes('_income') &&
+          !statement.key.includes('_expense')
+      )
+    ) {
+      dispatch(
+        setCashFlowStatementPeriods({
+          statementPeriodSlots:
+            toSerializableStatementPeriods(statementPeriods),
+          parentSlotRef: parentRef,
+          statementType: 'Summary',
+          append: append,
+        })
+      );
+    } else {
+      statementPeriods.forEach((statement) => {
         dispatch(
           setCashFlowStatementPeriods({
-            statementPeriodSlots:
-              toSerializableStatementPeriods(statementPeriods),
+            statementPeriodSlots: toSerializableStatementPeriods([statement]),
             parentSlotRef: parentRef,
-            statementType: 'Summary',
+            statementType: statement.key.includes('_income')
+              ? 'Income'
+              : 'Expense',
             append: append,
           })
         );
-      } else {
-        statementPeriods.forEach((statement) => {
-          dispatch(
-            setCashFlowStatementPeriods({
-              statementPeriodSlots: toSerializableStatementPeriods([statement]),
-              parentSlotRef: parentRef,
-              statementType: statement.key.includes('_income')
-                ? 'Income'
-                : 'Expense',
-              append: append,
-            })
-          );
-        });
-      }
+      });
     }
 
     const transactions: TransactionResponse[] = await getTransactions(
@@ -501,69 +496,69 @@ export const getCashFlows = createAsyncThunk<
       endPeriod
     );
 
-    transactions?.forEach((transaction: TransactionRequest) => {
-      const slot = getAccountingPeriodSlot(
-        statementPeriods,
-        new Date(transaction.date)
-      );
+    statementPeriods.forEach((statementPeriod) => {
+      const transactionsForPeriod = transactions.filter((transaction) => {
+        const transactionDate = new Date(transaction.date);
 
-      if (!slot) {
+        return (
+          transactionDate > statementPeriod.startPeriod &&
+          transactionDate <= statementPeriod.endPeriod
+        );
+      });
+
+      if (!transactionsForPeriod || transactionsForPeriod.length < 1) {
         return;
       }
 
-      currentState = getState();
-      const cashFlowForPeriod = currentState.cashflow.cashFlows[slot.key];
-      if (isCashFlowStatement(cashFlowForPeriod)) {
-        const cashFlowStatement = cashFlowForPeriod as CashFlowStatement;
+      const currentState = getState();
+      const incomeCashFlowRequest: SetCashFlowRequest = {
+        key: statementPeriod.key,
+        transactionMode: TransactionMode.Income,
+        total: 0,
+        statementType: 'Summary',
+      };
+      const expenseCashFlowRequest: SetCashFlowRequest = {
+        key: statementPeriod.key,
+        transactionMode: TransactionMode.Expense,
+        total: 0,
+        statementType: 'Summary',
+      };
+
+      if (statementPeriod.key.includes('_income')) {
+        incomeCashFlowRequest.statementType = 'Income';
+      } else if (statementPeriod.key.includes('_expense')) {
+        expenseCashFlowRequest.statementType = 'Expense';
+      }
+
+      transactionsForPeriod.forEach((transaction) => {
         switch (transaction.mode) {
-          case TransactionMode.Income:
-            dispatch(
-              setCashFlow({
-                key: slot.key,
-                type: TransactionMode.Income,
-                total: cashFlowStatement.income.total + transaction.amount,
-                statementType: cashFlowStatement.statementType,
-              } as SetCashFlowRequest)
-            );
+          case 'Income':
+            incomeCashFlowRequest.total =
+              incomeCashFlowRequest.total + transaction.amount;
             break;
-          case TransactionMode.Expense:
-            dispatch(
-              setCashFlow({
-                key: slot.key,
-                type: TransactionMode.Expense,
-                total: cashFlowStatement.expense.total + transaction.amount,
-                statementType: cashFlowStatement.statementType,
-              } as SetCashFlowRequest)
-            );
+          case 'Expense':
+            expenseCashFlowRequest.total =
+              expenseCashFlowRequest.total + transaction.amount;
             break;
         }
-      } else if (
-        isIncomeStatement(cashFlowForPeriod) &&
-        transaction.mode === TransactionMode.Income
-      ) {
-        const incomeStatement = cashFlowForPeriod as IncomeStatement;
-        dispatch(
-          setCashFlow({
-            key: slot.key,
-            type: TransactionMode.Income,
-            statementType: 'Income',
-            total: incomeStatement.income.total + transaction.amount,
-          })
-        );
-      } else if (
-        isExpenseStatement(cashFlowForPeriod) &&
-        transaction.mode === TransactionMode.Expense
-      ) {
-        const expenseStatement = cashFlowForPeriod as ExpenseStatement;
-        dispatch(
-          setCashFlow({
-            key: slot.key,
-            type: TransactionMode.Expense,
-            statementType: 'Expense',
-            total: expenseStatement.expense.total + transaction.amount,
-          })
-        );
-      }
+      });
+
+      try {
+        if (
+          (!statementPeriod.key.includes('_income') &&
+            !statementPeriod.key.includes('_expense')) ||
+          statementPeriod.key.includes('_income')
+        ) {
+          dispatch(setCashFlow(incomeCashFlowRequest));
+        }
+        if (
+          (!statementPeriod.key.includes('_income') &&
+            !statementPeriod.key.includes('_expense')) ||
+          statementPeriod.key.includes('_expense')
+        ) {
+          dispatch(setCashFlow(expenseCashFlowRequest));
+        }
+      } catch (error) {}
     });
 
     dispatch(buildCashFlowGraph(parentRef));
@@ -616,20 +611,25 @@ const cashflowSlice = createSlice({
       state.status = 'updated_overall_cashflows';
     },
     setCashFlow: (state, action: PayloadAction<SetCashFlowRequest>) => {
-      const { key, total, type, statementType } = action.payload;
-      if (statementType === 'Summary') {
-        switch (type) {
-          case TransactionMode.Income:
-            (state.cashFlows[key] as CashFlowStatement).income.total = total;
-            break;
-          case TransactionMode.Expense:
-            (state.cashFlows[key] as CashFlowStatement).expense.total = total;
-            break;
-        }
-      } else if (statementType === 'Income') {
-        (state.cashFlows[key] as IncomeStatement).income.total = total;
-      } else if (statementType === 'Expense') {
-        (state.cashFlows[key] as ExpenseStatement).expense.total = total;
+      const { key, total, transactionMode, statementType } = action.payload;
+
+      switch (statementType) {
+        case 'Summary':
+          switch (transactionMode) {
+            case TransactionMode.Income:
+              (state.cashFlows[key] as CashFlowStatement).income.total = total;
+              break;
+            case TransactionMode.Expense:
+              (state.cashFlows[key] as CashFlowStatement).expense.total = total;
+              break;
+          }
+          break;
+        case 'Income':
+          (state.cashFlows[key] as IncomeStatement).income.total = total;
+          break;
+        case 'Expense':
+          (state.cashFlows[key] as ExpenseStatement).expense.total = total;
+          break;
       }
 
       state.previousStatus = state.status;
