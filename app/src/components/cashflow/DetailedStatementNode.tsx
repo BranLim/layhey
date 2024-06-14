@@ -22,11 +22,10 @@ export const IncomeExpenseNode = (
       <Box
         style={{ ...nodeStyle }}
         bg='whitesmoke'
-        width='3xs'
+        width='sm'
         border='3px solid black'
         borderRadius='12px'
         boxShadow='0px 0px 12px darkslategray'
-        height='80px'
         zIndex={999}
       >
         {!props.data.rootNode && (

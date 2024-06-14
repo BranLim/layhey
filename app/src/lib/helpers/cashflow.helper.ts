@@ -2,6 +2,7 @@ import {
   Accounting_Period_Days_In_Month,
   Accounting_Period_Days_In_Week,
   Accounting_Period_Days_In_Year,
+  Accounting_Period_One_Day_In_Milliseconds,
   AccountingPeriod,
   StatementPeriodSlot,
 } from '@/types/AccountingPeriod';
@@ -21,41 +22,89 @@ import {
   getYearEnd,
   toFormattedDate,
 } from '@/utils/date.utils';
+import CashFlow from '@/types/CashFlow';
+import CashFlowStatement = CashFlow.CashFlowStatement;
+import IncomeStatement = CashFlow.IncomeStatement;
+import ExpenseStatement = CashFlow.ExpenseStatement;
 
 const computeCashFlowStatementPeriods = (
-  accountingStartPeriod: Date,
-  accountingEndPeriod: Date
+  statementStartPeriod: Date,
+  statementEndPeriod: Date
 ): StatementPeriodSlot[] => {
-  if (!isDate(accountingStartPeriod) || !isDate(accountingEndPeriod)) {
+  if (!isDate(statementStartPeriod) || !isDate(statementEndPeriod)) {
     throw new Error(
-      'accountingStartPeriod or accountingEndPeriod must be date type'
+      'statementStartPeriod or statementEndPeriod must be date type'
     );
   }
 
   const diffInDays =
-    differenceInCalendarDays(accountingEndPeriod, accountingStartPeriod) + 1;
+    differenceInCalendarDays(statementEndPeriod, statementStartPeriod) + 1;
 
   const periods: StatementPeriodSlot[] = [];
   let slots: StatementPeriodSlot[] = [];
   if (diffInDays <= Accounting_Period_Days_In_Month) {
-    if (diffInDays <= Accounting_Period_Days_In_Week) {
-      slots = generateDaySlots(accountingStartPeriod, accountingEndPeriod);
+    if (
+      diffInDays * (1000 * 60 * 60 * 24) <=
+      Accounting_Period_One_Day_In_Milliseconds
+    ) {
+      slots = generateSingleDayPeriodForIncomeAndExpense(
+        statementStartPeriod,
+        statementEndPeriod
+      );
+    } else if (diffInDays <= Accounting_Period_Days_In_Week) {
+      slots = generateDayPeriods(statementStartPeriod, statementEndPeriod);
     } else {
-      slots = generateWeekSlots(accountingStartPeriod, accountingEndPeriod);
+      slots = generateWeekPeriods(statementStartPeriod, statementEndPeriod);
     }
   } else if (
     diffInDays > Accounting_Period_Days_In_Month &&
     diffInDays <= Accounting_Period_Days_In_Year
   ) {
-    slots = generateMonthSlot(accountingStartPeriod, accountingEndPeriod);
+    slots = generateMonthPeriods(statementStartPeriod, statementEndPeriod);
   } else {
-    slots = generateYearSlot(accountingStartPeriod, accountingEndPeriod);
+    slots = generateYearPeriods(statementStartPeriod, statementEndPeriod);
   }
   periods.push(...slots);
   return periods;
 };
 
-const generateDaySlots = (
+const generateSingleDayPeriodForIncomeAndExpense = (
+  accountingStartPeriod: Date,
+  accountingEndPeriod: Date
+) => {
+  const periods: StatementPeriodSlot[] = [];
+  let currentDate = new Date(
+    accountingStartPeriod.getFullYear(),
+    accountingStartPeriod.getMonth(),
+    accountingStartPeriod.getDate(),
+    0,
+    0,
+    0
+  );
+  let nextDate = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    currentDate.getDate(),
+    23,
+    59,
+    59,
+    999
+  );
+  periods.push({
+    startPeriod: currentDate,
+    endPeriod: nextDate,
+    key: `${getStatementPeriodKey(currentDate, nextDate)}_income`,
+  });
+  periods.push({
+    startPeriod: currentDate,
+    endPeriod: nextDate,
+    key: `${getStatementPeriodKey(currentDate, nextDate)}_expense`,
+  });
+
+  return periods;
+};
+
+const generateDayPeriods = (
   accountingStartPeriod: Date,
   accountingEndPeriod: Date
 ): StatementPeriodSlot[] => {
@@ -78,9 +127,9 @@ const generateDaySlots = (
     0
   );
   let nextDate = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    currentDate.getDate(),
+    accountingStartPeriod.getFullYear(),
+    accountingStartPeriod.getMonth(),
+    accountingStartPeriod.getDate(),
     23,
     59,
     59,
@@ -94,15 +143,15 @@ const generateDaySlots = (
     periods.push({
       startPeriod: currentDate,
       endPeriod: nextDate,
-      key: getAccountingSlotKey(currentDate, nextDate),
+      key: getStatementPeriodKey(currentDate, nextDate),
     });
-    currentDate = nextDate;
+    currentDate = addDate(nextDate, { seconds: 1 });
     nextDate = addDate(nextDate, { days: 1 });
   }
   return periods;
 };
 
-const generateWeekSlots = (
+const generateWeekPeriods = (
   accountingStartPeriod: Date,
   accountingEndPeriod: Date
 ): StatementPeriodSlot[] => {
@@ -144,7 +193,7 @@ const generateWeekSlots = (
     periods.push({
       startPeriod: currentDate,
       endPeriod: nextDate,
-      key: getAccountingSlotKey(currentDate, nextDate),
+      key: getStatementPeriodKey(currentDate, nextDate),
     });
     currentDate = addDate(nextDate, { days: 1 });
   }
@@ -152,7 +201,7 @@ const generateWeekSlots = (
   return periods;
 };
 
-const generateMonthSlot = (
+const generateMonthPeriods = (
   accountingStartPeriod: Date,
   accountingEndPeriod: Date
 ): StatementPeriodSlot[] => {
@@ -186,7 +235,7 @@ const generateMonthSlot = (
     periods.push({
       startPeriod: currentDate,
       endPeriod: nextDate,
-      key: getAccountingSlotKey(currentDate, nextDate),
+      key: getStatementPeriodKey(currentDate, nextDate),
     });
     currentDate = addDate(nextDate, { days: 1 });
   }
@@ -194,7 +243,7 @@ const generateMonthSlot = (
   return periods;
 };
 
-const generateYearSlot = (
+const generateYearPeriods = (
   accountingStartPeriod: Date,
   accountingEndPeriod: Date
 ): StatementPeriodSlot[] => {
@@ -227,7 +276,7 @@ const generateYearSlot = (
     periods.push({
       startPeriod: currentDate,
       endPeriod: nextDate,
-      key: getAccountingSlotKey(currentDate, nextDate),
+      key: getStatementPeriodKey(currentDate, nextDate),
     });
     currentDate = addDate(nextDate, { days: 1 });
   }
@@ -289,13 +338,32 @@ const getAccountingPeriodFromSlotKey = (
   return { startPeriod, endPeriod } as AccountingPeriod;
 };
 
-const getAccountingSlotKey = (startDate: Date, endDate: Date) =>
+const getStatementPeriodKey = (startDate: Date, endDate: Date) =>
   `${toFormattedDate(startDate, 'yyyyMMdd')}_${toFormattedDate(endDate, 'yyyyMMdd')}`;
+
+const isCashFlowStatement = (obj: any) =>
+  typeof obj === 'object' &&
+  'income' in obj &&
+  'expense' in obj &&
+  (obj as CashFlowStatement).statementType === 'Summary';
+
+const isIncomeStatement = (obj: any) =>
+  typeof obj === 'object' &&
+  'income' in obj &&
+  (obj as IncomeStatement).statementType === 'Income';
+
+const isExpenseStatement = (obj: any) =>
+  typeof obj === 'object' &&
+  'expense' in obj &&
+  (obj as ExpenseStatement).statementType === 'Expense';
 
 export {
   computeCashFlowStatementPeriods,
   getAccountingPeriodSlot,
   getAccountingPeriodFromSlotKey,
   getMatchingCashFlowStatementPeriodSlots,
-  getAccountingSlotKey,
+  getStatementPeriodKey,
+  isCashFlowStatement,
+  isIncomeStatement,
+  isExpenseStatement,
 };

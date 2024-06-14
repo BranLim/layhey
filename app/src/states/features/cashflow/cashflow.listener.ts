@@ -1,5 +1,4 @@
 import {
-  getCashFlowBreakdown,
   getCashFlows,
   setInitialLoadCompleted,
 } from '@/states/features/cashflow/cashflow.slice';
@@ -7,7 +6,6 @@ import { Action, ListenerEffectAPI, PayloadAction } from '@reduxjs/toolkit';
 import { AppDispatch, RootState } from '@/states/store';
 import { Node } from 'reactflow';
 import CashFlow from '@/types/CashFlow';
-import { Accounting_Period_One_Day_In_Milliseconds } from '@/types/AccountingPeriod';
 
 const handleInitialCashFlowLoad = (
   action: Action,
@@ -40,9 +38,6 @@ const fetchRelevantCashFlowDetails = async (
 
   const { id, startPeriod, endPeriod } = node.data;
 
-  const startDate = new Date(startPeriod);
-  const endDate = new Date(endPeriod);
-
   const getCashFlowDetails = {
     startPeriod,
     endPeriod,
@@ -51,13 +46,6 @@ const fetchRelevantCashFlowDetails = async (
     parentStatementSlotId: id,
   };
 
-  if (
-    endDate.getTime() - startDate.getTime() <=
-    Accounting_Period_One_Day_In_Milliseconds
-  ) {
-    listenerApi.dispatch(getCashFlowBreakdown(getCashFlowDetails));
-    return;
-  }
   listenerApi.dispatch(getCashFlows(getCashFlowDetails));
 };
 
