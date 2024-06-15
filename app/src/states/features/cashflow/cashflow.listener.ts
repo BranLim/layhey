@@ -4,6 +4,7 @@ import { AppDispatch, RootState } from '@/states/store';
 import { Node } from 'reactflow';
 import CashFlow from '@/types/CashFlow';
 import { getCashFlows } from '@/states/features/cashflow/getCashFlow.thunk';
+import { setOverallCashFlowNode } from '@/states/features/cashflow/flow.slice';
 
 const handleInitialCashFlowLoad = (
   action: Action,
@@ -29,7 +30,14 @@ const handleInitialCashFlowLoad = (
 const handleOverallCashFlowUpdate = (
   action: Action,
   listenerApi: ListenerEffectAPI<RootState, AppDispatch>
-): void => {};
+): void => {
+  const currentState = listenerApi.getState();
+  listenerApi.dispatch(
+    setOverallCashFlowNode({
+      ...currentState.cashflow.overallCashFlowForPeriod,
+    })
+  );
+};
 
 const fetchRelevantCashFlowDetails = async (
   action: PayloadAction<Node<CashFlow.CashFlowNodeData>>,

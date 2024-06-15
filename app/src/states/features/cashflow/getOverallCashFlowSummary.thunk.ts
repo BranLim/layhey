@@ -1,9 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import CashFlow from '@/types/CashFlow';
-import {
-  FlowViewState,
-  setOverallCashFlowNode,
-} from '@/states/features/cashflow/flow.slice';
+import { FlowViewState } from '@/states/features/cashflow/flow.slice';
 import { TransactionMode, TransactionResponse } from '@/types/Transaction';
 import { getTransactions } from '@/states/features/cashflow/api/transactions.api';
 import {
@@ -35,7 +32,7 @@ export const getOverallCashFlowSummary = createAsyncThunk<
 
     let totalIncome = 0;
     let totalExpense = 0;
-    transactions.forEach((transaction) => {
+    transactions?.forEach((transaction) => {
       switch (transaction.mode) {
         case TransactionMode.Income:
           totalIncome += transaction.amount;
@@ -53,12 +50,5 @@ export const getOverallCashFlowSummary = createAsyncThunk<
         difference: totalIncome - totalExpense,
       } as CashFlow.CashflowCalculationResult)
     );
-
-    const state = getState();
-    if (state.cashflow.status === 'updated_overall_cashflows') {
-      dispatch(
-        setOverallCashFlowNode({ ...state.cashflow.overallCashFlowForPeriod })
-      );
-    }
   }
 );

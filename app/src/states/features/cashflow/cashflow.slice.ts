@@ -1,37 +1,10 @@
-import {
-  createAsyncThunk,
-  createSelector,
-  createSlice,
-  PayloadAction,
-} from '@reduxjs/toolkit';
-import {
-  AddTransactionRequest,
-  TransactionMode,
-  TransactionResponse,
-} from '@/types/Transaction';
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { TransactionMode } from '@/types/Transaction';
 import CashFlow from '@/types/CashFlow';
-import { isTransactionDateWithin } from '@/utils/date.utils';
 import { StatementPeriodSlot } from '@/types/AccountingPeriod';
-import {
-  getCashFlowStatementPeriods,
-  getAccountingPeriodFromSlotKey,
-  getMatchingCashFlowStatementPeriodSlots,
-  getStatementPeriodKey,
-} from '@/lib/helpers/cashflow.helper';
+import { getAccountingPeriodFromSlotKey } from '@/lib/helpers/cashflow.helper';
 import { v4 as uuidv4 } from 'uuid';
-import { toSerializableStatementPeriods } from '@/lib/mappers/accountingPeriod.mapper';
-import { startAppListening } from '@/states/listeners';
-import {
-  handleInitialCashFlowLoad,
-  handleOverallCashFlowUpdate,
-} from '@/states/features/cashflow/cashflow.listener';
 import { getErrorMessage } from '@/utils/error.utils';
-import SetCashFlowRequest = CashFlow.SetCashFlowRequest;
-import CashFlowStatement = CashFlow.CashFlowStatement;
-import ExpenseNodeData = CashFlow.ExpenseNodeData;
-import IncomeNodeData = CashFlow.IncomeNodeData;
-import IncomeStatement = CashFlow.IncomeStatement;
-import ExpenseStatement = CashFlow.ExpenseStatement;
 import { addTransaction } from '@/states/features/cashflow/addCashFlow.thunk';
 import { getCashFlows } from '@/states/features/cashflow/getCashFlow.thunk';
 import { getOverallCashFlowSummary } from '@/states/features/cashflow/getOverallCashFlowSummary.thunk';
@@ -176,25 +149,34 @@ const cashflowSlice = createSlice({
       state.previousStatus = state.status;
       state.status = 'updated_overall_cashflows';
     },
-    setCashFlow: (state, action: PayloadAction<SetCashFlowRequest>) => {
+    setCashFlow: (
+      state,
+      action: PayloadAction<CashFlow.SetCashFlowRequest>
+    ) => {
       const { key, total, transactionMode, statementType } = action.payload;
 
       switch (statementType) {
         case 'Summary':
           switch (transactionMode) {
             case TransactionMode.Income:
-              (state.cashFlows[key] as CashFlowStatement).income.total = total;
+              (
+                state.cashFlows[key] as CashFlow.CashFlowStatement
+              ).income.total = total;
               break;
             case TransactionMode.Expense:
-              (state.cashFlows[key] as CashFlowStatement).expense.total = total;
+              (
+                state.cashFlows[key] as CashFlow.CashFlowStatement
+              ).expense.total = total;
               break;
           }
           break;
         case 'Income':
-          (state.cashFlows[key] as IncomeStatement).income.total = total;
+          (state.cashFlows[key] as CashFlow.IncomeStatement).income.total =
+            total;
           break;
         case 'Expense':
-          (state.cashFlows[key] as ExpenseStatement).expense.total = total;
+          (state.cashFlows[key] as CashFlow.ExpenseStatement).expense.total =
+            total;
           break;
       }
 
@@ -420,20 +402,5 @@ export const selectCashFlowStatements = createSelector(
 
 export const selectIsInitialLoadCompleted = (state: any) =>
   state.cashflow.initialLoad;
-
-startAppListening({
-  predicate: (action, currentState, previousState) => {
-    return (
-      !currentState.cashflow.initialLoad &&
-      currentState.cashflow.status === 'completed_get_overall_cashflow'
-    );
-  },
-  effect: handleInitialCashFlowLoad,
-});
-
-startAppListening({
-  actionCreator: setOverallCashFlow,
-  effect: handleOverallCashFlowUpdate,
-});
 
 export default cashflowSlice.reducer;

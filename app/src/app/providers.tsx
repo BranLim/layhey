@@ -7,12 +7,10 @@ import { Provider } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
 import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
 import { setCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slice';
-import {
-  getOverallCashFlowSummary,
-  setOverallCashFlowStatementPeriod,
-} from '@/states/features/cashflow/cashflow.slice';
+import { setOverallCashFlowStatementPeriod } from '@/states/features/cashflow/cashflow.slice';
 import { getAccountingPeriods } from '@/states/features/accounting/accounting.slice';
 import { getCurrentYear, toFormattedDate } from '@/utils/date.utils';
+import { getOverallCashFlowSummary } from '@/states/features/cashflow/getOverallCashFlowSummary.thunk';
 
 const currentYear = getCurrentYear();
 const accountingPeriodStart = new Date(currentYear, 0, 1);
