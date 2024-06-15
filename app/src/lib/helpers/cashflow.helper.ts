@@ -27,6 +27,19 @@ import CashFlowStatement = CashFlow.CashFlowStatement;
 import IncomeStatement = CashFlow.IncomeStatement;
 import ExpenseStatement = CashFlow.ExpenseStatement;
 
+const getCashFlowStatementPeriods = (
+  startPeriod: string,
+  endPeriod: string
+): StatementPeriodSlot[] => {
+  const statementStartPeriod = new Date(startPeriod);
+  const statementEndPeriod = new Date(endPeriod);
+
+  return computeCashFlowStatementPeriods(
+    statementStartPeriod,
+    statementEndPeriod
+  );
+};
+
 const computeCashFlowStatementPeriods = (
   statementStartPeriod: Date,
   statementEndPeriod: Date
@@ -358,7 +371,7 @@ const isExpenseStatement = (obj: any) =>
   (obj as ExpenseStatement).statementType === 'Expense';
 
 export {
-  computeCashFlowStatementPeriods,
+  getCashFlowStatementPeriods,
   getAccountingPeriodSlot,
   getAccountingPeriodFromSlotKey,
   getMatchingCashFlowStatementPeriodSlots,

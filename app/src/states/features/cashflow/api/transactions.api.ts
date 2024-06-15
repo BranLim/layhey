@@ -1,4 +1,7 @@
-import { TransactionResponse } from '@/types/Transaction';
+import {
+  AddTransactionRequest,
+  TransactionResponse,
+} from '@/types/Transaction';
 import { toFormattedDate } from '@/utils/date.utils';
 
 export const getTransactions = async (
@@ -24,5 +27,24 @@ export const getTransactions = async (
     );
   }
 
+  return (await response.json()) as TransactionResponse[];
+};
+
+export const addTransactions = async (
+  newTransaction: AddTransactionRequest
+) => {
+  const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`;
+  const response = await fetch(apiPath, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(newTransaction),
+  });
+
+  if (!response.ok) {
+    throw new Error('Error adding new transaction');
+  }
   return (await response.json()) as TransactionResponse[];
 };

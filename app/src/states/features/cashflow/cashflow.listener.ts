@@ -1,11 +1,9 @@
-import {
-  getCashFlows,
-  setInitialLoadCompleted,
-} from '@/states/features/cashflow/cashflow.slice';
+import { setInitialLoadCompleted } from '@/states/features/cashflow/cashflow.slice';
 import { Action, ListenerEffectAPI, PayloadAction } from '@reduxjs/toolkit';
 import { AppDispatch, RootState } from '@/states/store';
 import { Node } from 'reactflow';
 import CashFlow from '@/types/CashFlow';
+import { getCashFlows } from '@/states/features/cashflow/getCashFlow.thunk';
 
 const handleInitialCashFlowLoad = (
   action: Action,
@@ -28,6 +26,11 @@ const handleInitialCashFlowLoad = (
   listenerApi.dispatch(setInitialLoadCompleted());
 };
 
+const handleOverallCashFlowUpdate = (
+  action: Action,
+  listenerApi: ListenerEffectAPI<RootState, AppDispatch>
+): void => {};
+
 const fetchRelevantCashFlowDetails = async (
   action: PayloadAction<Node<CashFlow.CashFlowNodeData>>,
   listenerApi: ListenerEffectAPI<RootState, AppDispatch>
@@ -49,4 +52,8 @@ const fetchRelevantCashFlowDetails = async (
   listenerApi.dispatch(getCashFlows(getCashFlowDetails));
 };
 
-export { handleInitialCashFlowLoad, fetchRelevantCashFlowDetails };
+export {
+  handleInitialCashFlowLoad,
+  handleOverallCashFlowUpdate,
+  fetchRelevantCashFlowDetails,
+};

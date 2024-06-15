@@ -12,8 +12,6 @@ import {
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
-  getCashFlows,
-  getOverallCashFlowSummary,
   selectOverallCashFlowSummary,
   setOverallCashFlowStatementPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
@@ -35,6 +33,8 @@ import {
 } from '@/types/AccountingPeriod';
 import { selectRootNode } from '@/states/features/cashflow/flow.slice';
 import CashFlow from '@/types/CashFlow';
+import { getOverallCashFlowSummary } from '@/states/features/cashflow/getOverallCashFlowSummary.thunk';
+import { getCashFlows } from '@/states/features/cashflow/getCashFlow.thunk';
 
 type Input = {
   startPeriod: Date;
