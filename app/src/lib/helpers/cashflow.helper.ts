@@ -308,13 +308,13 @@ const getAccountingPeriodSlot = (
 };
 
 const getMatchingCashFlowStatementPeriodSlots = (
-  accountingPeriods: StatementPeriodSlot[],
+  statementPeriods: StatementPeriodSlot[],
   transactionDate: Date
 ): StatementPeriodSlot[] | undefined => {
-  if (!accountingPeriods) {
+  if (!statementPeriods) {
     return undefined;
   }
-  const allMatchingSlots = accountingPeriods?.filter(
+  const allMatchingSlots = statementPeriods?.filter(
     (value) =>
       value.startPeriod <= transactionDate && value.endPeriod >= transactionDate
   );
