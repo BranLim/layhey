@@ -93,6 +93,8 @@ namespace CashFlow {
     isExpanded?: boolean;
   };
 
+  export type NodeData = CashFlowNodeData | IncomeNodeData | ExpenseNodeData;
+
   export type CashflowCalculationResult = {
     totalIncome: number;
     totalExpense: number;
