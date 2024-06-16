@@ -313,7 +313,10 @@ const flowSlice = createSlice({
 
       state.nodes = cashFlowNodes;
     },
-    renderCashFlows: (state, action: PayloadAction<RenderCashFlowPayload>) => {
+    renderCashFlowNodes: (
+      state,
+      action: PayloadAction<RenderCashFlowPayload>
+    ) => {
       console.log('Adding cashflow nodes');
       const { cashFlowSummaries, fromTargetNodeId, reset } = action.payload;
 
@@ -333,6 +336,7 @@ const flowSlice = createSlice({
         : cashFlowSummaries;
 
       if (reset) {
+        console.log('Resetting nodes');
         const generatedCashFlowNodes = generateCashFlowNodes(
           state,
           sortedCashFlowSummaries,
@@ -358,6 +362,23 @@ const flowSlice = createSlice({
           (node) => node.data && node.data.id === summary.id
         );
         if (nodeIndex === -1) {
+          const generatedCashFlowNodes = generateCashFlowNodes(
+            state,
+            sortedCashFlowSummaries,
+            (targetNode?.position.x ?? 0) + 480,
+            (targetNode?.position.y ?? 0) + 10
+          );
+          const generatedEdges = generateNodeEdges(
+            fromTargetNodeId,
+            generatedCashFlowNodes.map((node) => node.id)
+          );
+
+          nodes.push(...generatedCashFlowNodes);
+          edges.push(...generatedEdges);
+
+          state.nodes = nodes;
+          state.edges = edges;
+
           return;
         }
         if (nodes[nodeIndex] && summary.statementType === 'Summary') {
@@ -375,11 +396,8 @@ const flowSlice = createSlice({
               currency: summary.currency,
             },
           };
-        } else if (
-          nodes[nodeIndex] &&
-          cashFlowSummary.statementType === 'Income'
-        ) {
-          const incomeSummary = cashFlowSummary as SerializableIncomeSummary;
+        } else if (nodes[nodeIndex] && summary.statementType === 'Income') {
+          const incomeSummary = summary as SerializableIncomeSummary;
           nodes[nodeIndex] = {
             ...nodes[nodeIndex],
             data: {
@@ -393,11 +411,8 @@ const flowSlice = createSlice({
               total: incomeSummary.total,
             },
           } as Node<IncomeNodeData>;
-        } else if (
-          nodes[nodeIndex] &&
-          cashFlowSummary.statementType === 'Expense'
-        ) {
-          const expenseSummary = cashFlowSummary as SerializableExpenseSummary;
+        } else if (nodes[nodeIndex] && summary.statementType === 'Expense') {
+          const expenseSummary = summary as SerializableExpenseSummary;
           nodes[nodeIndex] = {
             ...nodes[nodeIndex],
             data: {
@@ -413,117 +428,9 @@ const flowSlice = createSlice({
           } as Node<ExpenseNodeData>;
         }
       });
-    },
-    showCashFlows: (state, action: PayloadAction<AddCashFlowPayload>) => {
-      try {
-        console.log('Adding cashflow nodes');
-        const { targetNodeId, cashFlowSummaries, updateMode } = action.payload;
 
-        const nodes: Node<FlowNodeData>[] =
-          updateMode === 'Append' || updateMode === 'InPlace'
-            ? [...state.nodes]
-            : [state.nodes[0]];
-        const edges: Edge[] =
-          updateMode === 'Append' || updateMode === 'InPlace'
-            ? [...state.edges]
-            : [];
-
-        const targetNode = nodes.find((node) => node.id === targetNodeId);
-
-        const summaryStatementsOnly = cashFlowSummaries.every(
-          (summary) => summary.statementType === 'Summary'
-        );
-        const sortedCashFlowSummaries = summaryStatementsOnly
-          ? sortCashFlowSummaries(
-              cashFlowSummaries as SerializableCashFlowSummary[]
-            )
-          : cashFlowSummaries;
-
-        if (updateMode === 'Append' || updateMode === 'Reset') {
-          const generatedCashFlowNodes = generateCashFlowNodes(
-            state,
-            sortedCashFlowSummaries,
-            (targetNode?.position.x ?? 0) + 480,
-            (targetNode?.position.y ?? 0) + 10
-          );
-          const generatedEdges = generateNodeEdges(
-            targetNodeId,
-            generatedCashFlowNodes.map((node) => node.id)
-          );
-
-          nodes.push(...generatedCashFlowNodes);
-          edges.push(...generatedEdges);
-        } else {
-          cashFlowSummaries.forEach((cashFlowSummary) => {
-            const nodeIndex = nodes.findIndex(
-              (node) => node.data && node.data.id === cashFlowSummary.id
-            );
-
-            if (
-              nodes[nodeIndex] &&
-              cashFlowSummary.statementType === 'Summary'
-            ) {
-              nodes[nodeIndex] = {
-                ...nodes[nodeIndex],
-                data: {
-                  id: cashFlowSummary.id,
-                  parentRef: cashFlowSummary.parentRef,
-                  statementType: cashFlowSummary.statementType,
-                  startPeriod: cashFlowSummary.startPeriod,
-                  endPeriod: cashFlowSummary.endPeriod,
-                  inflow: cashFlowSummary.inflow,
-                  outflow: cashFlowSummary.outflow,
-                  difference: cashFlowSummary.difference,
-                  currency: cashFlowSummary.currency,
-                },
-              };
-            } else if (
-              nodes[nodeIndex] &&
-              cashFlowSummary.statementType === 'Income'
-            ) {
-              const incomeSummary =
-                cashFlowSummary as SerializableIncomeSummary;
-              nodes[nodeIndex] = {
-                ...nodes[nodeIndex],
-                data: {
-                  id: incomeSummary.id,
-                  parentRef: incomeSummary.parentRef,
-                  statementType: incomeSummary.statementType,
-                  accountingPeriod: {
-                    startPeriod: incomeSummary.accountingPeriod.startPeriod,
-                    endPeriod: incomeSummary.accountingPeriod.endPeriod,
-                  },
-                  total: incomeSummary.total,
-                },
-              } as Node<IncomeNodeData>;
-            } else if (
-              nodes[nodeIndex] &&
-              cashFlowSummary.statementType === 'Expense'
-            ) {
-              const expenseSummary =
-                cashFlowSummary as SerializableExpenseSummary;
-              nodes[nodeIndex] = {
-                ...nodes[nodeIndex],
-                data: {
-                  id: expenseSummary.id,
-                  parentRef: expenseSummary.parentRef,
-                  statementType: expenseSummary.statementType,
-                  accountingPeriod: {
-                    startPeriod: expenseSummary.accountingPeriod.startPeriod,
-                    endPeriod: expenseSummary.accountingPeriod.endPeriod,
-                  },
-                  total: expenseSummary.total,
-                },
-              } as Node<ExpenseNodeData>;
-            }
-          });
-        }
-
-        state.nodes = nodes;
-        state.edges = edges;
-      } catch (error) {
-        console.log(error);
-      }
+      state.nodes = nodes;
+      state.edges = edges;
     },
     setFlowViewToPostAdd: (state) => {
       state.flowViewStatus = 'post_add_transaction';
@@ -607,7 +514,7 @@ const flowSlice = createSlice({
 export const {
   setCurrentAccountingPeriod,
   setOverallCashFlowNode,
-  showCashFlows,
+  renderCashFlowNodes,
   handleNodeSelection,
   handleNodeMove,
   handleNodeMouseEnter,

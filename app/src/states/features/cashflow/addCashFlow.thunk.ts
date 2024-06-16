@@ -6,7 +6,7 @@ import {
 } from '@/types/Transaction';
 import {
   FlowViewState,
-  showCashFlows,
+  renderCashFlowNodes,
 } from '@/states/features/cashflow/flow.slice';
 import { addTransactions } from '@/states/features/cashflow/api/transactions.api';
 import { isTransactionDateWithin } from '@/utils/date.utils';
@@ -156,12 +156,12 @@ export const addTransaction = createAsyncThunk<
             (node) => node.data && node.data.id === cashFlowForPeriod.parentRef
           )?.id ?? '';
         dispatch(
-          showCashFlows({
-            targetNodeId: foundNode,
+          renderCashFlowNodes({
+            fromTargetNodeId: foundNode,
             cashFlowSummaries: [
               ...currentState.cashflow.cashFlowSummaries[foundNode],
             ],
-            updateMode: 'Append',
+            reset: false,
           })
         );
       }

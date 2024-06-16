@@ -57,7 +57,8 @@ const fetchRelevantCashFlowDetails = async (
     parentStatementSlotId: id,
   };
 
-  listenerApi.dispatch(getCashFlows(getCashFlowDetails));
+  await listenerApi.dispatch(getCashFlows(getCashFlowDetails));
+  console.log('Get relevant cashflow details completed');
 };
 
 export {

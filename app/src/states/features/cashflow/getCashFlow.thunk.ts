@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import CashFlow from '@/types/CashFlow';
 import {
   FlowViewState,
-  showCashFlows,
+  renderCashFlowNodes,
 } from '@/states/features/cashflow/flow.slice';
 import { StatementPeriodSlot } from '@/types/AccountingPeriod';
 import { toSerializableStatementPeriods } from '@/lib/mappers/accountingPeriod.mapper';
@@ -157,12 +157,12 @@ export const getCashFlows = createAsyncThunk<
 
     currentState = getState();
     dispatch(
-      showCashFlows({
-        targetNodeId: parentNodeId,
+      renderCashFlowNodes({
+        fromTargetNodeId: parentNodeId,
         cashFlowSummaries: [
           ...currentState.cashflow.cashFlowSummaries[parentStatementSlotId],
         ],
-        updateMode: 'Append',
+        reset: false,
       })
     );
   }

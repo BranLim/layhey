@@ -35,7 +35,7 @@ export const addAccountingPeriod = createAsyncThunk(
 export const getAccountingPeriods = createAsyncThunk(
   'accounting/getAccountingPeriods',
   async (args, { rejectWithValue }): Promise<any> => {
-    console.log('Get Accounting Periods called...');
+    console.log('Called getStatementPeriods');
     try {
       const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/accountingperiods`;
       const response = await fetch(apiPath, {
