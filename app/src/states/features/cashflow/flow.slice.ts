@@ -476,7 +476,10 @@ const flowSlice = createSlice({
         foundNode.positionAbsolute = changeEvent.positionAbsolute;
       }
     },
-    handleNodeMouseDoubleClick: (state, action: PayloadAction<Node>) => {
+    handleNodeMouseDoubleClick: (
+      state,
+      action: PayloadAction<Node<CashFlow.CashFlowNodeData>>
+    ) => {
       const nodeDoubleClicked = action.payload;
       const foundNode = state.nodes.find(
         (node) => node.id === nodeDoubleClicked.id

@@ -339,7 +339,7 @@ const getMatchingCashFlowStatementPeriodSlots = (
   return allMatchingSlots;
 };
 
-const getAccountingPeriodFromSlotKey = (
+const getStatementPeriodFromSlotKey = (
   slotKey: string
 ): AccountingPeriod | undefined => {
   const dates = slotKey.split('_');
@@ -370,13 +370,67 @@ const isExpenseStatement = (obj: any) =>
   'expense' in obj &&
   (obj as ExpenseStatement).statementType === 'Expense';
 
+const createCashFlowSummary = (
+  cashFlowForPeriod: CashFlowStatement | IncomeStatement | ExpenseStatement
+) => {
+  if (cashFlowForPeriod.statementType === 'Summary') {
+    return {
+      id: cashFlowForPeriod.id,
+      parentRef: cashFlowForPeriod.parentRef,
+      statementType: cashFlowForPeriod.statementType,
+      startPeriod: new Date(
+        cashFlowForPeriod.accountingPeriod.startPeriod
+      ).toISOString(),
+      endPeriod: new Date(
+        cashFlowForPeriod.accountingPeriod.endPeriod
+      ).toISOString(),
+      inflow: cashFlowForPeriod.income.total,
+      outflow: cashFlowForPeriod.expense.total,
+      difference:
+        cashFlowForPeriod.income.total - cashFlowForPeriod.expense.total,
+      currency: 'SGD',
+    } as CashFlow.SerializableCashFlowSummary;
+  } else if (cashFlowForPeriod.statementType === 'Income') {
+    return {
+      id: cashFlowForPeriod.id,
+      parentRef: cashFlowForPeriod.parentRef,
+      statementType: cashFlowForPeriod.statementType,
+      accountingPeriod: {
+        startPeriod: new Date(
+          cashFlowForPeriod.accountingPeriod.startPeriod
+        ).toISOString(),
+        endPeriod: new Date(
+          cashFlowForPeriod.accountingPeriod.endPeriod
+        ).toISOString(),
+      },
+      total: cashFlowForPeriod.income.total,
+    } as CashFlow.SerializableIncomeSummary;
+  } else {
+    return {
+      id: cashFlowForPeriod.id,
+      parentRef: cashFlowForPeriod.parentRef,
+      statementType: cashFlowForPeriod.statementType,
+      accountingPeriod: {
+        startPeriod: new Date(
+          cashFlowForPeriod.accountingPeriod.startPeriod
+        ).toISOString(),
+        endPeriod: new Date(
+          cashFlowForPeriod.accountingPeriod.endPeriod
+        ).toISOString(),
+      },
+      total: cashFlowForPeriod.expense.total,
+    } as CashFlow.SerializableExpenseSummary;
+  }
+};
+
 export {
   getCashFlowStatementPeriods,
   getAccountingPeriodSlot,
-  getAccountingPeriodFromSlotKey,
+  getStatementPeriodFromSlotKey,
   getMatchingCashFlowStatementPeriodSlots,
   getStatementPeriodKey,
   isCashFlowStatement,
   isIncomeStatement,
   isExpenseStatement,
+  createCashFlowSummary,
 };

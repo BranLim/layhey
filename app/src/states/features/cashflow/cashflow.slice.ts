@@ -2,7 +2,7 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TransactionMode } from '@/types/Transaction';
 import CashFlow from '@/types/CashFlow';
 import { StatementPeriodSlot } from '@/types/AccountingPeriod';
-import { getAccountingPeriodFromSlotKey } from '@/lib/helpers/cashflow.helper';
+import { getStatementPeriodFromSlotKey } from '@/lib/helpers/cashflow.helper';
 import { v4 as uuidv4 } from 'uuid';
 import { getErrorMessage } from '@/utils/error.utils';
 import { addTransaction } from '@/states/features/cashflow/addCashFlow.thunk';
@@ -222,7 +222,7 @@ const cashflowSlice = createSlice({
           ) {
             continue;
           }
-          const accountingPeriod = getAccountingPeriodFromSlotKey(cashFlowSlot);
+          const accountingPeriod = getStatementPeriodFromSlotKey(cashFlowSlot);
           if (!accountingPeriod) {
             continue;
           }
@@ -279,9 +279,9 @@ const cashflowSlice = createSlice({
         console.log(getErrorMessage(error));
       }
     },
-    updateCashFlowSummaryGraphNode: (
+    setCashFlowSummary: (
       state,
-      action: PayloadAction<CashFlow.UpdateCashFlowSummaryGraphNodeRequest>
+      action: PayloadAction<CashFlow.SetCashFlowSummaryRequest>
     ) => {
       const { parentStatementId, statementId, cashFlowStatementSlotKey } =
         action.payload;
@@ -300,6 +300,9 @@ const cashflowSlice = createSlice({
         const summaryIndex = summaryNodes.findIndex(
           (summary) => summary.id === statementId
         );
+        if (summaryIndex < 0) {
+          return;
+        }
         summaryNodes[summaryIndex] = {
           ...summaryNodes[summaryIndex],
           inflow: selectedCashFlow.income.total,
@@ -364,7 +367,7 @@ export const {
   setOverallCashFlow,
   setCashFlow,
   setCashFlowStatementPeriods,
-  updateCashFlowSummaryGraphNode,
+  setCashFlowSummary,
 } = cashflowSlice.actions;
 export const selectCashFlowStoreStatus = (state: any) => state.cashflow.status;
 export const selectAccountingPeriod = createSelector(

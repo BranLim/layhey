@@ -114,7 +114,7 @@ namespace CashFlow {
     parentStatementSlotId: string;
   };
 
-  export type UpdateCashFlowSummaryGraphNodeRequest = {
+  export type SetCashFlowSummaryRequest = {
     parentStatementId: string;
     statementId: string;
     cashFlowStatementSlotKey: string;

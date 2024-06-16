@@ -14,7 +14,7 @@ import {
   CashFlowState,
   setCashFlow,
   setOverallCashFlow,
-  updateCashFlowSummaryGraphNode,
+  setCashFlowSummary,
 } from '@/states/features/cashflow/cashflow.slice';
 import CashFlow from '@/types/CashFlow';
 import IncomeStatement = CashFlow.IncomeStatement;
@@ -142,7 +142,7 @@ export const addTransaction = createAsyncThunk<
 
         currentState = getState();
         dispatch(
-          updateCashFlowSummaryGraphNode({
+          setCashFlowSummary({
             parentStatementId: cashFlowForPeriod.parentRef ?? '',
             statementId: cashFlowForPeriod.id,
             cashFlowStatementSlotKey: period,
