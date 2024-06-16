@@ -1,4 +1,7 @@
-import { setInitialLoadCompleted } from '@/states/features/cashflow/cashflow.slice';
+import {
+  setCashFlowSummary,
+  setInitialLoadCompleted,
+} from '@/states/features/cashflow/cashflow.slice';
 import {
   Action,
   current,
@@ -9,11 +12,16 @@ import { AppDispatch, RootState } from '@/states/store';
 import { Node } from 'reactflow';
 import CashFlow from '@/types/CashFlow';
 import { getCashFlows } from '@/states/features/cashflow/getCashFlow.thunk';
-import { setOverallCashFlowNode } from '@/states/features/cashflow/flow.slice';
+import {
+  renderCashFlowNodes,
+  setOverallCashFlowNode,
+} from '@/states/features/cashflow/flow.slice';
 import {
   createCashFlowSummary,
   getStatementPeriodFromSlotKey,
 } from '@/lib/helpers/cashflow.helper';
+import { state } from 'sucrase/dist/types/parser/traverser/base';
+import { getErrorMessage } from '@/utils/error.utils';
 
 const handleInitialCashFlowLoad = (
   action: Action,
@@ -52,11 +60,10 @@ const handleCashFlowUpdate = (
   action: PayloadAction<CashFlow.SetCashFlowRequest>,
   listenerApi: ListenerEffectAPI<RootState, AppDispatch>
 ): void => {
+  console.log('CashFlowListener: Handling CashFlow Update');
   const { key, total, transactionMode, statementType } = action.payload;
-  const currentState = listenerApi.getState();
+  let currentState = listenerApi.getState();
 
-  //TODO: This does not handle keys with _expense or _income
-  const statementPeriod = getStatementPeriodFromSlotKey(key);
   const cashFlowForPeriodKey = currentState.cashflow.cashFlows[key];
   if (!cashFlowForPeriodKey) {
     console.error(
@@ -68,31 +75,77 @@ const handleCashFlowUpdate = (
   if (!cashFlowSummaryParentRef) {
     return;
   }
-  const cashFlowSummaries =
+  let cashFlowSummaries =
     currentState.cashflow.cashFlowSummaries[cashFlowSummaryParentRef];
-  const cashFlowSummariesToUpdate: (
-    | CashFlow.SerializableCashFlowSummary
-    | CashFlow.SerializableIncomeSummary
-    | CashFlow.SerializableExpenseSummary
-  )[] = cashFlowSummaries ? [...cashFlowSummaries] : [];
 
-  if (cashFlowSummariesToUpdate.length > 0) {
-    //If the CashFlowSummary entries exist for a given parent node
-    const summaryIndex = cashFlowSummariesToUpdate.findIndex(
+  const summaryIndex =
+    cashFlowSummaries?.findIndex(
       (summary) => summary.id === cashFlowForPeriodKey.id
-    );
-    if (summaryIndex < 0) {
-      //Add summary if it doesn't exists.
-      cashFlowSummariesToUpdate[summaryIndex] =
-        createCashFlowSummary(cashFlowForPeriodKey);
-    } else {
-      //Update existing summary if it exists.
-      cashFlowSummariesToUpdate[summaryIndex] = {
-        ...cashFlowSummariesToUpdate[summaryIndex],
-      };
+    ) ?? -1;
+
+  if (cashFlowSummaries && cashFlowSummaries.length > 0 && summaryIndex > -1) {
+    //Update existing summary if it exists.
+    const updatedCashFlowSummary = {
+      ...cashFlowSummaries[summaryIndex],
+    };
+    if (statementType === 'Summary') {
+      const cashFlowSummary =
+        updatedCashFlowSummary as CashFlow.SerializableCashFlowSummary;
+      switch (transactionMode) {
+        case 'Income':
+          cashFlowSummary.inflow = total;
+          break;
+        case 'Expense':
+          cashFlowSummary.outflow = total;
+          break;
+      }
+    } else if (statementType === 'Income') {
+      const cashFlowIncomeSummary =
+        updatedCashFlowSummary as CashFlow.SerializableIncomeSummary;
+      cashFlowIncomeSummary.total = total;
+    } else if (statementType === 'Expense') {
+      const cashFlowExpenseSummary =
+        updatedCashFlowSummary as CashFlow.SerializableExpenseSummary;
+      cashFlowExpenseSummary.total = total;
     }
+
+    listenerApi.dispatch(
+      setCashFlowSummary({
+        parentStatementId: cashFlowSummaryParentRef,
+        statementId: cashFlowForPeriodKey.id,
+        summaryIndex: summaryIndex,
+        updatedCashFlowSummary: updatedCashFlowSummary,
+      })
+    );
   } else {
-    //If the CashFlowSummary entries not exist for a given parent node, insert a new array of CashFlowSummaries
+    // Create a new summary
+    listenerApi.dispatch(
+      setCashFlowSummary({
+        parentStatementId: cashFlowSummaryParentRef,
+        statementId: cashFlowForPeriodKey.id,
+        summaryIndex: -1,
+        updatedCashFlowSummary: createCashFlowSummary(cashFlowForPeriodKey),
+      })
+    );
+  }
+  try {
+    console.log('CashFlowListener: Rendering/Updating CashFlow Nodes');
+    currentState = listenerApi.getState();
+    cashFlowSummaries =
+      currentState.cashflow.cashFlowSummaries[cashFlowSummaryParentRef];
+    listenerApi.dispatch(
+      renderCashFlowNodes({
+        cashFlowSummaries: [...cashFlowSummaries],
+        fromTargetNodeId:
+          currentState.flow.nodes.find(
+            (node) => node.data?.id == cashFlowSummaryParentRef
+          )?.id ?? '',
+        reset: false,
+      })
+    );
+  } catch (error) {
+    console.log(`CashFlowListener: Error rendering/updating CashFlow nodes. `);
+    console.log(`CashFlowListener: ${getErrorMessage(error)}`);
   }
 };
 
@@ -122,4 +175,5 @@ export {
   handleInitialCashFlowLoad,
   handleOverallCashFlowUpdate,
   fetchRelevantCashFlowDetails,
+  handleCashFlowUpdate,
 };

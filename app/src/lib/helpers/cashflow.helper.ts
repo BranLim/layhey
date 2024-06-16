@@ -372,24 +372,25 @@ const isExpenseStatement = (obj: any) =>
 
 const createCashFlowSummary = (
   cashFlowForPeriod: CashFlowStatement | IncomeStatement | ExpenseStatement
-) => {
-  if (cashFlowForPeriod.statementType === 'Summary') {
+):
+  | CashFlow.SerializableCashFlowSummary
+  | CashFlow.SerializableIncomeSummary
+  | CashFlow.SerializableExpenseSummary => {
+  if (cashFlowForPeriod.statementType === 'Expense') {
     return {
       id: cashFlowForPeriod.id,
       parentRef: cashFlowForPeriod.parentRef,
       statementType: cashFlowForPeriod.statementType,
-      startPeriod: new Date(
-        cashFlowForPeriod.accountingPeriod.startPeriod
-      ).toISOString(),
-      endPeriod: new Date(
-        cashFlowForPeriod.accountingPeriod.endPeriod
-      ).toISOString(),
-      inflow: cashFlowForPeriod.income.total,
-      outflow: cashFlowForPeriod.expense.total,
-      difference:
-        cashFlowForPeriod.income.total - cashFlowForPeriod.expense.total,
-      currency: 'SGD',
-    } as CashFlow.SerializableCashFlowSummary;
+      accountingPeriod: {
+        startPeriod: new Date(
+          cashFlowForPeriod.accountingPeriod.startPeriod
+        ).toISOString(),
+        endPeriod: new Date(
+          cashFlowForPeriod.accountingPeriod.endPeriod
+        ).toISOString(),
+      },
+      total: cashFlowForPeriod.expense.total,
+    } as CashFlow.SerializableExpenseSummary;
   } else if (cashFlowForPeriod.statementType === 'Income') {
     return {
       id: cashFlowForPeriod.id,
@@ -410,16 +411,18 @@ const createCashFlowSummary = (
       id: cashFlowForPeriod.id,
       parentRef: cashFlowForPeriod.parentRef,
       statementType: cashFlowForPeriod.statementType,
-      accountingPeriod: {
-        startPeriod: new Date(
-          cashFlowForPeriod.accountingPeriod.startPeriod
-        ).toISOString(),
-        endPeriod: new Date(
-          cashFlowForPeriod.accountingPeriod.endPeriod
-        ).toISOString(),
-      },
-      total: cashFlowForPeriod.expense.total,
-    } as CashFlow.SerializableExpenseSummary;
+      startPeriod: new Date(
+        cashFlowForPeriod.accountingPeriod.startPeriod
+      ).toISOString(),
+      endPeriod: new Date(
+        cashFlowForPeriod.accountingPeriod.endPeriod
+      ).toISOString(),
+      inflow: cashFlowForPeriod.income.total,
+      outflow: cashFlowForPeriod.expense.total,
+      difference:
+        cashFlowForPeriod.income.total - cashFlowForPeriod.expense.total,
+      currency: 'SGD',
+    } as CashFlow.SerializableCashFlowSummary;
   }
 };
 

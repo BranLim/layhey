@@ -141,15 +141,6 @@ export const addTransaction = createAsyncThunk<
         }
 
         currentState = getState();
-        dispatch(
-          setCashFlowSummary({
-            parentStatementId: cashFlowForPeriod.parentRef ?? '',
-            statementId: cashFlowForPeriod.id,
-            cashFlowStatementSlotKey: period,
-          })
-        );
-
-        currentState = getState();
         const nodes = [...currentState.flow.nodes];
         const foundNode =
           nodes.find(

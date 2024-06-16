@@ -117,7 +117,11 @@ namespace CashFlow {
   export type SetCashFlowSummaryRequest = {
     parentStatementId: string;
     statementId: string;
-    cashFlowStatementSlotKey: string;
+    summaryIndex: number;
+    updatedCashFlowSummary:
+      | SerializableCashFlowSummary
+      | SerializableIncomeSummary
+      | SerializableExpenseSummary;
   };
 }
 

@@ -283,36 +283,24 @@ const cashflowSlice = createSlice({
       state,
       action: PayloadAction<CashFlow.SetCashFlowSummaryRequest>
     ) => {
-      const { parentStatementId, statementId, cashFlowStatementSlotKey } =
-        action.payload;
+      const {
+        parentStatementId,
+        statementId,
+        summaryIndex,
+        updatedCashFlowSummary,
+      } = action.payload;
 
-      if (!state.cashFlowSummaries[parentStatementId]) {
-        return;
-      }
-      const selectedCashFlow = state.cashFlows[cashFlowStatementSlotKey];
-      if (selectedCashFlow.statementType === 'Summary') {
-        const summaryNodes: (
+      const cashFlowSummaries = state.cashFlowSummaries[parentStatementId];
+      if (cashFlowSummaries) {
+        const cashFlowSummariesToUpdate: (
           | CashFlow.SerializableCashFlowSummary
           | CashFlow.SerializableIncomeSummary
           | CashFlow.SerializableExpenseSummary
-        )[] = [...state.cashFlowSummaries[parentStatementId]];
-
-        const summaryIndex = summaryNodes.findIndex(
-          (summary) => summary.id === statementId
-        );
-        if (summaryIndex < 0) {
-          return;
-        }
-        summaryNodes[summaryIndex] = {
-          ...summaryNodes[summaryIndex],
-          inflow: selectedCashFlow.income.total,
-          outflow: selectedCashFlow.expense.total,
-          difference:
-            selectedCashFlow.income.total - selectedCashFlow.expense.total,
-        };
-
-        state.cashFlowSummaries[parentStatementId] = summaryNodes;
+        )[] = [...cashFlowSummaries];
+        cashFlowSummariesToUpdate[summaryIndex] = updatedCashFlowSummary;
+        state.cashFlowSummaries[parentStatementId] = cashFlowSummariesToUpdate;
       } else {
+        state.cashFlowSummaries[parentStatementId] = [updatedCashFlowSummary];
       }
     },
   },
