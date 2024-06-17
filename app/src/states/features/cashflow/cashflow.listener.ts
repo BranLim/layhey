@@ -99,6 +99,8 @@ const handleCashFlowUpdate = (
           cashFlowSummary.outflow = total;
           break;
       }
+      cashFlowSummary.difference =
+        cashFlowSummary.inflow - cashFlowSummary.outflow;
     } else if (statementType === 'Income') {
       const cashFlowIncomeSummary =
         updatedCashFlowSummary as CashFlow.SerializableIncomeSummary;

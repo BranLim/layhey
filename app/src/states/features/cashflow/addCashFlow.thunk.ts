@@ -94,7 +94,7 @@ export const addTransaction = createAsyncThunk<
             cashFlowEndDate
           )
         ) {
-          return;
+          continue;
         }
 
         switch (transaction.mode) {
@@ -114,6 +114,7 @@ export const addTransaction = createAsyncThunk<
                   key: period,
                   transactionMode: TransactionMode.Income,
                   total: totalIncome,
+                  statementType: 'Summary',
                 } as CashFlow.SetCashFlowRequest)
               );
             }
@@ -134,6 +135,7 @@ export const addTransaction = createAsyncThunk<
                   key: period,
                   transactionMode: TransactionMode.Expense,
                   total: totalExpense,
+                  statementType: 'Summary',
                 } as CashFlow.SetCashFlowRequest)
               );
             }
