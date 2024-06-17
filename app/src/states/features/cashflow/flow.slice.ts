@@ -358,6 +358,7 @@ const flowSlice = createSlice({
       }
 
       cashFlowSummaries.forEach((summary) => {
+        console.log(`Rendering CashFlow Node for ${JSON.stringify(summary)}`);
         const nodeIndex = nodes.findIndex(
           (node) => node.data && node.data.id === summary.id
         );

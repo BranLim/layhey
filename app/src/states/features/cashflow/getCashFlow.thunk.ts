@@ -81,8 +81,6 @@ export const getCashFlows = createAsyncThunk<
       });
     }
 
-    currentState = getState();
-
     const transactions: TransactionResponse[] = await getTransactions(
       startPeriod,
       endPeriod
@@ -153,17 +151,6 @@ export const getCashFlows = createAsyncThunk<
       } catch (error) {}
     });
 
-    dispatch(buildCashFlowGraph(parentRef));
-
-    currentState = getState();
-    dispatch(
-      renderCashFlowNodes({
-        fromTargetNodeId: parentNodeId,
-        cashFlowSummaries: [
-          ...currentState.cashflow.cashFlowSummaries[parentStatementSlotId],
-        ],
-        reset: false,
-      })
-    );
+    dispatch(buildCashFlowGraph({}));
   }
 );

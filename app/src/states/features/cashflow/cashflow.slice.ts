@@ -2,9 +2,7 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TransactionMode } from '@/types/Transaction';
 import CashFlow from '@/types/CashFlow';
 import { StatementPeriodSlot } from '@/types/AccountingPeriod';
-import { getStatementPeriodFromSlotKey } from '@/lib/helpers/cashflow.helper';
 import { v4 as uuidv4 } from 'uuid';
-import { getErrorMessage } from '@/utils/error.utils';
 import { addTransaction } from '@/states/features/cashflow/addCashFlow.thunk';
 import { getCashFlows } from '@/states/features/cashflow/getCashFlow.thunk';
 import { getOverallCashFlowSummary } from '@/states/features/cashflow/getOverallCashFlowSummary.thunk';
@@ -179,9 +177,6 @@ const cashflowSlice = createSlice({
             total;
           break;
       }
-
-      state.previousStatus = state.status;
-      state.status = 'updated_cashflows';
     },
     setCashFlowStatementPeriods: (
       state,
@@ -205,84 +200,11 @@ const cashflowSlice = createSlice({
         parentSlotRef
       );
     },
-    buildCashFlowGraph: (state, action: PayloadAction<string>) => {
-      const parentStatementId = action.payload;
-      const cashFlows = state.cashFlows;
-      try {
-        const summaryNodes: (
-          | CashFlow.SerializableCashFlowSummary
-          | CashFlow.SerializableIncomeSummary
-          | CashFlow.SerializableExpenseSummary
-        )[] = [];
-        for (const cashFlowSlot in cashFlows) {
-          const cashFlowBySlot = cashFlows[cashFlowSlot];
-          if (
-            cashFlowBySlot.parentRef &&
-            cashFlowBySlot.parentRef != parentStatementId
-          ) {
-            continue;
-          }
-          const accountingPeriod = getStatementPeriodFromSlotKey(cashFlowSlot);
-          if (!accountingPeriod) {
-            continue;
-          }
-
-          switch (cashFlowBySlot.statementType) {
-            case 'Summary':
-              const cashFlow: CashFlow.SerializableCashFlowSummary = {
-                id: cashFlowBySlot.id,
-                parentRef: cashFlowBySlot.parentRef,
-                statementType: cashFlowBySlot.statementType,
-                startPeriod: accountingPeriod.startPeriod.toISOString(),
-                endPeriod: accountingPeriod.endPeriod.toISOString(),
-                inflow: cashFlowBySlot.income.total,
-                outflow: cashFlowBySlot.expense.total,
-                difference:
-                  cashFlowBySlot.income.total - cashFlowBySlot.expense.total,
-                currency: 'SGD',
-              };
-
-              summaryNodes.push(cashFlow);
-              break;
-            case 'Income':
-              const incomeStatement: CashFlow.SerializableIncomeSummary = {
-                id: cashFlowBySlot.id,
-                parentRef: cashFlowBySlot.parentRef,
-                statementType: cashFlowBySlot.statementType,
-                accountingPeriod: {
-                  startPeriod: accountingPeriod.startPeriod.toISOString(),
-                  endPeriod: accountingPeriod.endPeriod.toISOString(),
-                },
-                total: cashFlowBySlot.income.total,
-              };
-
-              summaryNodes.push(incomeStatement);
-              break;
-            case 'Expense':
-              const expenseStatement: CashFlow.SerializableExpenseSummary = {
-                id: cashFlowBySlot.id,
-                parentRef: cashFlowBySlot.parentRef,
-                statementType: cashFlowBySlot.statementType,
-                accountingPeriod: {
-                  startPeriod: accountingPeriod.startPeriod.toISOString(),
-                  endPeriod: accountingPeriod.endPeriod.toISOString(),
-                },
-                total: cashFlowBySlot.expense.total,
-              };
-
-              summaryNodes.push(expenseStatement);
-              break;
-          }
-        }
-        state.cashFlowSummaries[parentStatementId] = summaryNodes;
-      } catch (error) {
-        console.log(getErrorMessage(error));
-      }
-    },
     setCashFlowSummary: (
       state,
       action: PayloadAction<CashFlow.SetCashFlowSummaryRequest>
     ) => {
+      console.log('Setting CashFlow Summary...');
       const {
         parentStatementId,
         statementId,
@@ -292,12 +214,24 @@ const cashflowSlice = createSlice({
 
       const cashFlowSummaries = state.cashFlowSummaries[parentStatementId];
       if (cashFlowSummaries) {
+        console.log(
+          `SetCashFlowSummary: Found existing cashflow summaries for parentStatementId: ${parentStatementId}`
+        );
         const cashFlowSummariesToUpdate: (
           | CashFlow.SerializableCashFlowSummary
           | CashFlow.SerializableIncomeSummary
           | CashFlow.SerializableExpenseSummary
         )[] = [...cashFlowSummaries];
-        cashFlowSummariesToUpdate[summaryIndex] = updatedCashFlowSummary;
+        console.log(`SetCashFlowSummary: Summary Index is: ${summaryIndex}`);
+        if (summaryIndex > -1) {
+          console.log('SetCashFlowSummary: Updating existing summaries');
+          cashFlowSummariesToUpdate[summaryIndex] = updatedCashFlowSummary;
+        } else {
+          console.log(
+            `SetCashFlowSummary: Inserting new Summary \n ${JSON.stringify(updatedCashFlowSummary)}`
+          );
+          cashFlowSummariesToUpdate.push(updatedCashFlowSummary);
+        }
         state.cashFlowSummaries[parentStatementId] = cashFlowSummariesToUpdate;
       } else {
         state.cashFlowSummaries[parentStatementId] = [updatedCashFlowSummary];
@@ -351,7 +285,6 @@ const cashflowSlice = createSlice({
 export const {
   setInitialLoadCompleted,
   setOverallCashFlowStatementPeriod,
-  buildCashFlowGraph,
   setOverallCashFlow,
   setCashFlow,
   setCashFlowStatementPeriods,

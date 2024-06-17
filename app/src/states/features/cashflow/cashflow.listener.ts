@@ -2,12 +2,7 @@ import {
   setCashFlowSummary,
   setInitialLoadCompleted,
 } from '@/states/features/cashflow/cashflow.slice';
-import {
-  Action,
-  current,
-  ListenerEffectAPI,
-  PayloadAction,
-} from '@reduxjs/toolkit';
+import { Action, ListenerEffectAPI, PayloadAction } from '@reduxjs/toolkit';
 import { AppDispatch, RootState } from '@/states/store';
 import { Node } from 'reactflow';
 import CashFlow from '@/types/CashFlow';
@@ -16,11 +11,7 @@ import {
   renderCashFlowNodes,
   setOverallCashFlowNode,
 } from '@/states/features/cashflow/flow.slice';
-import {
-  createCashFlowSummary,
-  getStatementPeriodFromSlotKey,
-} from '@/lib/helpers/cashflow.helper';
-import { state } from 'sucrase/dist/types/parser/traverser/base';
+import { createCashFlowSummary } from '@/lib/helpers/cashflow.helper';
 import { getErrorMessage } from '@/utils/error.utils';
 
 const handleInitialCashFlowLoad = (
@@ -121,6 +112,7 @@ const handleCashFlowUpdate = (
     );
   } else {
     // Create a new summary
+    console.log('CashFlowListener: Create new summary');
     listenerApi.dispatch(
       setCashFlowSummary({
         parentStatementId: cashFlowSummaryParentRef,
@@ -131,20 +123,22 @@ const handleCashFlowUpdate = (
     );
   }
   try {
-    console.log('CashFlowListener: Rendering/Updating CashFlow Nodes');
+    console.log('CashFlowListener: Rendering/Updating 1 CashFlow Node');
     currentState = listenerApi.getState();
     cashFlowSummaries =
       currentState.cashflow.cashFlowSummaries[cashFlowSummaryParentRef];
-    listenerApi.dispatch(
-      renderCashFlowNodes({
-        cashFlowSummaries: [...cashFlowSummaries],
-        fromTargetNodeId:
-          currentState.flow.nodes.find(
-            (node) => node.data?.id == cashFlowSummaryParentRef
-          )?.id ?? '',
-        reset: false,
-      })
+    const node = currentState.flow.nodes.find(
+      (node) => node.data?.id == cashFlowSummaryParentRef
     );
+    if (cashFlowSummaries && node) {
+      listenerApi.dispatch(
+        renderCashFlowNodes({
+          cashFlowSummaries: [...cashFlowSummaries],
+          fromTargetNodeId: node.id,
+          reset: false,
+        })
+      );
+    }
   } catch (error) {
     console.log(`CashFlowListener: Error rendering/updating CashFlow nodes. `);
     console.log(`CashFlowListener: ${getErrorMessage(error)}`);
