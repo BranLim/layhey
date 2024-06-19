@@ -15,6 +15,7 @@ import SerializableIncomeSummary = CashFlow.SerializableIncomeSummary;
 import SerializableExpenseSummary = CashFlow.SerializableExpenseSummary;
 import IncomeNodeData = CashFlow.IncomeNodeData;
 import ExpenseNodeData = CashFlow.ExpenseNodeData;
+import { detectAndResolveCollisions } from '@/lib/helpers/flow.helper';
 
 const edgeColor = 'lightgray';
 
@@ -39,12 +40,6 @@ export type RenderCashFlowPayload = {
   fromTargetNodeId: string;
 };
 
-type FlowNodeData =
-  | CashFlow.CashFlowNodeData
-  | CashFlow.IncomeNodeData
-  | CashFlow.ExpenseNodeData
-  | undefined;
-
 export type FlowViewStatus =
   | 'initial_node_load'
   | 'initial_node_load_complete'
@@ -56,9 +51,9 @@ export type FlowViewStatus =
 export type FlowViewState = {
   currentChosenAccountingPeriod: SerializableAccountingPeriod;
   expandedNodes: Array<string>;
-  nodes: Node<FlowNodeData>[];
+  nodes: Node<CashFlow.FlowNodeData>[];
   edges: Edge[];
-  selectedNode?: Node<FlowNodeData>;
+  selectedNode?: Node<CashFlow.FlowNodeData>;
   nodeStyles: Record<string, any>;
   flowViewStatus: FlowViewStatus;
 };
@@ -124,8 +119,8 @@ const generateCashFlowNodes = (
   yInitialPos: number,
   height: number,
   width: number
-): Node<FlowNodeData>[] => {
-  const cashFlowNodes: Node<FlowNodeData>[] = [];
+): Node<CashFlow.FlowNodeData>[] => {
+  const cashFlowNodes: Node<CashFlow.FlowNodeData>[] = [];
   let y = yInitialPos;
   if (cashFlowSummaries && cashFlowSummaries.length === 0) {
     const node: Node = {
@@ -246,12 +241,12 @@ const generateNodeEdges = (
 };
 
 const getNodePosition = (
-  nodes: Node<FlowNodeData>[],
+  nodes: Node<CashFlow.FlowNodeData>[],
   summary:
     | CashFlow.SerializableCashFlowSummary
     | CashFlow.SerializableIncomeSummary
     | CashFlow.SerializableExpenseSummary,
-  targetNode: Node<FlowNodeData>
+  targetNode: Node<CashFlow.FlowNodeData>
 ): NodePosition => {
   const childNodes = nodes.filter(
     (node) => node.data && node.data.parentRef === summary.parentRef
@@ -288,9 +283,9 @@ const flowSlice = createSlice({
       const overallCashFlowSummary: CashFlow.SerializableCashFlowSummary =
         action.payload;
 
-      const cashFlowNodes: Node<FlowNodeData>[] = [...state.nodes];
+      const cashFlowNodes: Node<CashFlow.FlowNodeData>[] = [...state.nodes];
 
-      let rootNode: Node<FlowNodeData> = cashFlowNodes[0];
+      let rootNode: Node<CashFlow.FlowNodeData> = cashFlowNodes[0];
       if (rootNode) {
         cashFlowNodes[0] = {
           ...rootNode,
@@ -343,7 +338,7 @@ const flowSlice = createSlice({
       console.log('RenderCashFlowNodes');
       const { cashFlowSummaries, fromTargetNodeId } = action.payload;
 
-      let nodes: Node<FlowNodeData>[] = [...state.nodes];
+      let nodes: Node<CashFlow.FlowNodeData>[] = [...state.nodes];
       let edges: Edge[] = [...state.edges];
 
       const targetNode = nodes.find((node) => node.id === fromTargetNodeId);
@@ -504,7 +499,9 @@ const flowSlice = createSlice({
       const foundNode = state.nodes.find((node) => node.id === changeEvent.id);
       if (foundNode && changeEvent.position) {
         foundNode.position = changeEvent.position;
-        foundNode.positionAbsolute = changeEvent.positionAbsolute;
+
+        const resolved = detectAndResolveCollisions(foundNode, state.nodes);
+        foundNode.position = resolved.position;
       }
     },
     handleNodeMouseDoubleClick: (

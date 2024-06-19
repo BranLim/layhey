@@ -123,6 +123,12 @@ namespace CashFlow {
       | SerializableIncomeSummary
       | SerializableExpenseSummary;
   };
+
+  export type FlowNodeData =
+    | CashFlow.CashFlowNodeData
+    | CashFlow.IncomeNodeData
+    | CashFlow.ExpenseNodeData
+    | undefined;
 }
 
 export default CashFlow;
