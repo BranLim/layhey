@@ -11,6 +11,7 @@ import {
   setCashFlowStatementPeriods,
 } from '@/states/features/cashflow/cashflow.slice';
 import { getCashFlowStatementPeriods } from '@/lib/helpers/cashflow.helper';
+import { getErrorMessage } from '@/utils/error.utils';
 
 export const getCashFlows = createAsyncThunk<
   void,
@@ -145,7 +146,10 @@ export const getCashFlows = createAsyncThunk<
         ) {
           dispatch(setCashFlow(expenseCashFlowRequest));
         }
-      } catch (error) {}
+      } catch (error) {
+        console.log('GetCashFlow: Error setting cash flows.');
+        console.log(`GetCashFlow: ${getErrorMessage(error)}`);
+      }
     });
   }
 );

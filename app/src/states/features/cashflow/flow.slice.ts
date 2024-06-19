@@ -30,11 +30,6 @@ const edgeMarkerEnd = {
   color: edgeColor,
 };
 
-export type FlowPayload = {
-  rootCashFlowSummary: CashFlow.SerializableCashFlowSummary;
-  cashFlowSummaries: CashFlow.SerializableCashFlowSummary[];
-};
-
 export type RenderCashFlowPayload = {
   cashFlowSummaries: (
     | CashFlow.SerializableCashFlowSummary
@@ -43,16 +38,6 @@ export type RenderCashFlowPayload = {
   )[];
   fromTargetNodeId: string;
   reset: boolean;
-};
-
-export type AddCashFlowPayload = {
-  cashFlowSummaries: (
-    | CashFlow.SerializableCashFlowSummary
-    | CashFlow.SerializableIncomeSummary
-    | CashFlow.SerializableExpenseSummary
-  )[];
-  targetNodeId: string;
-  updateMode: CashFlow.GraphUpdateMode;
 };
 
 type FlowNodeData =
@@ -77,6 +62,11 @@ export type FlowViewState = {
   selectedNode?: Node<FlowNodeData>;
   nodeStyles: Record<string, any>;
   flowViewStatus: FlowViewStatus;
+};
+
+export type NodePosition = {
+  x: number;
+  y: number;
 };
 
 const initialState: FlowViewState = {
@@ -256,6 +246,28 @@ const generateNodeEdges = (
   return cashFlowEdges;
 };
 
+const getNodePosition = (
+  nodes: Node<FlowNodeData>[],
+  summary:
+    | CashFlow.SerializableCashFlowSummary
+    | CashFlow.SerializableIncomeSummary
+    | CashFlow.SerializableExpenseSummary,
+  targetNode: Node<FlowNodeData>
+): NodePosition => {
+  const childNodes = nodes.filter(
+    (node) => node.data && node.data.parentRef === summary.parentRef
+  );
+  const lastChild = childNodes[childNodes.length - 1];
+
+  const nodeXPosition = (targetNode?.position.x ?? 0) + 480;
+  const nodeYPosition =
+    (childNodes.length === 0 ? targetNode?.position?.y ?? 0 : 0) +
+    (lastChild ? lastChild.position.y + (lastChild.height ?? 0) : 0) +
+    10;
+
+  return { x: nodeXPosition, y: nodeYPosition };
+};
+
 const flowSlice = createSlice({
   name: 'flow',
   initialState: initialState,
@@ -336,6 +348,9 @@ const flowSlice = createSlice({
       let edges: Edge[] = reset ? [] : [...state.edges];
 
       const targetNode = nodes.find((node) => node.id === fromTargetNodeId);
+      if (!targetNode) {
+        return;
+      }
       const hasSummaryStatementsOnly =
         cashFlowSummaries.length > 1 &&
         cashFlowSummaries.every(
@@ -381,18 +396,13 @@ const flowSlice = createSlice({
           (node) => node.data && node.data.id === summary.id
         );
         if (nodeIndex === -1) {
-          const childNodes = nodes.filter(
-            (node) => node.data && node.data.parentRef === summary.parentRef
-          );
-          const lastChild = childNodes[childNodes.length - 1];
+          const nodePosition = getNodePosition(nodes, summary, targetNode);
 
           const generatedCashFlowNodes = generateCashFlowNodes(
             state,
             [summary],
-            (targetNode?.position.x ?? 0) + 480,
-            (targetNode?.position.y ?? 0) +
-              (lastChild ? lastChild.position.y + (lastChild.height ?? 0) : 0) +
-              10,
+            nodePosition.x,
+            nodePosition.y,
             180,
             390
           );
