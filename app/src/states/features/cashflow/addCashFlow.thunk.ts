@@ -4,10 +4,7 @@ import {
   TransactionMode,
   TransactionResponse,
 } from '@/types/Transaction';
-import {
-  FlowViewState,
-  renderCashFlowNodes,
-} from '@/states/features/cashflow/flow.slice';
+import { FlowViewState } from '@/states/features/cashflow/flow.slice';
 import { addTransactions } from '@/states/features/cashflow/api/transactions.api';
 import { isTransactionDateWithin } from '@/utils/date.utils';
 import {

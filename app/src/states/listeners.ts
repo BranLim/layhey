@@ -22,7 +22,7 @@ export const startAppListening = listenerMiddleware.startListening.withTypes<
 export const addAppListener = addListener.withTypes<RootState, AppDispatch>();
 
 startAppListening({
-  predicate: (action, currentState, previousState) => {
+  predicate: (action, currentState) => {
     return (
       !currentState.cashflow.initialLoad &&
       currentState.cashflow.status === 'completed_get_overall_cashflow'

@@ -10,12 +10,11 @@ import {
 } from 'reactflow';
 import { v4 as uuidv4 } from 'uuid';
 import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
-import SerializableCashFlowSummary = CashFlow.SerializableCashFlowSummary;
+import { Draft } from 'immer';
 import SerializableIncomeSummary = CashFlow.SerializableIncomeSummary;
 import SerializableExpenseSummary = CashFlow.SerializableExpenseSummary;
 import IncomeNodeData = CashFlow.IncomeNodeData;
 import ExpenseNodeData = CashFlow.ExpenseNodeData;
-import { Draft } from 'immer';
 
 const edgeColor = 'lightgray';
 

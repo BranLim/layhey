@@ -26,7 +26,7 @@ export const getCashFlows = createAsyncThunk<
     let currentState = getState();
 
     let parentRef = currentState.cashflow.overallCashFlowForPeriod.id;
-    let statementPeriods: StatementPeriodSlot[] = [];
+    let statementPeriods: StatementPeriodSlot[];
     if (reset) {
       statementPeriods = getCashFlowStatementPeriods(
         currentState.cashflow.overallCashFlowForPeriod.startPeriod,
