@@ -12,10 +12,7 @@ import {
   setCashFlow,
   setOverallCashFlow,
 } from '@/states/features/cashflow/cashflow.slice';
-import {
-  handleNodeMouseDoubleClick,
-  resetNodes,
-} from '@/states/features/cashflow/flow.slice';
+import { handleNodeMouseDoubleClick } from '@/states/features/cashflow/flow.slice';
 
 export const listenerMiddleware = createListenerMiddleware();
 export const startAppListening = listenerMiddleware.startListening.withTypes<
