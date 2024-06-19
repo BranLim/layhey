@@ -125,15 +125,16 @@ const handleCashFlowUpdate = (
   try {
     console.log('CashFlowListener: Rendering/Updating 1 CashFlow Node');
     currentState = listenerApi.getState();
-    const cashFlowSummariesToUpdate =
-      currentState.cashflow.cashFlowSummaries[cashFlowSummaryParentRef];
+    const cashFlowSummaryToUpdate = currentState.cashflow.cashFlowSummaries[
+      cashFlowSummaryParentRef
+    ].find((summary) => summary.id === cashFlowForPeriodKey.id);
     const node = currentState.flow.nodes.find(
       (node) => node.data?.id == cashFlowSummaryParentRef
     );
-    if (cashFlowSummariesToUpdate && node) {
+    if (cashFlowSummaryToUpdate && node) {
       listenerApi.dispatch(
         renderCashFlowNodes({
-          cashFlowSummaries: [...cashFlowSummariesToUpdate],
+          cashFlowSummaries: [cashFlowSummaryToUpdate],
           fromTargetNodeId: node.id,
           reset: false,
         })

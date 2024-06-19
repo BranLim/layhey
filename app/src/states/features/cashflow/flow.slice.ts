@@ -132,7 +132,9 @@ const generateCashFlowNodes = (
     | CashFlow.SerializableExpenseSummary
   )[],
   xInitialPos: number,
-  yInitialPos: number
+  yInitialPos: number,
+  height: number,
+  width: number
 ): Node<FlowNodeData>[] => {
   const cashFlowNodes: Node<FlowNodeData>[] = [];
   let y = yInitialPos;
@@ -141,6 +143,8 @@ const generateCashFlowNodes = (
       id: `node-${uuidv4()}`,
       type: 'noDataNode',
       position: { x: xInitialPos, y: y },
+      height: height,
+      width: width,
       sourcePosition: Position.Right,
       targetPosition: Position.Left,
       draggable: true,
@@ -157,6 +161,8 @@ const generateCashFlowNodes = (
         id: `node-${uuidv4()}`,
         type: 'cashFlowNode',
         position: { x: xInitialPos, y: y },
+        height: height,
+        width: width,
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
         draggable: true,
@@ -181,6 +187,8 @@ const generateCashFlowNodes = (
         id: `node-${uuidv4()}`,
         type: 'incomeExpenseNode',
         position: { x: xInitialPos, y: y },
+        height: height,
+        width: width,
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
         draggable: true,
@@ -204,6 +212,8 @@ const generateCashFlowNodes = (
         id: `node-${uuidv4()}`,
         type: 'incomeExpenseNode',
         position: { x: xInitialPos, y: y },
+        height: height,
+        width: width,
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
         draggable: true,
@@ -317,7 +327,7 @@ const flowSlice = createSlice({
       state,
       action: PayloadAction<RenderCashFlowPayload>
     ) => {
-      console.log('Adding cashflow nodes');
+      console.log('RenderCashFlowNodes');
       const { cashFlowSummaries, fromTargetNodeId, reset } = action.payload;
 
       let nodes: Node<FlowNodeData>[] = reset
@@ -341,7 +351,9 @@ const flowSlice = createSlice({
           state,
           sortedCashFlowSummaries,
           (targetNode?.position.x ?? 0) + 480,
-          (targetNode?.position.y ?? 0) + 10
+          (targetNode?.position.y ?? 0) + 10,
+          180,
+          390
         );
         const generatedEdges = generateNodeEdges(
           fromTargetNodeId,
@@ -368,7 +380,7 @@ const flowSlice = createSlice({
         );
         if (nodeIndex === -1) {
           const childNodes = nodes.filter(
-            (node) => node.parentId === summary.parentRef
+            (node) => node.data && node.data.parentRef === summary.parentRef
           );
           const lastChild = childNodes[childNodes.length - 1];
 
@@ -377,8 +389,10 @@ const flowSlice = createSlice({
             [summary],
             (targetNode?.position.x ?? 0) + 480,
             (targetNode?.position.y ?? 0) +
-              (lastChild ? lastChild.position.y : 0) +
-              10
+              (lastChild ? lastChild.position.y + (lastChild.height ?? 0) : 0) +
+              10,
+            180,
+            390
           );
           const generatedEdges = generateNodeEdges(
             fromTargetNodeId,

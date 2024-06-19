@@ -14,7 +14,6 @@ import {
   CashFlowState,
   setCashFlow,
   setOverallCashFlow,
-  setCashFlowSummary,
 } from '@/states/features/cashflow/cashflow.slice';
 import CashFlow from '@/types/CashFlow';
 import IncomeStatement = CashFlow.IncomeStatement;
@@ -112,6 +111,7 @@ export const addTransaction = createAsyncThunk<
               dispatch(
                 setCashFlow({
                   key: period,
+                  parentKey: cashFlowForPeriod.parentRef,
                   transactionMode: TransactionMode.Income,
                   total: totalIncome,
                   statementType: 'Summary',
@@ -133,6 +133,7 @@ export const addTransaction = createAsyncThunk<
               dispatch(
                 setCashFlow({
                   key: period,
+                  parentKey: cashFlowForPeriod.parentRef,
                   transactionMode: TransactionMode.Expense,
                   total: totalExpense,
                   statementType: 'Summary',
@@ -141,22 +142,6 @@ export const addTransaction = createAsyncThunk<
             }
             break;
         }
-
-        currentState = getState();
-        const nodes = [...currentState.flow.nodes];
-        const foundNode =
-          nodes.find(
-            (node) => node.data && node.data.id === cashFlowForPeriod.parentRef
-          )?.id ?? '';
-        dispatch(
-          renderCashFlowNodes({
-            fromTargetNodeId: foundNode,
-            cashFlowSummaries: [
-              ...currentState.cashflow.cashFlowSummaries[foundNode],
-            ],
-            reset: false,
-          })
-        );
       }
     });
   }
