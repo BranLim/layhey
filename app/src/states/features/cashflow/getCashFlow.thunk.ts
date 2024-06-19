@@ -20,27 +20,21 @@ export const getCashFlows = createAsyncThunk<
 >(
   'cashflow/getCashFlow',
   async (request: CashFlow.GetTransactionRequest, { dispatch, getState }) => {
-    const {
-      startPeriod,
-      endPeriod,
-      append,
-      parentNodeId,
-      parentStatementSlotId,
-    } = request;
+    const { startPeriod, endPeriod, reset, parentStatementSlotId } = request;
 
     console.log('Getting Cashflows');
     let currentState = getState();
 
     let parentRef = currentState.cashflow.overallCashFlowForPeriod.id;
     let statementPeriods: StatementPeriodSlot[] = [];
-    if (append) {
-      parentRef = parentStatementSlotId;
-      statementPeriods = getCashFlowStatementPeriods(startPeriod, endPeriod);
-    } else {
+    if (reset) {
       statementPeriods = getCashFlowStatementPeriods(
         currentState.cashflow.overallCashFlowForPeriod.startPeriod,
         currentState.cashflow.overallCashFlowForPeriod.endPeriod
       );
+    } else {
+      parentRef = parentStatementSlotId;
+      statementPeriods = getCashFlowStatementPeriods(startPeriod, endPeriod);
     }
 
     if (!statementPeriods || statementPeriods.length < 1) {
@@ -60,7 +54,6 @@ export const getCashFlows = createAsyncThunk<
             toSerializableStatementPeriods(statementPeriods),
           parentSlotRef: parentRef,
           statementType: 'Summary',
-          append: append,
         })
       );
     } else {
@@ -72,7 +65,6 @@ export const getCashFlows = createAsyncThunk<
             statementType: statement.key.includes('_income')
               ? 'Income'
               : 'Expense',
-            append: append,
           })
         );
       });

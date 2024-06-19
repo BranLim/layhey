@@ -32,6 +32,7 @@ export type CashFlowState = {
   previousStatus?: Status;
   status: Status;
   initialLoad: boolean;
+  reset: boolean;
   error?: any;
 };
 
@@ -52,6 +53,7 @@ const initialCashFlowState: CashFlowState = {
   previousStatus: undefined,
   status: 'idle',
   initialLoad: false,
+  reset: false,
 };
 
 const initialiseCashFlowStatementPeriods = (
@@ -122,6 +124,12 @@ const cashflowSlice = createSlice({
         state.initialLoad = true;
       }
     },
+    reset: (state, action: PayloadAction<boolean>) => {
+      if (action.payload) {
+        state.cashFlows = {};
+        state.cashFlowSummaries = {};
+      }
+    },
     setOverallCashFlowStatementPeriod: (
       state,
       action: PayloadAction<{ startPeriod: string; endPeriod: string }>
@@ -189,12 +197,8 @@ const cashflowSlice = createSlice({
       state,
       action: PayloadAction<CashFlow.CashFlowInitialisationRequest>
     ) => {
-      const { statementType, statementPeriodSlots, parentSlotRef, append } =
+      const { statementType, statementPeriodSlots, parentSlotRef } =
         action.payload;
-
-      if (!append) {
-        state.cashFlows = {};
-      }
 
       initialiseCashFlowStatementPeriods(
         state,
@@ -292,6 +296,7 @@ const cashflowSlice = createSlice({
 export const {
   setInitialLoadCompleted,
   setOverallCashFlowStatementPeriod,
+  reset,
   setOverallCashFlow,
   setCashFlow,
   setCashFlowStatementPeriods,

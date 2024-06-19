@@ -37,7 +37,6 @@ export type RenderCashFlowPayload = {
     | CashFlow.SerializableExpenseSummary
   )[];
   fromTargetNodeId: string;
-  reset: boolean;
 };
 
 type FlowNodeData =
@@ -312,6 +311,8 @@ const flowSlice = createSlice({
           id: uuidv4(),
           type: 'cashFlowNode',
           position: { x: 0, y: 10 },
+          width: 390,
+          height: 180,
           sourcePosition: Position.Right,
           targetPosition: Position.Left,
           draggable: true,
@@ -340,12 +341,10 @@ const flowSlice = createSlice({
       action: PayloadAction<RenderCashFlowPayload>
     ) => {
       console.log('RenderCashFlowNodes');
-      const { cashFlowSummaries, fromTargetNodeId, reset } = action.payload;
+      const { cashFlowSummaries, fromTargetNodeId } = action.payload;
 
-      let nodes: Node<FlowNodeData>[] = reset
-        ? [state.nodes[0]]
-        : [...state.nodes];
-      let edges: Edge[] = reset ? [] : [...state.edges];
+      let nodes: Node<FlowNodeData>[] = [...state.nodes];
+      let edges: Edge[] = [...state.edges];
 
       const targetNode = nodes.find((node) => node.id === fromTargetNodeId);
       if (!targetNode) {
@@ -362,35 +361,11 @@ const flowSlice = createSlice({
           )
         : cashFlowSummaries;
 
-      if (reset) {
-        console.log('Resetting nodes');
-        const generatedCashFlowNodes = generateCashFlowNodes(
-          state,
-          sortedCashFlowSummaries,
-          (targetNode?.position.x ?? 0) + 480,
-          (targetNode?.position.y ?? 0) + 10,
-          180,
-          390
-        );
-        const generatedEdges = generateNodeEdges(
-          fromTargetNodeId,
-          generatedCashFlowNodes.map((node) => node.id)
-        );
-
-        nodes.push(...generatedCashFlowNodes);
-        edges.push(...generatedEdges);
-
-        state.nodes = nodes;
-        state.edges = edges;
-
-        return;
-      }
-
       sortedCashFlowSummaries.forEach((summary) => {
         console.log(`Rendering CashFlow Node for ${JSON.stringify(summary)}`);
 
-        nodes = reset ? [state.nodes[0]] : [...state.nodes];
-        edges = reset ? [] : [...state.edges];
+        nodes = [...state.nodes];
+        edges = [...state.edges];
 
         const nodeIndex = nodes.findIndex(
           (node) => node.data && node.data.id === summary.id
@@ -469,6 +444,12 @@ const flowSlice = createSlice({
         state.nodes = nodes;
         state.edges = edges;
       });
+    },
+    resetNodes: (state, action: PayloadAction<boolean>) => {
+      if (action.payload) {
+        state.nodes = [state.nodes[0]];
+        state.edges = [];
+      }
     },
     setFlowViewToPostAdd: (state) => {
       state.flowViewStatus = 'post_add_transaction';
@@ -556,6 +537,7 @@ export const {
   setCurrentAccountingPeriod,
   setOverallCashFlowNode,
   renderCashFlowNodes,
+  resetNodes,
   handleNodeSelection,
   handleNodeMove,
   handleNodeMouseEnter,

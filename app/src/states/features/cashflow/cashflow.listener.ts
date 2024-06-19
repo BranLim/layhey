@@ -9,6 +9,7 @@ import CashFlow from '@/types/CashFlow';
 import { getCashFlows } from '@/states/features/cashflow/getCashFlow.thunk';
 import {
   renderCashFlowNodes,
+  resetNodes,
   setOverallCashFlowNode,
 } from '@/states/features/cashflow/flow.slice';
 import { createCashFlowSummary } from '@/lib/helpers/cashflow.helper';
@@ -27,7 +28,7 @@ const handleInitialCashFlowLoad = (
     getCashFlows({
       startPeriod: overallCashFlowSummary.startPeriod,
       endPeriod: overallCashFlowSummary.endPeriod,
-      append: true,
+      reset: true,
       parentStatementSlotId: overallCashFlowSummary.id,
       parentNodeId: nodes[0].id,
     })
@@ -136,7 +137,6 @@ const handleCashFlowUpdate = (
         renderCashFlowNodes({
           cashFlowSummaries: [cashFlowSummaryToUpdate],
           fromTargetNodeId: node.id,
-          reset: false,
         })
       );
     }
@@ -159,7 +159,7 @@ const fetchRelevantCashFlowDetails = async (
   const getCashFlowDetails = {
     startPeriod,
     endPeriod,
-    append: true,
+    reset: false,
     parentNodeId: node.id,
     parentStatementSlotId: id,
   };
@@ -168,9 +168,17 @@ const fetchRelevantCashFlowDetails = async (
   console.log('Get relevant cashflow details completed');
 };
 
+const handleCashFlowReset = (
+  action: PayloadAction<boolean>,
+  listenerApi: ListenerEffectAPI<RootState, AppDispatch>
+): void => {
+  listenerApi.dispatch(resetNodes(action.payload));
+};
+
 export {
   handleInitialCashFlowLoad,
   handleOverallCashFlowUpdate,
   fetchRelevantCashFlowDetails,
   handleCashFlowUpdate,
+  handleCashFlowReset,
 };

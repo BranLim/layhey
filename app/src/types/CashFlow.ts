@@ -105,12 +105,11 @@ namespace CashFlow {
     statementPeriodSlots: SerializableStatementPeriodSlot[];
     statementType: CashFlow.CashFlowStatementType;
     parentSlotRef?: string;
-    append: boolean;
   };
   export type GetTransactionRequest = {
     startPeriod: string;
     endPeriod: string;
-    append: boolean;
+    reset: boolean;
     parentNodeId: string;
     parentStatementSlotId: string;
   };

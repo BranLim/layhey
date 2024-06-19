@@ -12,6 +12,7 @@ import {
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
+  reset,
   selectOverallCashFlowSummary,
   setOverallCashFlowStatementPeriod,
 } from '@/states/features/cashflow/cashflow.slice';
@@ -84,16 +85,18 @@ export const CashFlowViewControl = () => {
   }, [selectedPeriodPreset]);
 
   const updateCashFlowView = (startPeriod: Date, endPeriod: Date) => {
+    const resetCashFlow = true;
     const accountingPeriod: SerializableAccountingPeriod = {
       startPeriod: startPeriod.toISOString(),
       endPeriod: endPeriod.toISOString(),
     };
     const request: CashFlow.GetTransactionRequest = {
       ...accountingPeriod,
-      append: false,
+      reset: resetCashFlow,
       parentStatementSlotId: overallCashFlowSummary.id,
       parentNodeId: overallCashFlowSummaryNode.id,
     };
+    dispatch(reset(resetCashFlow));
     dispatch(setOverallCashFlowStatementPeriod(accountingPeriod));
     dispatch(getOverallCashFlowSummary(request));
     dispatch(getCashFlows(request));

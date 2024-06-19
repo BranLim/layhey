@@ -2,15 +2,20 @@ import { addListener, createListenerMiddleware } from '@reduxjs/toolkit';
 import { AppDispatch, RootState } from '@/states/store';
 import {
   fetchRelevantCashFlowDetails,
+  handleCashFlowReset,
   handleCashFlowUpdate,
   handleInitialCashFlowLoad,
   handleOverallCashFlowUpdate,
 } from '@/states/features/cashflow/cashflow.listener';
 import {
+  reset,
   setCashFlow,
   setOverallCashFlow,
 } from '@/states/features/cashflow/cashflow.slice';
-import { handleNodeMouseDoubleClick } from '@/states/features/cashflow/flow.slice';
+import {
+  handleNodeMouseDoubleClick,
+  resetNodes,
+} from '@/states/features/cashflow/flow.slice';
 
 export const listenerMiddleware = createListenerMiddleware();
 export const startAppListening = listenerMiddleware.startListening.withTypes<
@@ -41,4 +46,8 @@ startAppListening({
 startAppListening({
   actionCreator: handleNodeMouseDoubleClick,
   effect: fetchRelevantCashFlowDetails,
+});
+startAppListening({
+  actionCreator: reset,
+  effect: handleCashFlowReset,
 });
