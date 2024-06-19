@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { addTransaction } from '@/states/features/cashflow/addCashFlow.thunk';
 import { getCashFlows } from '@/states/features/cashflow/getCashFlow.thunk';
 import { getOverallCashFlowSummary } from '@/states/features/cashflow/getOverallCashFlowSummary.thunk';
+import { Draft } from 'immer';
 
 type Status =
   | 'idle'
@@ -124,14 +125,14 @@ const cashflowSlice = createSlice({
         state.initialLoad = true;
       }
     },
-    reset: (state, action: PayloadAction<boolean>) => {
+    reset: (state: Draft<CashFlowState>, action: PayloadAction<boolean>) => {
       if (action.payload) {
         state.cashFlows = {};
         state.cashFlowSummaries = {};
       }
     },
     setOverallCashFlowStatementPeriod: (
-      state,
+      state: Draft<CashFlowState>,
       action: PayloadAction<{ startPeriod: string; endPeriod: string }>
     ) => {
       const { startPeriod, endPeriod } = action.payload;
@@ -143,7 +144,7 @@ const cashflowSlice = createSlice({
       ).toISOString();
     },
     setOverallCashFlow: (
-      state,
+      state: Draft<CashFlowState>,
       action: PayloadAction<CashFlow.CashflowCalculationResult>
     ) => {
       const { totalIncome, totalExpense, difference } = action.payload;
@@ -156,7 +157,7 @@ const cashflowSlice = createSlice({
       state.status = 'updated_overall_cashflows';
     },
     setCashFlow: (
-      state,
+      state: Draft<CashFlowState>,
       action: PayloadAction<CashFlow.SetCashFlowRequest>
     ) => {
       const { key, total, parentKey, transactionMode, statementType } =
@@ -194,7 +195,7 @@ const cashflowSlice = createSlice({
       }
     },
     setCashFlowStatementPeriods: (
-      state,
+      state: Draft<CashFlowState>,
       action: PayloadAction<CashFlow.CashFlowInitialisationRequest>
     ) => {
       const { statementType, statementPeriodSlots, parentSlotRef } =
@@ -212,7 +213,7 @@ const cashflowSlice = createSlice({
       );
     },
     setCashFlowSummary: (
-      state,
+      state: Draft<CashFlowState>,
       action: PayloadAction<CashFlow.SetCashFlowSummaryRequest>
     ) => {
       console.log('Setting CashFlow Summary...');

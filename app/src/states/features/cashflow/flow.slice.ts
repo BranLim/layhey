@@ -15,6 +15,7 @@ import SerializableIncomeSummary = CashFlow.SerializableIncomeSummary;
 import SerializableExpenseSummary = CashFlow.SerializableExpenseSummary;
 import IncomeNodeData = CashFlow.IncomeNodeData;
 import ExpenseNodeData = CashFlow.ExpenseNodeData;
+import { Draft } from 'immer';
 
 const edgeColor = 'lightgray';
 
@@ -272,7 +273,7 @@ const flowSlice = createSlice({
   initialState: initialState,
   reducers: {
     setCurrentAccountingPeriod: (
-      state,
+      state: Draft<FlowViewState>,
       action: PayloadAction<SerializableAccountingPeriod>
     ) => {
       const accountingPeriod = action.payload;
@@ -282,7 +283,7 @@ const flowSlice = createSlice({
       state.flowViewStatus = 'initial_node_load';
     },
     setOverallCashFlowNode: (
-      state,
+      state: Draft<FlowViewState>,
       action: PayloadAction<CashFlow.SerializableCashFlowSummary>
     ) => {
       const overallCashFlowSummary: CashFlow.SerializableCashFlowSummary =
@@ -337,7 +338,7 @@ const flowSlice = createSlice({
       state.nodes = cashFlowNodes;
     },
     renderCashFlowNodes: (
-      state,
+      state: Draft<FlowViewState>,
       action: PayloadAction<RenderCashFlowPayload>
     ) => {
       console.log('RenderCashFlowNodes');
@@ -445,16 +446,22 @@ const flowSlice = createSlice({
         state.edges = edges;
       });
     },
-    resetNodes: (state, action: PayloadAction<boolean>) => {
+    resetNodes: (
+      state: Draft<FlowViewState>,
+      action: PayloadAction<boolean>
+    ) => {
       if (action.payload) {
         state.nodes = [state.nodes[0]];
         state.edges = [];
       }
     },
-    setFlowViewToPostAdd: (state) => {
+    setFlowViewToPostAdd: (state: Draft<FlowViewState>) => {
       state.flowViewStatus = 'post_add_transaction';
     },
-    handleNodeMouseEnter: (state, action: PayloadAction<Node>) => {
+    handleNodeMouseEnter: (
+      state: Draft<FlowViewState>,
+      action: PayloadAction<Node>
+    ) => {
       const mouseEnteredNode = action.payload;
       const foundNodeStyle = state.nodeStyles[mouseEnteredNode.id];
 
@@ -463,7 +470,10 @@ const flowSlice = createSlice({
         foundNodeStyle['boxShadow'] = '0px 0px 16px lightslategray';
       }
     },
-    handleNodeMouseLeave: (state, action: PayloadAction<Node>) => {
+    handleNodeMouseLeave: (
+      state: Draft<FlowViewState>,
+      action: PayloadAction<Node>
+    ) => {
       const mouseLeaveNode = action.payload;
       const foundNodeStyle = state.nodeStyles[mouseLeaveNode.id];
 
@@ -473,7 +483,7 @@ const flowSlice = createSlice({
       }
     },
     handleNodeSelection: (
-      state,
+      state: Draft<FlowViewState>,
       action: PayloadAction<NodeSelectionChange>
     ) => {
       const changeEvent = action.payload;
@@ -487,7 +497,10 @@ const flowSlice = createSlice({
         state.selectedNode = foundNode;
       }
     },
-    handleNodeMove: (state, action: PayloadAction<NodePositionChange>) => {
+    handleNodeMove: (
+      state: Draft<FlowViewState>,
+      action: PayloadAction<NodePositionChange>
+    ) => {
       const changeEvent = action.payload;
       const foundNode = state.nodes.find((node) => node.id === changeEvent.id);
       if (foundNode && changeEvent.position) {
@@ -496,7 +509,7 @@ const flowSlice = createSlice({
       }
     },
     handleNodeMouseDoubleClick: (
-      state,
+      state: Draft<FlowViewState>,
       action: PayloadAction<Node<CashFlow.CashFlowNodeData>>
     ) => {
       const nodeDoubleClicked = action.payload;
@@ -552,12 +565,4 @@ export const selectFlowEdges = (state: any) => state.flow.edges;
 export const selectRootNode = (state: any) => state.flow.nodes[0];
 export const selectNodeStyle = (state: any, nodeId: string) =>
   state.flow.nodeStyles[nodeId];
-export const selectFlowViewStatus = (state: any) => state.flow.flowViewStatus;
-export const selectLatestExpandedNodeId = (state: any) => {
-  return state.flow.expandedNodes === undefined ||
-    state.flow.expandedNodes.length === 0
-    ? undefined
-    : state.flow.expandedNodes[state.flow.expandedNodes.length - 1];
-};
-
 export default flowSlice.reducer;
