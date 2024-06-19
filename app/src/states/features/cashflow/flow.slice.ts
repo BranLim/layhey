@@ -336,9 +336,11 @@ const flowSlice = createSlice({
       let edges: Edge[] = reset ? [] : [...state.edges];
 
       const targetNode = nodes.find((node) => node.id === fromTargetNodeId);
-      const hasSummaryStatementsOnly = cashFlowSummaries.every(
-        (summary) => summary.statementType === 'Summary'
-      );
+      const hasSummaryStatementsOnly =
+        cashFlowSummaries.length > 1 &&
+        cashFlowSummaries.every(
+          (summary) => summary.statementType === 'Summary'
+        );
       const sortedCashFlowSummaries = hasSummaryStatementsOnly
         ? sortCashFlowSummaries(
             cashFlowSummaries as CashFlow.SerializableCashFlowSummary[]
