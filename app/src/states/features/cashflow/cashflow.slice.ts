@@ -217,12 +217,8 @@ const cashflowSlice = createSlice({
       action: PayloadAction<CashFlow.SetCashFlowSummaryRequest>
     ) => {
       console.log('Setting CashFlow Summary...');
-      const {
-        parentStatementId,
-        statementId,
-        summaryIndex,
-        updatedCashFlowSummary,
-      } = action.payload;
+      const { parentStatementId, summaryIndex, updatedCashFlowSummary } =
+        action.payload;
 
       const cashFlowSummaries = state.cashFlowSummaries[parentStatementId];
       if (cashFlowSummaries) {

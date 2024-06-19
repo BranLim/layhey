@@ -21,7 +21,7 @@ export const getOverallCashFlowSummary = createAsyncThunk<
   'cashflow/getOverallCashFlowSummary',
   async (
     request: CashFlow.GetTransactionRequest,
-    { dispatch, getState }
+    { dispatch }
   ): Promise<void> => {
     const { startPeriod, endPeriod } = request;
 
