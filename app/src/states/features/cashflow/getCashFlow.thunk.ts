@@ -1,15 +1,11 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import CashFlow from '@/types/CashFlow';
-import {
-  FlowViewState,
-  renderCashFlowNodes,
-} from '@/states/features/cashflow/flow.slice';
+import { FlowViewState } from '@/states/features/cashflow/flow.slice';
 import { StatementPeriodSlot } from '@/types/AccountingPeriod';
 import { toSerializableStatementPeriods } from '@/lib/mappers/accountingPeriod.mapper';
 import { TransactionMode, TransactionResponse } from '@/types/Transaction';
 import { getTransactions } from '@/states/features/cashflow/api/transactions.api';
 import {
-  buildCashFlowGraph,
   CashFlowState,
   setCashFlow,
   setCashFlowStatementPeriods,
@@ -100,15 +96,16 @@ export const getCashFlows = createAsyncThunk<
         return;
       }
 
-      const currentState = getState();
       const incomeCashFlowRequest: CashFlow.SetCashFlowRequest = {
         key: statementPeriod.key,
+        parentKey: parentRef,
         transactionMode: TransactionMode.Income,
         total: 0,
         statementType: 'Summary',
       };
       const expenseCashFlowRequest: CashFlow.SetCashFlowRequest = {
         key: statementPeriod.key,
+        parentKey: parentRef,
         transactionMode: TransactionMode.Expense,
         total: 0,
         statementType: 'Summary',
@@ -150,7 +147,5 @@ export const getCashFlows = createAsyncThunk<
         }
       } catch (error) {}
     });
-
-    dispatch(buildCashFlowGraph({}));
   }
 );

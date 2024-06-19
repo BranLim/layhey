@@ -320,10 +320,10 @@ const flowSlice = createSlice({
       console.log('Adding cashflow nodes');
       const { cashFlowSummaries, fromTargetNodeId, reset } = action.payload;
 
-      const nodes: Node<FlowNodeData>[] = reset
+      let nodes: Node<FlowNodeData>[] = reset
         ? [state.nodes[0]]
         : [...state.nodes];
-      const edges: Edge[] = reset ? [] : [...state.edges];
+      let edges: Edge[] = reset ? [] : [...state.edges];
 
       const targetNode = nodes.find((node) => node.id === fromTargetNodeId);
       const hasSummaryStatementsOnly = cashFlowSummaries.every(
@@ -357,17 +357,28 @@ const flowSlice = createSlice({
         return;
       }
 
-      cashFlowSummaries.forEach((summary) => {
+      sortedCashFlowSummaries.forEach((summary) => {
         console.log(`Rendering CashFlow Node for ${JSON.stringify(summary)}`);
+
+        nodes = reset ? [state.nodes[0]] : [...state.nodes];
+        edges = reset ? [] : [...state.edges];
+
         const nodeIndex = nodes.findIndex(
           (node) => node.data && node.data.id === summary.id
         );
         if (nodeIndex === -1) {
+          const childNodes = nodes.filter(
+            (node) => node.parentId === summary.parentRef
+          );
+          const lastChild = childNodes[childNodes.length - 1];
+
           const generatedCashFlowNodes = generateCashFlowNodes(
             state,
-            sortedCashFlowSummaries,
+            [summary],
             (targetNode?.position.x ?? 0) + 480,
-            (targetNode?.position.y ?? 0) + 10
+            (targetNode?.position.y ?? 0) +
+              (lastChild ? lastChild.position.y : 0) +
+              10
           );
           const generatedEdges = generateNodeEdges(
             fromTargetNodeId,
@@ -428,10 +439,10 @@ const flowSlice = createSlice({
             },
           } as Node<ExpenseNodeData>;
         }
-      });
 
-      state.nodes = nodes;
-      state.edges = edges;
+        state.nodes = nodes;
+        state.edges = edges;
+      });
     },
     setFlowViewToPostAdd: (state) => {
       state.flowViewStatus = 'post_add_transaction';

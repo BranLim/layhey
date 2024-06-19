@@ -151,28 +151,35 @@ const cashflowSlice = createSlice({
       state,
       action: PayloadAction<CashFlow.SetCashFlowRequest>
     ) => {
-      const { key, total, transactionMode, statementType } = action.payload;
+      const { key, total, parentKey, transactionMode, statementType } =
+        action.payload;
 
       switch (statementType) {
         case 'Summary':
+          const cashFlowStatement = state.cashFlows[
+            key
+          ] as CashFlow.CashFlowStatement;
+
           switch (transactionMode) {
             case TransactionMode.Income:
-              (
-                state.cashFlows[key] as CashFlow.CashFlowStatement
-              ).income.total = total;
+              cashFlowStatement.parentRef = parentKey;
+              cashFlowStatement.income.total = total;
               break;
             case TransactionMode.Expense:
-              (
-                state.cashFlows[key] as CashFlow.CashFlowStatement
-              ).expense.total = total;
+              cashFlowStatement.parentRef = parentKey;
+              cashFlowStatement.expense.total = total;
               break;
           }
           break;
         case 'Income':
+          (state.cashFlows[key] as CashFlow.IncomeStatement).parentRef =
+            parentKey;
           (state.cashFlows[key] as CashFlow.IncomeStatement).income.total =
             total;
           break;
         case 'Expense':
+          (state.cashFlows[key] as CashFlow.ExpenseStatement).parentRef =
+            parentKey;
           (state.cashFlows[key] as CashFlow.ExpenseStatement).expense.total =
             total;
           break;
@@ -312,19 +319,5 @@ export const selectOverallCashFlowSummary = createSelector(
       difference: cashFlowSummary.difference,
     }) as CashFlow.CashFlowSummary
 );
-export const selectCashFlowStatements = createSelector(
-  [
-    (state: any) => state.cashflow.cashFlowSummaries,
-    (state: any, parentStatementId: string) => parentStatementId,
-  ],
-  (
-    cashFlowSummaries,
-    parentStatementId
-  ): CashFlow.SerializableCashFlowSummary[] =>
-    cashFlowSummaries[parentStatementId]
-);
-
-export const selectIsInitialLoadCompleted = (state: any) =>
-  state.cashflow.initialLoad;
 
 export default cashflowSlice.reducer;
