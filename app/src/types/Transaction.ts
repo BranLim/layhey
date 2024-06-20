@@ -10,6 +10,7 @@ export enum TransactionSource {
   Cheque = 'Cheque',
   CreditCard = 'Credit Card',
   DirectDebit = 'Direct Debit',
+  DirectCredit = 'Direct Credit',
 }
 
 export type TransactionCategoryName = string;

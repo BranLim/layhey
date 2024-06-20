@@ -34,7 +34,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       getOverallCashFlowSummary({
         startPeriod: toFormattedDate(accountingPeriodStart, 'yyyy-MM-dd'),
         endPeriod: toFormattedDate(accountingPeriodEnd, 'yyyy-MM-dd'),
-        append: false,
+        reset: true,
         parentStatementSlotId: '',
         parentNodeId: '',
       })

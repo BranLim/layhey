@@ -129,6 +129,12 @@ namespace CashFlow {
     | CashFlow.IncomeNodeData
     | CashFlow.ExpenseNodeData
     | undefined;
+
+  export type UpdateNodeSize = {
+    id: string;
+    width: number;
+    height: number;
+  };
 }
 
 export default CashFlow;

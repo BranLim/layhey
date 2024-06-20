@@ -1,13 +1,24 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Box, Flex, SimpleGrid, Spacer, Text, VStack } from '@chakra-ui/react';
 import CashFlow from '@/types/CashFlow';
 import { toFormattedDate } from '@/utils/date.utils';
-import { useAppSelector } from '@/states/hooks';
-import { selectNodeStyle } from '@/states/features/cashflow/flow.slice';
+import { useAppDispatch, useAppSelector } from '@/states/hooks';
+import {
+  selectNodeStyle,
+  updateNodeSize,
+} from '@/states/features/cashflow/flow.slice';
 
 export const CashFlowNode = (props: NodeProps<CashFlow.CashFlowNodeData>) => {
+  const dispatch = useAppDispatch();
+  const nodeRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (nodeRef.current) {
+      const { width, height } = nodeRef.current.getBoundingClientRect();
+      dispatch(updateNodeSize({ id: props.id, width: width, height: height }));
+    }
+  }, [dispatch, props.id]);
   const nodeStyle = useAppSelector((state) => selectNodeStyle(state, props.id));
   const numberFormatter = new Intl.NumberFormat('en-SG', {
     style: 'currency',
