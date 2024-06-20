@@ -27,18 +27,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
       endPeriod: accountingPeriodEnd.toISOString(),
     };
 
-    newStore.dispatch(setCurrentAccountingPeriod(accountingPeriod));
-    newStore.dispatch(setOverallCashFlowStatementPeriod(accountingPeriod));
-    newStore.dispatch(getAccountingPeriods());
-    newStore.dispatch(
-      getOverallCashFlowSummary({
-        startPeriod: toFormattedDate(accountingPeriodStart, 'yyyy-MM-dd'),
-        endPeriod: toFormattedDate(accountingPeriodEnd, 'yyyy-MM-dd'),
-        reset: true,
-        parentStatementSlotId: '',
-        parentNodeId: '',
-      })
-    );
+    if (typeof window !== 'undefined') {
+      newStore.dispatch(setCurrentAccountingPeriod(accountingPeriod));
+      newStore.dispatch(setOverallCashFlowStatementPeriod(accountingPeriod));
+      newStore.dispatch(getAccountingPeriods());
+      newStore.dispatch(
+        getOverallCashFlowSummary({
+          startPeriod: toFormattedDate(accountingPeriodStart, 'yyyy-MM-dd'),
+          endPeriod: toFormattedDate(accountingPeriodEnd, 'yyyy-MM-dd'),
+          reset: true,
+          parentStatementSlotId: '',
+          parentNodeId: '',
+        })
+      );
+    }
   }
 
   return (
