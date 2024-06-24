@@ -27,7 +27,7 @@ export const TransactionCategoryList = ({ register }: Props) => {
     if (!isLoadedCategory) {
       (async () => {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions/categories`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },

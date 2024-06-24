@@ -1,6 +1,8 @@
 import { TransactionCategory } from '@/types/Transaction';
 import { getCategories } from '@/lib/repositories/transactionCategory.repository';
 import { getErrorMessage } from '@/utils/error.utils';
+import CashFlow from '@/types/CashFlow';
+import CategorisedCashflow = CashFlow.CategorisedCashflow;
 
 const getTransactionCategories = async (): Promise<TransactionCategory[]> => {
   try {
@@ -19,4 +21,13 @@ const getTransactionCategories = async (): Promise<TransactionCategory[]> => {
   }
 };
 
-export { getTransactionCategories };
+const getCategorisedCashFlow = async (
+  startPeriod: string,
+  endPeriod: string,
+  top: number,
+  transactionType: string
+): Promise<CategorisedCashflow[]> => {
+  return [];
+};
+
+export { getTransactionCategories, getCategorisedCashFlow };

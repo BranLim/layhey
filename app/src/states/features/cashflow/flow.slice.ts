@@ -274,7 +274,6 @@ const flowSlice = createSlice({
       if (accountingPeriod) {
         state.currentChosenAccountingPeriod = accountingPeriod;
       }
-      state.flowViewStatus = 'initial_node_load';
     },
     setOverallCashFlowNode: (
       state: Draft<FlowViewState>,
@@ -449,9 +448,6 @@ const flowSlice = createSlice({
         state.edges = [];
       }
     },
-    setFlowViewToPostAdd: (state: Draft<FlowViewState>) => {
-      state.flowViewStatus = 'post_add_transaction';
-    },
     updateNodeSize: (
       state: Draft<FlowViewState>,
       action: PayloadAction<CashFlow.UpdateNodeSize>
@@ -559,15 +555,12 @@ export const {
   renderCashFlowNodes,
   resetNodes,
   updateNodeSize,
-  setFlowViewToPostAdd,
   handleNodeSelection,
   handleNodeMove,
   handleNodeMouseEnter,
   handleNodeMouseLeave,
   handleNodeMouseDoubleClick,
 } = flowSlice.actions;
-export const selectCurrentAccountingPeriod = (state: any) =>
-  state.flow.currentChosenAccountingPeriod;
 export const selectFlowNodes = (state: any) => state.flow.nodes;
 export const selectFlowEdges = (state: any) => state.flow.edges;
 export const selectRootNode = (state: any) => state.flow.nodes[0];

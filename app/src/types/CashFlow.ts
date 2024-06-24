@@ -135,6 +135,11 @@ namespace CashFlow {
     width: number;
     height: number;
   };
+
+  export type CategorisedCashflow = {
+    category: string;
+    amount: number;
+  };
 }
 
 export default CashFlow;

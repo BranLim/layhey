@@ -4,12 +4,20 @@ import {
   DrawerContent,
   DrawerOverlay,
 } from '@chakra-ui/modal';
+import { useAppDispatch, useAppSelector } from '@/states/hooks';
+import { closeModal, selectIsOpenModal } from '@/states/common/modal.slice';
 
 export const TransactionHome = () => {
-  const handleCloseDrawer = () => {};
+  const isOpen = useAppSelector((state) =>
+    selectIsOpenModal(state, 'TransactionDrawer')
+  );
+  const dispatch = useAppDispatch();
+  const handleCloseDrawer = () => {
+    dispatch(closeModal('TransactionDrawer'));
+  };
 
   return (
-    <Drawer isOpen={true} placement='right' onClose={handleCloseDrawer}>
+    <Drawer isOpen={isOpen} placement='right' onClose={handleCloseDrawer}>
       <DrawerOverlay />
       <DrawerContent>
         <DrawerCloseButton />

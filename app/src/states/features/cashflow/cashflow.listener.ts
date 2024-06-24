@@ -150,12 +150,11 @@ const fetchRelevantCashFlowDetails = async (
   action: PayloadAction<Node<CashFlow.CashFlowNodeData>>,
   listenerApi: ListenerEffectAPI<RootState, AppDispatch>
 ): Promise<void> => {
-  console.log('Getting relevant cashflow details');
-
   const node = action.payload;
 
   const { id, startPeriod, endPeriod } = node.data;
 
+  console.log('Getting relevant cashflow details');
   const getCashFlowDetails = {
     startPeriod,
     endPeriod,

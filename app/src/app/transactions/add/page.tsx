@@ -36,7 +36,6 @@ import { getCurrentDate, toFormattedDate } from '@/utils/date.utils';
 import { AdvancedSetting } from '@/types/AdvancedSetting';
 import { ScheduleRadioGroup } from '@/components/common/ScheduleRadioGroup';
 import { TransactionCategoryList } from '@/components/common/TransactionCategoryList';
-import { setFlowViewToPostAdd } from '@/states/features/cashflow/flow.slice';
 import { addTransaction } from '@/states/features/cashflow/addCashFlow.thunk';
 
 const defaultInterval = 'monthly';
@@ -106,7 +105,6 @@ const AddTransaction = () => {
       advancedSetting: data.advancedSetting,
     };
     await dispatch(addTransaction(newTransaction));
-    dispatch(setFlowViewToPostAdd());
     handleCloseModal();
   };
 
