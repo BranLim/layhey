@@ -78,10 +78,18 @@ export const getCashFlows = createAsyncThunk<
     statementPeriods.forEach((statementPeriod) => {
       const transactionsForPeriod = transactions.filter((transaction) => {
         const transactionDate = new Date(transaction.date);
-
+        const statementEndDate = new Date(
+          statementPeriod.endPeriod.getFullYear(),
+          statementPeriod.endPeriod.getMonth(),
+          statementPeriod.endPeriod.getDate(),
+          23,
+          59,
+          59,
+          999
+        );
         return (
-          transactionDate > statementPeriod.startPeriod &&
-          transactionDate <= statementPeriod.endPeriod
+          transactionDate >= statementPeriod.startPeriod &&
+          transactionDate <= statementEndDate
         );
       });
 
