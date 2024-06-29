@@ -14,6 +14,7 @@ import {
 } from '@/states/features/cashflow/flow.slice';
 import { createCashFlowSummary } from '@/lib/helpers/cashflow.helper';
 import { getErrorMessage } from '@/utils/error.utils';
+import { openModal } from '@/states/common/modal.slice';
 
 const handleInitialCashFlowLoad = (
   action: Action,
@@ -163,8 +164,12 @@ const fetchRelevantCashFlowDetails = async (
     parentStatementSlotId: id,
   };
 
-  await listenerApi.dispatch(getCashFlows(getCashFlowDetails));
-  console.log('Get relevant cashflow details completed');
+  if (node.data.statementType === 'Summary') {
+    await listenerApi.dispatch(getCashFlows(getCashFlowDetails));
+    console.log('Get relevant cashflow details completed');
+  } else {
+    await listenerApi.dispatch(openModal('TransactionDrawer'));
+  }
 };
 
 const handleCashFlowReset = (
