@@ -1,7 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 
 import { Handle, NodeProps, Position } from 'reactflow';
-import { Box, Flex, SimpleGrid, Spacer, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  SimpleGrid,
+  Spacer,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import CashFlow from '@/types/CashFlow';
 import { toFormattedDate } from '@/utils/date.utils';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
@@ -9,6 +17,7 @@ import {
   selectNodeStyle,
   updateNodeSize,
 } from '@/states/features/cashflow/flow.slice';
+import { NodeToolbar } from '@reactflow/node-toolbar';
 
 export const CashFlowNode = (props: NodeProps<CashFlow.CashFlowNodeData>) => {
   const dispatch = useAppDispatch();
@@ -38,6 +47,12 @@ export const CashFlowNode = (props: NodeProps<CashFlow.CashFlowNodeData>) => {
         boxShadow='0px 0px 12px darkslategray'
         zIndex={999}
       >
+        <NodeToolbar
+          position={Position.Bottom}
+          isVisible={props.data.isToolbarVisible}
+        >
+          <Button size='xs'>View Details</Button>
+        </NodeToolbar>
         {!props.data.rootNode && (
           <Handle type='source' position={Position.Left} />
         )}

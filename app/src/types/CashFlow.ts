@@ -82,6 +82,7 @@ namespace CashFlow {
   export type CashFlowNodeData = SerializableCashFlowSummary & {
     rootNode?: boolean;
     isExpanded?: boolean;
+    isToolbarVisible: boolean;
   };
 
   export type IncomeNodeData = SerializableIncomeSummary & {

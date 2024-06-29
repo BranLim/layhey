@@ -161,6 +161,7 @@ const generateCashFlowNodes = (
           outflow: cashFlowSummary.outflow,
           difference: cashFlowSummary.difference,
           currency: cashFlowSummary.currency,
+          isToolbarVisible: false,
         },
       };
       cashFlowNodes.push(node);
@@ -322,6 +323,7 @@ const flowSlice = createSlice({
             difference: overallCashFlowSummary.difference,
             currency: 'SGD',
             rootNode: true,
+            isToolbarVisible: false,
           },
         };
         applyDefaultNodeStyle(state, rootNode.id);
@@ -401,6 +403,7 @@ const flowSlice = createSlice({
               outflow: summary.outflow,
               difference: summary.difference,
               currency: summary.currency,
+              isToolbarVisible: false,
             },
           };
         } else if (nodes[nodeIndex] && summary.statementType === 'Income') {
@@ -461,7 +464,7 @@ const flowSlice = createSlice({
     },
     handleNodeMouseEnter: (
       state: Draft<FlowViewState>,
-      action: PayloadAction<Node>
+      action: PayloadAction<Node<CashFlow.NodeData>>
     ) => {
       const mouseEnteredNode = action.payload;
       const foundNodeStyle = state.nodeStyles[mouseEnteredNode.id];
@@ -470,10 +473,20 @@ const flowSlice = createSlice({
         foundNodeStyle['border'] = '4px solid dimgray';
         foundNodeStyle['boxShadow'] = '0px 0px 16px lightslategray';
       }
+      const targetNode = state.nodes.find(
+        (node) => node.id === mouseEnteredNode.id
+      );
+      if (
+        targetNode &&
+        targetNode.data &&
+        targetNode.data.statementType === 'Summary'
+      ) {
+        targetNode.data.isToolbarVisible = true;
+      }
     },
     handleNodeMouseLeave: (
       state: Draft<FlowViewState>,
-      action: PayloadAction<Node>
+      action: PayloadAction<Node<CashFlow.NodeData>>
     ) => {
       const mouseLeaveNode = action.payload;
       const foundNodeStyle = state.nodeStyles[mouseLeaveNode.id];
@@ -481,6 +494,17 @@ const flowSlice = createSlice({
       if (foundNodeStyle) {
         foundNodeStyle['border'] = '3px solid black';
         foundNodeStyle['boxShadow'] = '0px 0px 12px darkslategray';
+      }
+
+      const targetNode = state.nodes.find(
+        (node) => node.id === mouseLeaveNode.id
+      );
+      if (
+        targetNode &&
+        targetNode.data &&
+        targetNode.data.statementType === 'Summary'
+      ) {
+        targetNode.data.isToolbarVisible = false;
       }
     },
     handleNodeSelection: (
