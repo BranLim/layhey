@@ -50,7 +50,7 @@ export const CashFlowNode = (props: NodeProps<CashFlow.CashFlowNodeData>) => {
         <NodeToolbar
           position={Position.Bottom}
           isVisible={props.data.isToolbarVisible}
-          style={{ top: '-12px' }}
+          style={{ top: '-10px' }}
         >
           <Button size='xs'>Details</Button>
         </NodeToolbar>

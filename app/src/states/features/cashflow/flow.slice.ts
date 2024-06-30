@@ -467,6 +467,13 @@ const flowSlice = createSlice({
       action: PayloadAction<Node<CashFlow.NodeData>>
     ) => {
       const mouseEnteredNode = action.payload;
+      if (
+        state.selectedNode &&
+        mouseEnteredNode.id === state.selectedNode?.id
+      ) {
+        return;
+      }
+
       const foundNodeStyle = state.nodeStyles[mouseEnteredNode.id];
 
       if (foundNodeStyle) {
@@ -479,6 +486,9 @@ const flowSlice = createSlice({
       action: PayloadAction<Node<CashFlow.NodeData>>
     ) => {
       const mouseLeaveNode = action.payload;
+      if (state.selectedNode && mouseLeaveNode.id === state.selectedNode?.id) {
+        return;
+      }
       const foundNodeStyle = state.nodeStyles[mouseLeaveNode.id];
 
       if (foundNodeStyle) {
@@ -499,7 +509,7 @@ const flowSlice = createSlice({
         return;
       }
       foundNode.selected = changeEvent.selected;
-      state.selectedNode = foundNode;
+
       if (!changeEvent.selected) {
         if (
           foundNode &&
@@ -507,6 +517,12 @@ const flowSlice = createSlice({
           foundNode.data.statementType === 'Summary'
         ) {
           foundNode.data.isToolbarVisible = false;
+          const foundNodeStyle = state.nodeStyles[foundNode.id];
+
+          if (foundNodeStyle) {
+            foundNodeStyle['border'] = '3px solid black';
+            foundNodeStyle['boxShadow'] = '0px 0px 12px darkslategray';
+          }
         }
       } else if (changeEvent.selected) {
         if (
@@ -515,7 +531,14 @@ const flowSlice = createSlice({
           foundNode.data.statementType === 'Summary'
         ) {
           foundNode.data.isToolbarVisible = true;
+          const foundNodeStyle = state.nodeStyles[foundNode.id];
+
+          if (foundNodeStyle) {
+            foundNodeStyle['border'] = '4px solid dimgray';
+            foundNodeStyle['boxShadow'] = '0px 0px 16px lightslategray';
+          }
         }
+        state.selectedNode = foundNode;
       }
     },
     handleNodeMove: (
