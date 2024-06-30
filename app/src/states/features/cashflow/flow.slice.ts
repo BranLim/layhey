@@ -473,16 +473,6 @@ const flowSlice = createSlice({
         foundNodeStyle['border'] = '4px solid dimgray';
         foundNodeStyle['boxShadow'] = '0px 0px 16px lightslategray';
       }
-      const targetNode = state.nodes.find(
-        (node) => node.id === mouseEnteredNode.id
-      );
-      if (
-        targetNode &&
-        targetNode.data &&
-        targetNode.data.statementType === 'Summary'
-      ) {
-        targetNode.data.isToolbarVisible = true;
-      }
     },
     handleNodeMouseLeave: (
       state: Draft<FlowViewState>,
@@ -495,17 +485,6 @@ const flowSlice = createSlice({
         foundNodeStyle['border'] = '3px solid black';
         foundNodeStyle['boxShadow'] = '0px 0px 12px darkslategray';
       }
-
-      const targetNode = state.nodes.find(
-        (node) => node.id === mouseLeaveNode.id
-      );
-      if (
-        targetNode &&
-        targetNode.data &&
-        targetNode.data.statementType === 'Summary'
-      ) {
-        targetNode.data.isToolbarVisible = false;
-      }
     },
     handleNodeSelection: (
       state: Draft<FlowViewState>,
@@ -515,11 +494,28 @@ const flowSlice = createSlice({
       const foundNode = state.nodes.find(
         (node) => node && node.id === changeEvent.id
       );
-      if (foundNode) {
-        foundNode.selected = changeEvent.selected;
+      console.log('Handle Node Selection');
+      if (!foundNode) {
+        return;
       }
-      if (changeEvent.selected) {
-        state.selectedNode = foundNode;
+      foundNode.selected = changeEvent.selected;
+      state.selectedNode = foundNode;
+      if (!changeEvent.selected) {
+        if (
+          foundNode &&
+          foundNode.data &&
+          foundNode.data.statementType === 'Summary'
+        ) {
+          foundNode.data.isToolbarVisible = false;
+        }
+      } else if (changeEvent.selected) {
+        if (
+          foundNode &&
+          foundNode.data &&
+          foundNode.data.statementType === 'Summary'
+        ) {
+          foundNode.data.isToolbarVisible = true;
+        }
       }
     },
     handleNodeMove: (
@@ -534,6 +530,20 @@ const flowSlice = createSlice({
         const resolved = detectAndResolveCollisions(foundNode, state.nodes);
         foundNode.position = resolved.position;
       }
+    },
+    handleNodeMouseClick: (
+      state: Draft<FlowViewState>,
+      action: PayloadAction<Node<CashFlow.CashFlowNodeData>>
+    ) => {
+      const nodeDoubleClicked = action.payload;
+      const foundNode = state.nodes.find(
+        (node) => node.id === nodeDoubleClicked.id
+      );
+      if (!foundNode || !foundNode.data) {
+        return;
+      }
+      foundNode.selectable = true;
+      foundNode.selected = true;
     },
     handleNodeMouseDoubleClick: (
       state: Draft<FlowViewState>,
@@ -583,6 +593,7 @@ export const {
   handleNodeMove,
   handleNodeMouseEnter,
   handleNodeMouseLeave,
+  handleNodeMouseClick,
   handleNodeMouseDoubleClick,
 } = flowSlice.actions;
 export const selectFlowNodes = (state: any) => state.flow.nodes;

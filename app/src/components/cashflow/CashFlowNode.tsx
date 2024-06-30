@@ -50,8 +50,9 @@ export const CashFlowNode = (props: NodeProps<CashFlow.CashFlowNodeData>) => {
         <NodeToolbar
           position={Position.Bottom}
           isVisible={props.data.isToolbarVisible}
+          style={{ top: '-12px' }}
         >
-          <Button size='xs'>View Details</Button>
+          <Button size='xs'>Details</Button>
         </NodeToolbar>
         {!props.data.rootNode && (
           <Handle type='source' position={Position.Left} />

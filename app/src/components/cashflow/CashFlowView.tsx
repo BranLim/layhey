@@ -10,6 +10,7 @@ import { selectCashFlowStoreStatus } from '@/states/features/cashflow/cashflow.s
 import { CashFlowNode } from '@/components/cashflow/CashFlowNode';
 import 'reactflow/dist/style.css';
 import {
+  handleNodeMouseClick,
   handleNodeMouseDoubleClick,
   handleNodeMouseEnter,
   handleNodeMouseLeave,
@@ -67,6 +68,15 @@ export const CashFlowView = () => {
     dispatch(handleNodeMouseEnter(node));
   };
 
+  const handleMouseClick = async (
+    event: React.MouseEvent,
+    node: Node<CashFlow.CashFlowNodeData>
+  ) => {
+    if (event.button === 0) {
+      dispatch(handleNodeMouseClick(node));
+    }
+  };
+
   const handleMouseDoubleClick = async (
     event: React.MouseEvent,
     node: Node<CashFlow.CashFlowNodeData>
@@ -88,6 +98,7 @@ export const CashFlowView = () => {
         onNodeMouseEnter={handleMouseEnter}
         onNodeMouseLeave={handleMouseLeave}
         nodeDragThreshold={nodeDragThreshold}
+        onNodeClick={handleMouseClick}
         onNodeDoubleClick={handleMouseDoubleClick}
         minZoom={0.1}
         maxZoom={5.0}
