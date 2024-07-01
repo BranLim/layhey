@@ -483,7 +483,6 @@ const flowSlice = createSlice({
       }
 
       const foundNodeStyle = state.nodeStyles[mouseEnteredNode.id];
-
       if (foundNodeStyle) {
         foundNodeStyle['border'] = '4px solid dimgray';
         foundNodeStyle['boxShadow'] = '0px 0px 16px lightslategray';
@@ -517,22 +516,19 @@ const flowSlice = createSlice({
         return;
       }
       foundNode.selected = changeEvent.selected;
+      const foundNodeStyle = state.nodeStyles[foundNode.id];
 
-      if (changeEvent.selected) {
-        if (foundNode && foundNode.data) {
+      if (foundNode.data) {
+        if (changeEvent.selected) {
           foundNode.data.isToolbarVisible = true;
-          const foundNodeStyle = state.nodeStyles[foundNode.id];
 
           if (foundNodeStyle) {
             foundNodeStyle['border'] = '4px solid dimgray';
             foundNodeStyle['boxShadow'] = '0px 0px 16px lightslategray';
           }
-        }
-        state.selectedNode = foundNode;
-      } else {
-        if (foundNode && foundNode.data) {
+          state.selectedNode = foundNode;
+        } else {
           foundNode.data.isToolbarVisible = false;
-          const foundNodeStyle = state.nodeStyles[foundNode.id];
 
           if (foundNodeStyle) {
             foundNodeStyle['border'] = '3px solid black';
