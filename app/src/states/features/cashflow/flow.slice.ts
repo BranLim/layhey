@@ -377,6 +377,10 @@ const flowSlice = createSlice({
             180,
             390
           );
+          generatedCashFlowNodes.forEach((node) => {
+            const updatedNode = detectAndResolveCollisions(node, nodes);
+            node.position = updatedNode.position;
+          });
           const generatedEdges = generateNodeEdges(
             fromTargetNodeId,
             generatedCashFlowNodes.map((node) => node.id)
