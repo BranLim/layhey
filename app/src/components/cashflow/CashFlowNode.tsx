@@ -47,6 +47,9 @@ export const CashFlowNode = (props: NodeProps<CashFlow.CashFlowNodeData>) => {
         boxShadow='0px 0px 12px darkslategray'
         zIndex={999}
       >
+        {!props.data.rootNode && (
+          <Handle type='source' position={Position.Left} />
+        )}
         <NodeToolbar
           position={Position.Bottom}
           isVisible={props.data.isToolbarVisible}
@@ -54,9 +57,6 @@ export const CashFlowNode = (props: NodeProps<CashFlow.CashFlowNodeData>) => {
         >
           <Button size='xs'>Details</Button>
         </NodeToolbar>
-        {!props.data.rootNode && (
-          <Handle type='source' position={Position.Left} />
-        )}
         <VStack width='sm'>
           <Flex width='2xs'>
             <Box>

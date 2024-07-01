@@ -187,6 +187,7 @@ const generateCashFlowNodes = (
             endPeriod: incomeStatement.accountingPeriod.endPeriod,
           },
           total: incomeStatement.total,
+          isToolbarVisible: false,
         },
       };
       cashFlowNodes.push(node);
@@ -212,6 +213,7 @@ const generateCashFlowNodes = (
             endPeriod: expenseStatement.accountingPeriod.endPeriod,
           },
           total: expenseStatement.total,
+          isToolbarVisible: false,
         },
       };
       cashFlowNodes.push(node);
@@ -368,14 +370,16 @@ const flowSlice = createSlice({
         );
         if (nodeIndex === -1) {
           const nodePosition = getNodePosition(nodes, summary, targetNode);
+          const nodeHeight = summary.statementType === 'Summary' ? 180 : 124;
+          const nodeWidth = 390;
 
           const generatedCashFlowNodes = generateCashFlowNodes(
             state,
             [summary],
             nodePosition.x,
             nodePosition.y,
-            180,
-            390
+            nodeHeight,
+            nodeWidth
           );
           generatedCashFlowNodes.forEach((node) => {
             const updatedNode = detectAndResolveCollisions(node, nodes);
@@ -514,26 +518,8 @@ const flowSlice = createSlice({
       }
       foundNode.selected = changeEvent.selected;
 
-      if (!changeEvent.selected) {
-        if (
-          foundNode &&
-          foundNode.data &&
-          foundNode.data.statementType === 'Summary'
-        ) {
-          foundNode.data.isToolbarVisible = false;
-          const foundNodeStyle = state.nodeStyles[foundNode.id];
-
-          if (foundNodeStyle) {
-            foundNodeStyle['border'] = '3px solid black';
-            foundNodeStyle['boxShadow'] = '0px 0px 12px darkslategray';
-          }
-        }
-      } else if (changeEvent.selected) {
-        if (
-          foundNode &&
-          foundNode.data &&
-          foundNode.data.statementType === 'Summary'
-        ) {
+      if (changeEvent.selected) {
+        if (foundNode && foundNode.data) {
           foundNode.data.isToolbarVisible = true;
           const foundNodeStyle = state.nodeStyles[foundNode.id];
 
@@ -543,6 +529,16 @@ const flowSlice = createSlice({
           }
         }
         state.selectedNode = foundNode;
+      } else {
+        if (foundNode && foundNode.data) {
+          foundNode.data.isToolbarVisible = false;
+          const foundNodeStyle = state.nodeStyles[foundNode.id];
+
+          if (foundNodeStyle) {
+            foundNodeStyle['border'] = '3px solid black';
+            foundNodeStyle['boxShadow'] = '0px 0px 12px darkslategray';
+          }
+        }
       }
     },
     handleNodeMove: (
@@ -628,4 +624,12 @@ export const selectFlowEdges = (state: any) => state.flow.edges;
 export const selectRootNode = (state: any) => state.flow.nodes[0];
 export const selectNodeStyle = (state: any, nodeId: string) =>
   state.flow.nodeStyles[nodeId];
+export const selectPeriodForSelectedNode = (state: any) => {
+  return state.flow.selectedNode
+    ? {
+        startPeriod: state.flow.selectedNode.data.startPeriod,
+        endPeriod: state.flow.selectedNode.data.endPeriod,
+      }
+    : { startPeriod: '', endPeriod: '' };
+};
 export default flowSlice.reducer;

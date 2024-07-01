@@ -2,9 +2,18 @@ import { Handle, NodeProps, Position } from 'reactflow';
 import CashFlow from '@/types/CashFlow';
 import { useAppSelector } from '@/states/hooks';
 import { selectNodeStyle } from '@/states/features/cashflow/flow.slice';
-import { Box, Flex, SimpleGrid, Spacer, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  SimpleGrid,
+  Spacer,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import React from 'react';
 import { toFormattedDate } from '@/utils/date.utils';
+import { NodeToolbar } from '@reactflow/node-toolbar';
 
 export const IncomeExpenseNode = (
   props: NodeProps<CashFlow.IncomeNodeData | CashFlow.ExpenseNodeData>
@@ -31,6 +40,13 @@ export const IncomeExpenseNode = (
         {!props.data.rootNode && (
           <Handle type='source' position={Position.Left} />
         )}
+        <NodeToolbar
+          position={Position.Bottom}
+          isVisible={props.data.isToolbarVisible}
+          style={{ top: '-10px' }}
+        >
+          <Button size='xs'>Details</Button>
+        </NodeToolbar>
 
         <VStack width='sm'>
           <Flex width='2xs'>

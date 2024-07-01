@@ -9,10 +9,12 @@ const isColliding = (
     throw new Error('width or height cannot be null or undefined');
   }
   return (
-    nodeA.position.x < nodeB.position.x + (nodeB.width - 15) &&
-    nodeA.position.x + (nodeA.width - 15) > nodeB.position.x &&
-    nodeA.position.y < nodeB.position.y + (nodeB.height - 15) &&
-    nodeA.position.y + (nodeA.height - 15) > nodeB.position.y
+    nodeA.position.x < nodeB.position.x + nodeB.width &&
+    nodeA.position.x + nodeA.width > nodeB.position.x &&
+    nodeA.position.y < nodeB.position.y + nodeB.height &&
+    nodeA.position.y +
+      (nodeA.data!.isToolbarVisible ? nodeA.height + 38 : nodeA.height) >
+      nodeB.position.y
   );
 };
 
@@ -35,7 +37,9 @@ const resolveCollision = (
     if (deltaY > 0) {
       nodeA.position.y = nodeB.position.y + nodeB.height!; // Move down
     } else {
-      nodeA.position.y = nodeB.position.y - nodeA.height!; // Move up
+      nodeA.position.y =
+        nodeB.position.y -
+        (nodeA.data!.isToolbarVisible ? nodeA.height! + 38 : nodeA.height!); // Move up
     }
   }
   return nodeA;

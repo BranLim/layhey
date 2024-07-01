@@ -10,11 +10,15 @@ import {
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import { closeModal, selectIsOpenModal } from '@/states/common/modal.slice';
 import { TransactionList } from '@/components/transaction/TransactionList';
-import { Button, Flex, Spacer } from '@chakra-ui/react';
+import { Button, Flex, Spacer, Text } from '@chakra-ui/react';
+import { selectPeriodForSelectedNode } from '@/states/features/cashflow/flow.slice';
 
 export const TransactionHome = () => {
   const isOpen = useAppSelector((state) =>
     selectIsOpenModal(state, 'TransactionDrawer')
+  );
+  const transactionPeriod = useAppSelector((state) =>
+    selectPeriodForSelectedNode(state)
   );
   const dispatch = useAppDispatch();
   const handleCloseDrawer = () => {
