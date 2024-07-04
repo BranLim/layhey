@@ -14,6 +14,7 @@ import {
 import React from 'react';
 import { toFormattedDate } from '@/utils/date.utils';
 import { NodeToolbar } from '@reactflow/node-toolbar';
+import { CashFlowToolbar } from '@/components/cashflow/CashFlowToolbar';
 
 export const IncomeExpenseNode = (
   props: NodeProps<CashFlow.IncomeNodeData | CashFlow.ExpenseNodeData>
@@ -40,13 +41,7 @@ export const IncomeExpenseNode = (
         {!props.data.rootNode && (
           <Handle type='source' position={Position.Left} />
         )}
-        <NodeToolbar
-          position={Position.Bottom}
-          isVisible={props.data.isToolbarVisible}
-          style={{ top: '-10px' }}
-        >
-          <Button size='xs'>Details</Button>
-        </NodeToolbar>
+        <CashFlowToolbar isVisible={props.data.isToolbarVisible} />
 
         <VStack width='sm'>
           <Flex width='2xs'>
