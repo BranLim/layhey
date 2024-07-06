@@ -37,7 +37,7 @@ export const TransactionHome = () => {
         <DrawerCloseButton />
         <DrawerHeader>Transactions</DrawerHeader>
         <DrawerBody>
-          <TransactionList />
+          <TransactionList transactions={[]} />
         </DrawerBody>
         <DrawerFooter>
           <Flex alignItems='right' pt={4} pb={2}>

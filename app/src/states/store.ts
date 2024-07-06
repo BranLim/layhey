@@ -3,6 +3,7 @@ import modalReducer from '@/states/common/modal.slice';
 import cashflowReducer from '@/states/features/cashflow/cashflow.slice';
 import flowReducer from './features/cashflow/flow.slice';
 import accountingReducer from './features/accounting/accounting.slice';
+import transactionReducer from './features/transaction/transaction.slice';
 import { listenerMiddleware } from '@/states/listeners';
 
 export const makeStore = () => {
@@ -12,6 +13,7 @@ export const makeStore = () => {
       flow: flowReducer,
       cashflow: cashflowReducer,
       accounting: accountingReducer,
+      transaction: transactionReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().prepend(listenerMiddleware.middleware),

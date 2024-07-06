@@ -15,6 +15,7 @@ import {
 import { createCashFlowSummary } from '@/lib/helpers/cashflow.helper';
 import { getErrorMessage } from '@/utils/error.utils';
 import { openModal } from '@/states/common/modal.slice';
+import { getTransactionsForPeriod } from '@/states/features/transaction/getTransactions.thunk';
 
 const handleInitialCashFlowLoad = (
   action: Action,
@@ -169,6 +170,18 @@ const fetchRelevantCashFlowDetails = async (
     console.log('Get relevant cashflow details completed');
   } else {
     await listenerApi.dispatch(openModal('TransactionDrawer'));
+
+    const currentState = listenerApi.getState();
+
+    await listenerApi.dispatch(
+      getTransactionsForPeriod({
+        startPeriod: '',
+        endPeriod: '',
+        parentNodeId: '',
+        parentStatementSlotId: '',
+        reset: false,
+      })
+    );
   }
 };
 

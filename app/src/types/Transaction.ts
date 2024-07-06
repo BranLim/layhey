@@ -39,10 +39,8 @@ export type Transaction = {
   lastModifiedOn?: Date;
 };
 
-export type TransactionDto = Transaction;
-
-export type TransactionRequest = Omit<
-  TransactionDto,
+export type SerializableTransaction = Omit<
+  Transaction,
   'date' | 'createdOn' | 'lastModifiedOn'
 > & {
   date: string;
@@ -50,7 +48,10 @@ export type TransactionRequest = Omit<
   lastModifiedOn?: string;
 };
 
-export type TransactionResponse = TransactionRequest;
+export type TransactionDto = Transaction;
+
+export type TransactionRequest = SerializableTransaction;
+export type TransactionResponse = SerializableTransaction;
 
 export type AddTransactionRequest = {
   transaction: TransactionRequest;
