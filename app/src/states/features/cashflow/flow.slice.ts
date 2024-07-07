@@ -13,9 +13,10 @@ import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
 import { Draft } from 'immer';
 import SerializableIncomeSummary = CashFlow.SerializableIncomeSummary;
 import SerializableExpenseSummary = CashFlow.SerializableExpenseSummary;
-import IncomeNodeData = CashFlow.IncomeNodeData;
-import ExpenseNodeData = CashFlow.ExpenseNodeData;
+import IncomeNodeData = Flow.IncomeNodeData;
+import ExpenseNodeData = Flow.ExpenseNodeData;
 import { detectAndResolveCollisions } from '@/lib/helpers/flow.helper';
+import Flow from '@/types/Flow';
 
 const edgeColor = 'lightgray';
 
@@ -51,9 +52,9 @@ export type FlowViewStatus =
 export type FlowViewState = {
   currentChosenAccountingPeriod: SerializableAccountingPeriod;
   expandedNodes: Array<string>;
-  nodes: Node<CashFlow.FlowNodeData>[];
+  nodes: Node<Flow.FlowNodeData>[];
   edges: Edge[];
-  selectedNode?: Node<CashFlow.FlowNodeData>;
+  selectedNode?: Node<Flow.FlowNodeData>;
   nodeStyles: Record<string, any>;
   flowViewStatus: FlowViewStatus;
 };
@@ -69,7 +70,7 @@ const initialState: FlowViewState = {
     endPeriod: '',
   },
   expandedNodes: Array<string>(),
-  nodes: Array<Node<CashFlow.NodeData>>(),
+  nodes: Array<Node<Flow.FlowNodeData>>(),
   edges: Array<Edge>(),
   nodeStyles: {},
   flowViewStatus: 'initial_node_load',
@@ -119,8 +120,8 @@ const generateCashFlowNodes = (
   yInitialPos: number,
   height: number,
   width: number
-): Node<CashFlow.FlowNodeData>[] => {
-  const cashFlowNodes: Node<CashFlow.FlowNodeData>[] = [];
+): Node<Flow.FlowNodeData>[] => {
+  const cashFlowNodes: Node<Flow.FlowNodeData>[] = [];
   let y = yInitialPos;
   if (cashFlowSummaries && cashFlowSummaries.length === 0) {
     const node: Node = {
@@ -141,7 +142,7 @@ const generateCashFlowNodes = (
 
   for (const cashFlowSummary of cashFlowSummaries) {
     if (cashFlowSummary.statementType === 'Summary') {
-      const node: Node<CashFlow.CashFlowNodeData> = {
+      const node: Node<Flow.CashFlowNodeData> = {
         id: `node-${uuidv4()}`,
         type: 'cashFlowNode',
         position: { x: xInitialPos, y: y },
@@ -168,7 +169,7 @@ const generateCashFlowNodes = (
       applyDefaultNodeStyle(state, node.id);
     } else if (cashFlowSummary.statementType === 'Income') {
       const incomeStatement = cashFlowSummary as SerializableIncomeSummary;
-      const node: Node<CashFlow.IncomeNodeData> = {
+      const node: Node<Flow.IncomeNodeData> = {
         id: `node-${uuidv4()}`,
         type: 'incomeExpenseNode',
         position: { x: xInitialPos, y: y },
@@ -182,10 +183,8 @@ const generateCashFlowNodes = (
           id: incomeStatement.id,
           parentRef: incomeStatement.parentRef,
           statementType: incomeStatement.statementType,
-          accountingPeriod: {
-            startPeriod: incomeStatement.accountingPeriod.startPeriod,
-            endPeriod: incomeStatement.accountingPeriod.endPeriod,
-          },
+          startPeriod: incomeStatement.startPeriod,
+          endPeriod: incomeStatement.endPeriod,
           total: incomeStatement.total,
           isToolbarVisible: false,
         },
@@ -194,7 +193,7 @@ const generateCashFlowNodes = (
       applyDefaultNodeStyle(state, node.id);
     } else if (cashFlowSummary.statementType === 'Expense') {
       const expenseStatement = cashFlowSummary as SerializableExpenseSummary;
-      const node: Node<CashFlow.ExpenseNodeData> = {
+      const node: Node<Flow.ExpenseNodeData> = {
         id: `node-${uuidv4()}`,
         type: 'incomeExpenseNode',
         position: { x: xInitialPos, y: y },
@@ -208,10 +207,8 @@ const generateCashFlowNodes = (
           id: expenseStatement.id,
           parentRef: expenseStatement.parentRef,
           statementType: expenseStatement.statementType,
-          accountingPeriod: {
-            startPeriod: expenseStatement.accountingPeriod.startPeriod,
-            endPeriod: expenseStatement.accountingPeriod.endPeriod,
-          },
+          startPeriod: expenseStatement.startPeriod,
+          endPeriod: expenseStatement.endPeriod,
           total: expenseStatement.total,
           isToolbarVisible: false,
         },
@@ -244,12 +241,12 @@ const generateNodeEdges = (
 };
 
 const getNodePosition = (
-  nodes: Node<CashFlow.FlowNodeData>[],
+  nodes: Node<Flow.FlowNodeData>[],
   summary:
     | CashFlow.SerializableCashFlowSummary
     | CashFlow.SerializableIncomeSummary
     | CashFlow.SerializableExpenseSummary,
-  targetNode: Node<CashFlow.FlowNodeData>
+  targetNode: Node<Flow.FlowNodeData>
 ): NodePosition => {
   const childNodes = nodes.filter(
     (node) => node.data && node.data.parentRef === summary.parentRef
@@ -285,9 +282,9 @@ const flowSlice = createSlice({
       const overallCashFlowSummary: CashFlow.SerializableCashFlowSummary =
         action.payload;
 
-      const cashFlowNodes: Node<CashFlow.FlowNodeData>[] = [...state.nodes];
+      const cashFlowNodes: Node<Flow.FlowNodeData>[] = [...state.nodes];
 
-      let rootNode: Node<CashFlow.FlowNodeData> = cashFlowNodes[0];
+      let rootNode: Node<Flow.FlowNodeData> = cashFlowNodes[0];
       if (rootNode) {
         cashFlowNodes[0] = {
           ...rootNode,
@@ -301,7 +298,7 @@ const flowSlice = createSlice({
             inflow: overallCashFlowSummary.inflow,
             outflow: overallCashFlowSummary.outflow,
             difference: overallCashFlowSummary.difference,
-          } as CashFlow.CashFlowNodeData,
+          } as Flow.CashFlowNodeData,
         };
       } else {
         rootNode = {
@@ -341,7 +338,7 @@ const flowSlice = createSlice({
       console.log('RenderCashFlowNodes');
       const { cashFlowSummaries, fromTargetNodeId } = action.payload;
 
-      let nodes: Node<CashFlow.FlowNodeData>[] = [...state.nodes];
+      let nodes: Node<Flow.FlowNodeData>[] = [...state.nodes];
       let edges: Edge[] = [...state.edges];
 
       const targetNode = nodes.find((node) => node.id === fromTargetNodeId);
@@ -422,10 +419,8 @@ const flowSlice = createSlice({
               id: incomeSummary.id,
               parentRef: incomeSummary.parentRef,
               statementType: incomeSummary.statementType,
-              accountingPeriod: {
-                startPeriod: incomeSummary.accountingPeriod.startPeriod,
-                endPeriod: incomeSummary.accountingPeriod.endPeriod,
-              },
+              startPeriod: incomeSummary.startPeriod,
+              endPeriod: incomeSummary.endPeriod,
               total: incomeSummary.total,
             },
           } as Node<IncomeNodeData>;
@@ -437,10 +432,8 @@ const flowSlice = createSlice({
               id: expenseSummary.id,
               parentRef: expenseSummary.parentRef,
               statementType: expenseSummary.statementType,
-              accountingPeriod: {
-                startPeriod: expenseSummary.accountingPeriod.startPeriod,
-                endPeriod: expenseSummary.accountingPeriod.endPeriod,
-              },
+              startPeriod: expenseSummary.startPeriod,
+              endPeriod: expenseSummary.endPeriod,
               total: expenseSummary.total,
             },
           } as Node<ExpenseNodeData>;
@@ -472,7 +465,7 @@ const flowSlice = createSlice({
     },
     handleNodeMouseEnter: (
       state: Draft<FlowViewState>,
-      action: PayloadAction<Node<CashFlow.NodeData>>
+      action: PayloadAction<Node<Flow.FlowNodeData>>
     ) => {
       const mouseEnteredNode = action.payload;
       if (
@@ -490,7 +483,7 @@ const flowSlice = createSlice({
     },
     handleNodeMouseLeave: (
       state: Draft<FlowViewState>,
-      action: PayloadAction<Node<CashFlow.NodeData>>
+      action: PayloadAction<Node<Flow.FlowNodeData>>
     ) => {
       const mouseLeaveNode = action.payload;
       if (state.selectedNode && mouseLeaveNode.id === state.selectedNode?.id) {
@@ -552,7 +545,7 @@ const flowSlice = createSlice({
     },
     handleNodeMouseClick: (
       state: Draft<FlowViewState>,
-      action: PayloadAction<Node<CashFlow.CashFlowNodeData>>
+      action: PayloadAction<Node<Flow.FlowNodeData>>
     ) => {
       const nodeDoubleClicked = action.payload;
       const foundNode = state.nodes.find(
@@ -566,7 +559,7 @@ const flowSlice = createSlice({
     },
     handleNodeMouseDoubleClick: (
       state: Draft<FlowViewState>,
-      action: PayloadAction<Node<CashFlow.CashFlowNodeData>>
+      action: PayloadAction<Node<Flow.FlowNodeData>>
     ) => {
       const nodeDoubleClicked = action.payload;
       const foundNode = state.nodes.find(

@@ -381,14 +381,12 @@ const createCashFlowSummary = (
       id: cashFlowForPeriod.id,
       parentRef: cashFlowForPeriod.parentRef,
       statementType: cashFlowForPeriod.statementType,
-      accountingPeriod: {
-        startPeriod: new Date(
-          cashFlowForPeriod.accountingPeriod.startPeriod
-        ).toISOString(),
-        endPeriod: new Date(
-          cashFlowForPeriod.accountingPeriod.endPeriod
-        ).toISOString(),
-      },
+      startPeriod: new Date(
+        cashFlowForPeriod.accountingPeriod.startPeriod
+      ).toISOString(),
+      endPeriod: new Date(
+        cashFlowForPeriod.accountingPeriod.endPeriod
+      ).toISOString(),
       total: cashFlowForPeriod.expense.total,
     } as CashFlow.SerializableExpenseSummary;
   } else if (cashFlowForPeriod.statementType === 'Income') {
@@ -396,14 +394,12 @@ const createCashFlowSummary = (
       id: cashFlowForPeriod.id,
       parentRef: cashFlowForPeriod.parentRef,
       statementType: cashFlowForPeriod.statementType,
-      accountingPeriod: {
-        startPeriod: new Date(
-          cashFlowForPeriod.accountingPeriod.startPeriod
-        ).toISOString(),
-        endPeriod: new Date(
-          cashFlowForPeriod.accountingPeriod.endPeriod
-        ).toISOString(),
-      },
+      startPeriod: new Date(
+        cashFlowForPeriod.accountingPeriod.startPeriod
+      ).toISOString(),
+      endPeriod: new Date(
+        cashFlowForPeriod.accountingPeriod.endPeriod
+      ).toISOString(),
       total: cashFlowForPeriod.income.total,
     } as CashFlow.SerializableIncomeSummary;
   } else {

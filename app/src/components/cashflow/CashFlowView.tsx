@@ -20,9 +20,9 @@ import {
   selectFlowNodes,
 } from '@/states/features/cashflow/flow.slice';
 import { Loading } from '@/components/common/Loading';
-import CashFlow from '@/types/CashFlow';
 import { NoDataNode } from '@/components/cashflow/NoDataNode';
 import { IncomeExpenseNode } from '@/components/cashflow/DetailedStatementNode';
+import Flow from '@/types/Flow';
 
 const nodeDragThreshold = 6;
 export const defaultViewPort = { x: 10, y: 20, zoom: 0.8 };
@@ -56,21 +56,21 @@ export const CashFlowView = () => {
 
   const handleMouseLeave = (
     event: React.MouseEvent,
-    node: Node<CashFlow.CashFlowNodeData>
+    node: Node<Flow.FlowNodeData>
   ) => {
     dispatch(handleNodeMouseLeave(node));
   };
 
   const handleMouseEnter = (
     event: React.MouseEvent,
-    node: Node<CashFlow.CashFlowNodeData>
+    node: Node<Flow.FlowNodeData>
   ) => {
     dispatch(handleNodeMouseEnter(node));
   };
 
   const handleMouseClick = async (
     event: React.MouseEvent,
-    node: Node<CashFlow.CashFlowNodeData>
+    node: Node<Flow.FlowNodeData>
   ) => {
     if (event.button === 0) {
       dispatch(handleNodeMouseClick(node));
@@ -79,7 +79,7 @@ export const CashFlowView = () => {
 
   const handleMouseDoubleClick = async (
     event: React.MouseEvent,
-    node: Node<CashFlow.CashFlowNodeData>
+    node: Node<Flow.FlowNodeData>
   ) => {
     if (event.button === 0) {
       dispatch(handleNodeMouseDoubleClick(node));

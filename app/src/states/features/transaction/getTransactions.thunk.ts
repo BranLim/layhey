@@ -13,11 +13,11 @@ import { getTransactions } from '@/lib/actions/transaction.action';
 
 export const getTransactionsForPeriod = createAsyncThunk<
   void,
-  CashFlow.GetTransactionRequest,
+  { startPeriod: string; endPeriod: string },
   { state: { transaction: TransactionViewState } }
 >(
   'transaction/getTransactions',
-  async (request: CashFlow.GetTransactionRequest, { dispatch }) => {
+  async (request: { startPeriod: string; endPeriod: string }, { dispatch }) => {
     const { startPeriod, endPeriod } = request;
 
     const transactions: Transaction[] = await getTransactions(

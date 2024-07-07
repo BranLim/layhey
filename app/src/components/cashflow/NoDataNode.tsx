@@ -4,8 +4,9 @@ import { useAppSelector } from '@/states/hooks';
 import { selectNodeStyle } from '@/states/features/cashflow/flow.slice';
 import { Box, Flex, Spacer, Text } from '@chakra-ui/react';
 import React from 'react';
+import Flow from '@/types/Flow';
 
-export const NoDataNode = (props: NodeProps<CashFlow.CashFlowNodeData>) => {
+export const NoDataNode = (props: NodeProps<Flow.FlowNodeData>) => {
   const nodeStyle = useAppSelector((state) => selectNodeStyle(state, props.id));
 
   return (
@@ -20,7 +21,7 @@ export const NoDataNode = (props: NodeProps<CashFlow.CashFlowNodeData>) => {
         height='80px'
         zIndex={999}
       >
-        {!props.data.rootNode && (
+        {!props.data?.rootNode && (
           <Handle type='source' position={Position.Left} />
         )}
 

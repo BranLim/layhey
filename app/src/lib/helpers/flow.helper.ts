@@ -1,9 +1,10 @@
 import { Node } from '@reactflow/core';
 import CashFlow from '@/types/CashFlow';
+import Flow from '@/types/Flow';
 
 const isColliding = (
-  nodeA: Node<CashFlow.FlowNodeData>,
-  nodeB: Node<CashFlow.FlowNodeData>
+  nodeA: Node<Flow.FlowNodeData>,
+  nodeB: Node<Flow.FlowNodeData>
 ): boolean => {
   if (!nodeA.width || !nodeA.height || !nodeB.width || !nodeB.height) {
     throw new Error('width or height cannot be null or undefined');
@@ -19,9 +20,9 @@ const isColliding = (
 };
 
 const resolveCollision = (
-  nodeA: Node<CashFlow.FlowNodeData>,
-  nodeB: Node<CashFlow.FlowNodeData>
-): Node<CashFlow.FlowNodeData> => {
+  nodeA: Node<Flow.FlowNodeData>,
+  nodeB: Node<Flow.FlowNodeData>
+): Node<Flow.FlowNodeData> => {
   const deltaX = nodeA.position.x - nodeB.position.x;
   const deltaY = nodeA.position.y - nodeB.position.y;
 
@@ -46,9 +47,9 @@ const resolveCollision = (
 };
 
 export const detectAndResolveCollisions = (
-  updatedNode: Node<CashFlow.FlowNodeData>,
-  existingNodes: Node<CashFlow.FlowNodeData>[]
-): Node<CashFlow.FlowNodeData> => {
+  updatedNode: Node<Flow.FlowNodeData>,
+  existingNodes: Node<Flow.FlowNodeData>[]
+): Node<Flow.FlowNodeData> => {
   const maxIteration = 10;
   let iterationCount = 0;
   let resolvedNode = { ...updatedNode };

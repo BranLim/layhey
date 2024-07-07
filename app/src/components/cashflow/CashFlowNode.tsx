@@ -19,8 +19,9 @@ import {
 } from '@/states/features/cashflow/flow.slice';
 import { NodeToolbar } from '@reactflow/node-toolbar';
 import { CashFlowToolbar } from '@/components/cashflow/CashFlowToolbar';
+import Flow from '@/types/Flow';
 
-export const CashFlowNode = (props: NodeProps<CashFlow.CashFlowNodeData>) => {
+export const CashFlowNode = (props: NodeProps<Flow.CashFlowNodeData>) => {
   const dispatch = useAppDispatch();
   const nodeRef = useRef<HTMLDivElement>(null);
   useEffect(() => {

@@ -7,7 +7,6 @@ import { TransactionMode } from '@/types/Transaction';
 namespace CashFlow {
   export type CashFlowType = 'income' | 'expense';
   export type CashFlowStatementType = 'Summary' | 'Income' | 'Expense';
-  export type GraphUpdateMode = 'Reset' | 'InPlace' | 'Append';
 
   type Statement = {
     id: string;
@@ -70,34 +69,18 @@ namespace CashFlow {
     };
 
   export type SerializableIncomeSummary = Statement &
-    Omit<IncomeStatement, 'income'> & {
+    Omit<IncomeStatement, 'income' | 'accountingPeriod'> & {
+      startPeriod: string;
+      endPeriod: string;
       total: number;
     };
 
   export type SerializableExpenseSummary = Statement &
-    Omit<ExpenseStatement, 'expense'> & {
+    Omit<ExpenseStatement, 'expense' | 'accountingPeriod'> & {
+      startPeriod: string;
+      endPeriod: string;
       total: number;
     };
-
-  export type CashFlowNodeData = SerializableCashFlowSummary & {
-    rootNode?: boolean;
-    isExpanded?: boolean;
-    isToolbarVisible: boolean;
-  };
-
-  export type IncomeNodeData = SerializableIncomeSummary & {
-    rootNode?: boolean;
-    isExpanded?: boolean;
-    isToolbarVisible: boolean;
-  };
-
-  export type ExpenseNodeData = SerializableExpenseSummary & {
-    rootNode?: boolean;
-    isExpanded?: boolean;
-    isToolbarVisible: boolean;
-  };
-
-  export type NodeData = CashFlowNodeData | IncomeNodeData | ExpenseNodeData;
 
   export type CashflowCalculationResult = {
     totalIncome: number;
@@ -126,12 +109,6 @@ namespace CashFlow {
       | SerializableIncomeSummary
       | SerializableExpenseSummary;
   };
-
-  export type FlowNodeData =
-    | CashFlow.CashFlowNodeData
-    | CashFlow.IncomeNodeData
-    | CashFlow.ExpenseNodeData
-    | undefined;
 
   export type UpdateNodeSize = {
     id: string;

@@ -16,6 +16,7 @@ import { createCashFlowSummary } from '@/lib/helpers/cashflow.helper';
 import { getErrorMessage } from '@/utils/error.utils';
 import { openModal } from '@/states/common/modal.slice';
 import { getTransactionsForPeriod } from '@/states/features/transaction/getTransactions.thunk';
+import Flow from '@/types/Flow';
 
 const handleInitialCashFlowLoad = (
   action: Action,
@@ -149,11 +150,15 @@ const handleCashFlowUpdate = (
 };
 
 const fetchRelevantCashFlowDetails = async (
-  action: PayloadAction<Node<CashFlow.CashFlowNodeData>>,
+  action: PayloadAction<Node<Flow.FlowNodeData>>,
   listenerApi: ListenerEffectAPI<RootState, AppDispatch>
 ): Promise<void> => {
   const node = action.payload;
 
+  if (!node.data) {
+    console.log('Node data not initialised');
+    return;
+  }
   const { id, startPeriod, endPeriod } = node.data;
 
   console.log('Getting relevant cashflow details');
@@ -165,23 +170,22 @@ const fetchRelevantCashFlowDetails = async (
     parentStatementSlotId: id,
   };
 
-  if (node.data.statementType === 'Summary') {
-    await listenerApi.dispatch(getCashFlows(getCashFlowDetails));
-    console.log('Get relevant cashflow details completed');
-  } else {
-    await listenerApi.dispatch(openModal('TransactionDrawer'));
+  switch (node.data.statementType) {
+    case 'Summary':
+      await listenerApi.dispatch(getCashFlows(getCashFlowDetails));
+      console.log('Get relevant cashflow details completed');
+      break;
+    case 'Expense':
+    case 'Income':
+      await listenerApi.dispatch(openModal('TransactionDrawer'));
 
-    const currentState = listenerApi.getState();
-
-    await listenerApi.dispatch(
-      getTransactionsForPeriod({
-        startPeriod: '',
-        endPeriod: '',
-        parentNodeId: '',
-        parentStatementSlotId: '',
-        reset: false,
-      })
-    );
+      await listenerApi.dispatch(
+        getTransactionsForPeriod({
+          startPeriod: node.data.startPeriod,
+          endPeriod: node.data.endPeriod,
+        })
+      );
+      break;
   }
 };
 

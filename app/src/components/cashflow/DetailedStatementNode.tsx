@@ -1,5 +1,4 @@
 import { Handle, NodeProps, Position } from 'reactflow';
-import CashFlow from '@/types/CashFlow';
 import { useAppSelector } from '@/states/hooks';
 import { selectNodeStyle } from '@/states/features/cashflow/flow.slice';
 import {
@@ -13,11 +12,11 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 import { toFormattedDate } from '@/utils/date.utils';
-import { NodeToolbar } from '@reactflow/node-toolbar';
 import { CashFlowToolbar } from '@/components/cashflow/CashFlowToolbar';
+import Flow from '@/types/Flow';
 
 export const IncomeExpenseNode = (
-  props: NodeProps<CashFlow.IncomeNodeData | CashFlow.ExpenseNodeData>
+  props: NodeProps<Flow.IncomeNodeData | Flow.ExpenseNodeData>
 ) => {
   const nodeStyle = useAppSelector((state) => selectNodeStyle(state, props.id));
   const numberFormatter = new Intl.NumberFormat('en-SG', {
@@ -50,9 +49,9 @@ export const IncomeExpenseNode = (
                 Start Period
               </Text>
               <Text fontSize='lg' align='center'>
-                {props.data.accountingPeriod.startPeriod &&
+                {props.data.startPeriod &&
                   toFormattedDate(
-                    new Date(props.data.accountingPeriod.startPeriod),
+                    new Date(props.data.startPeriod),
                     'dd-MMM-yyyy'
                   )}
               </Text>
@@ -63,9 +62,9 @@ export const IncomeExpenseNode = (
                 End Period
               </Text>
               <Text fontSize='lg' align='center'>
-                {props.data.accountingPeriod.endPeriod &&
+                {props.data.endPeriod &&
                   toFormattedDate(
-                    new Date(props.data.accountingPeriod.endPeriod),
+                    new Date(props.data.endPeriod),
                     'dd-MMM-yyyy'
                   )}
               </Text>
