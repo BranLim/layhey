@@ -1,10 +1,9 @@
 import { Table, TableContainer, Tbody, Th, Thead, Tr } from '@chakra-ui/react';
-import { Transaction } from 'mongodb';
-import { TransactionDto } from '@/types/Transaction';
+import { SerializableTransaction, TransactionDto } from '@/types/Transaction';
 import { TransactionListRow } from '@/components/transaction/TransactionListRow';
 
 type Props = {
-  transactions: TransactionDto[];
+  transactions: SerializableTransaction[];
 };
 
 export const TransactionList = (props: Props) => {
@@ -21,7 +20,7 @@ export const TransactionList = (props: Props) => {
         </Thead>
         <Tbody>
           {transactions &&
-            transactions.map((transaction: TransactionDto) => {
+            transactions.map((transaction: SerializableTransaction) => {
               return (
                 <TransactionListRow
                   key={transaction.id}

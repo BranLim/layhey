@@ -1,9 +1,9 @@
-import { TransactionDto } from '@/types/Transaction';
+import { SerializableTransaction, TransactionDto } from '@/types/Transaction';
 import { Td, Tr } from '@chakra-ui/react';
 import { toFormattedDate } from '@/utils/date.utils';
 
 type Props = {
-  transaction: TransactionDto;
+  transaction: SerializableTransaction;
 };
 
 export const TransactionListRow = (props: Props) => {

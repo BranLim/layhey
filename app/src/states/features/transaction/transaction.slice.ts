@@ -7,7 +7,7 @@ export type TransactionViewState = {
 };
 
 const initialState: TransactionViewState = {
-  transactions: [],
+  transactions: [] as SerializableTransaction[],
 };
 
 const transactionSlice = createSlice({
@@ -31,5 +31,7 @@ const transactionSlice = createSlice({
 });
 
 export const { setTransactions } = transactionSlice.actions;
+export const selectTransactions = (state: any): SerializableTransaction[] =>
+  state.transaction.transactions;
 
 export default transactionSlice.reducer;
