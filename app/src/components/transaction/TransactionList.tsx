@@ -15,6 +15,7 @@ export const TransactionList = (props: Props) => {
           <Tr>
             <Th>Date</Th>
             <Th>Type</Th>
+            <Th>Category</Th>
             <Th>Amount</Th>
           </Tr>
         </Thead>

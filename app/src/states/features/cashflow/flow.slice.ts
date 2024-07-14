@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import CashFlow from '@/types/CashFlow';
 import {
   Edge,
@@ -9,7 +9,10 @@ import {
   Position,
 } from 'reactflow';
 import { v4 as uuidv4 } from 'uuid';
-import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
+import {
+  AccountingPeriod,
+  SerializableAccountingPeriod,
+} from '@/types/AccountingPeriod';
 import { Draft } from 'immer';
 import SerializableIncomeSummary = CashFlow.SerializableIncomeSummary;
 import SerializableExpenseSummary = CashFlow.SerializableExpenseSummary;
@@ -613,12 +616,18 @@ export const selectFlowEdges = (state: any) => state.flow.edges;
 export const selectRootNode = (state: any) => state.flow.nodes[0];
 export const selectNodeStyle = (state: any, nodeId: string) =>
   state.flow.nodeStyles[nodeId];
-export const selectPeriodForSelectedNode = (state: any) => {
-  return state.flow.selectedNode
-    ? {
-        startPeriod: state.flow.selectedNode.data.startPeriod,
-        endPeriod: state.flow.selectedNode.data.endPeriod,
-      }
-    : { startPeriod: '', endPeriod: '' };
-};
+export const selectPeriodForSelectedNode = createSelector(
+  (state: any) => state.flow.selectedNode,
+  (selectedNode) => {
+    const accountingPeriod: SerializableAccountingPeriod = {
+      startPeriod: '',
+      endPeriod: '',
+    };
+    if (selectedNode) {
+      accountingPeriod.startPeriod = selectedNode.data.startPeriod;
+      accountingPeriod.endPeriod = selectedNode.data.endPeriod;
+    }
+    return accountingPeriod;
+  }
+);
 export default flowSlice.reducer;

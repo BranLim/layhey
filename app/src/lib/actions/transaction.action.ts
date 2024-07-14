@@ -2,8 +2,10 @@
 
 import {
   AddTransactionRequest,
+  modeFromValue,
   Transaction,
   TransactionDto,
+  transactionSourceFromValue,
 } from '@/types/Transaction';
 import {
   add,
@@ -43,6 +45,10 @@ const addTransaction = async (
     } else {
       const transactionToAdd: Transaction = {
         ...transaction,
+        transactionSource: transactionSourceFromValue(
+          transaction.transactionSource
+        ),
+        mode: modeFromValue(transaction.mode),
         date: new Date(transaction.date),
         createdOn: undefined,
         lastModifiedOn: undefined,

@@ -20,13 +20,10 @@ export const TransactionHome = () => {
   const isOpen = useAppSelector((state) =>
     selectIsOpenModal(state, 'TransactionDrawer')
   );
-  const transactionPeriod = useAppSelector((state) =>
-    selectPeriodForSelectedNode(state)
-  );
-  const transactionsForPeriod = useAppSelector((state) =>
-    selectTransactions(state)
-  );
+  const transactionPeriod = useAppSelector(selectPeriodForSelectedNode);
+  const transactionsForPeriod = useAppSelector(selectTransactions);
   const dispatch = useAppDispatch();
+
   useEffect(() => {
     if (transactionPeriod.startPeriod && transactionPeriod.endPeriod) {
       dispatch(

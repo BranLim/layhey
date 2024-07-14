@@ -86,7 +86,7 @@ const findAllMatching = async (
       $gte: new Date(startPeriod),
       $lte: new Date(endPeriod),
     },
-  }).sort({ date: -1 });
+  });
 
   if (!foundTransactions) {
     return [] as Transaction[];
@@ -98,6 +98,7 @@ const findAllMatching = async (
         id: transaction._id,
         mode: transaction.mode,
         transactionSource: transaction.transactionSource,
+        transactionCategory: transaction.transactionCategory,
         amount: transaction.amount,
         currency: transaction.currency,
         date: transaction.date,
@@ -117,6 +118,7 @@ const findOneById = async (id: string): Promise<Transaction | null> => {
     id: foundTransaction._id,
     mode: foundTransaction.mode,
     transactionSource: foundTransaction.transactionSource,
+    transactionCategory: foundTransaction.transactionCategory,
     amount: foundTransaction.amount,
     currency: foundTransaction.currency,
     date: foundTransaction.date,

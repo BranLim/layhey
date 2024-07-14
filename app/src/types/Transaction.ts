@@ -41,8 +41,10 @@ export type Transaction = {
 
 export type SerializableTransaction = Omit<
   Transaction,
-  'date' | 'createdOn' | 'lastModifiedOn'
+  'mode' | 'transactionSource' | 'date' | 'createdOn' | 'lastModifiedOn'
 > & {
+  mode: string;
+  transactionSource: string;
   date: string;
   createdOn?: string;
   lastModifiedOn?: string;

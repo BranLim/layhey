@@ -1,5 +1,4 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import CashFlow from '@/types/CashFlow';
 import {
   setTransactions,
   TransactionViewState,
@@ -9,7 +8,7 @@ import {
   Transaction,
   TransactionResponse,
 } from '@/types/Transaction';
-import { getTransactions } from '@/lib/actions/transaction.action';
+import { getTransactions } from '@/states/features/cashflow/api/transactions.api';
 
 export const getTransactionsForPeriod = createAsyncThunk<
   void,
@@ -20,25 +19,10 @@ export const getTransactionsForPeriod = createAsyncThunk<
   async (request: { startPeriod: string; endPeriod: string }, { dispatch }) => {
     const { startPeriod, endPeriod } = request;
 
-    const transactions: Transaction[] = await getTransactions(
+    const transactions: TransactionResponse[] = await getTransactions(
       startPeriod,
       endPeriod
     );
-
-    const transactionDtos = transactions.map((transaction) => {
-      return {
-        id: transaction.id,
-        mode: transaction.mode,
-        transactionCategory: transaction.transactionCategory,
-        amount: transaction.amount,
-        transactionSource: transaction.transactionSource,
-        date: transaction.date.toISOString(),
-        currency: transaction.currency,
-        createdOn: transaction.createdOn?.toISOString(),
-        lastModifiedOn: transaction.lastModifiedOn?.toISOString(),
-      } as SerializableTransaction;
-    });
-
-    dispatch(setTransactions(transactionDtos));
+    dispatch(setTransactions(transactions));
   }
 );
