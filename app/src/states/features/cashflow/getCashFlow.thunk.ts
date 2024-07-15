@@ -10,7 +10,7 @@ import {
   setCashFlow,
   setCashFlowStatementPeriods,
 } from '@/states/features/cashflow/cashflow.slice';
-import { getCashFlowStatementPeriods } from '@/lib/helpers/cashflow.helper';
+import { getCashFlowStatementPeriods } from '@/lib/helpers/period-calculation.helper';
 import { getErrorMessage } from '@/utils/error.utils';
 
 export const getCashFlows = createAsyncThunk<

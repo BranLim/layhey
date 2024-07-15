@@ -12,7 +12,7 @@ import {
   resetNodes,
   setOverallCashFlowNode,
 } from '@/states/features/cashflow/flow.slice';
-import { createCashFlowSummary } from '@/lib/helpers/cashflow.helper';
+import { createCashFlowSummary } from '@/lib/helpers/period-calculation.helper';
 import { getErrorMessage } from '@/utils/error.utils';
 import { openModal } from '@/states/common/modal.slice';
 import { getTransactionsForPeriod } from '@/states/features/transaction/getTransactions.thunk';

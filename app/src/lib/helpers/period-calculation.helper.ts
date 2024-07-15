@@ -3,7 +3,6 @@ import {
   Accounting_Period_Days_In_Week,
   Accounting_Period_Days_In_Year,
   Accounting_Period_One_Day_In_Milliseconds,
-  AccountingPeriod,
   StatementPeriodSlot,
 } from '@/types/AccountingPeriod';
 import {
@@ -12,7 +11,6 @@ import {
   isDate,
   isLastDayOfMonth,
   isSunday,
-  parse,
   startOfWeek,
 } from 'date-fns';
 import { add as addDate } from 'date-fns/add';
@@ -297,60 +295,6 @@ const generateYearPeriods = (
   return periods;
 };
 
-const getAccountingPeriodSlot = (
-  statementPeriods: StatementPeriodSlot[],
-  transactionDate: Date
-): StatementPeriodSlot | undefined => {
-  return statementPeriods?.find(
-    (value) =>
-      value.startPeriod <= transactionDate && value.endPeriod >= transactionDate
-  );
-};
-
-const getMatchingCashFlowStatementPeriodSlots = (
-  statementPeriods: StatementPeriodSlot[],
-  transactionDate: Date
-): StatementPeriodSlot[] | undefined => {
-  if (!statementPeriods) {
-    return undefined;
-  }
-  const allMatchingSlots = statementPeriods?.filter(
-    (value) =>
-      value.startPeriod <= transactionDate && value.endPeriod >= transactionDate
-  );
-  if (!allMatchingSlots || allMatchingSlots.length === 0) {
-    return undefined;
-  }
-  allMatchingSlots.sort(
-    (slot1: StatementPeriodSlot, slot2: StatementPeriodSlot) => {
-      const slo1Time = slot1.endPeriod.getTime() - slot1.startPeriod.getTime();
-      const slot2Time = slot2.endPeriod.getTime() - slot2.startPeriod.getTime();
-
-      if (slo1Time > slot2Time) {
-        return 1;
-      }
-      if (slo1Time < slot2Time) {
-        return -1;
-      }
-
-      return 0;
-    }
-  );
-  return allMatchingSlots;
-};
-
-const getStatementPeriodFromSlotKey = (
-  slotKey: string
-): AccountingPeriod | undefined => {
-  const dates = slotKey.split('_');
-  if (!dates || dates.length < 2) {
-    return undefined;
-  }
-  const startPeriod = parse(dates[0], 'yyyyMMdd', new Date());
-  const endPeriod = parse(dates[1], 'yyyyMMdd', new Date());
-  return { startPeriod, endPeriod } as AccountingPeriod;
-};
-
 const getStatementPeriodKey = (startDate: Date, endDate: Date) =>
   `${toFormattedDate(startDate, 'yyyyMMdd')}_${toFormattedDate(endDate, 'yyyyMMdd')}`;
 
@@ -424,9 +368,6 @@ const createCashFlowSummary = (
 
 export {
   getCashFlowStatementPeriods,
-  getAccountingPeriodSlot,
-  getStatementPeriodFromSlotKey,
-  getMatchingCashFlowStatementPeriodSlots,
   getStatementPeriodKey,
   isCashFlowStatement,
   isIncomeStatement,
