@@ -2,7 +2,7 @@ import { Interval, Option } from '@/types/AdvancedSetting';
 import { Transaction, TransactionRequest } from '@/types/Transaction';
 import { add, Duration } from 'date-fns';
 
-const getAddDateDuration = (interval: Interval) => {
+const getAddDateDuration = (interval: Interval): Duration => {
   const duration: Duration = {};
   switch (interval) {
     case 'daily':
@@ -78,7 +78,10 @@ const splitTransaction = (
   return transactions;
 };
 
-const repeatTransaction = (transaction: TransactionRequest, option: Option) => {
+const repeatTransaction = (
+  transaction: TransactionRequest,
+  option: Option
+): Transaction[] => {
   if (!option || option.type !== 'repeat') {
     throw new Error('Invalid option parameter');
   }

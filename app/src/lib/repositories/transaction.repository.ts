@@ -9,14 +9,15 @@ import { toTransaction } from '@/lib/mappers/transaction.mapper';
 const add = async (transaction: Transaction): Promise<Transaction> => {
   await connectMongo();
 
-  const newTransaction = new TransactionModel({
+  const transactionDocument: Partial<TransactionDocument> = {
     date: transaction.date,
     amount: transaction.amount,
     currency: transaction.currency,
     mode: transaction.mode,
     transactionSource: transaction.transactionSource,
     transactionCategory: transaction.transactionCategory,
-  } as TransactionDocument);
+  };
+  const newTransaction = new TransactionModel(transactionDocument);
 
   const addedTransaction: TransactionDocument = await newTransaction.save();
 
@@ -114,7 +115,7 @@ const findOneById = async (id: string): Promise<Transaction | null> => {
     return null;
   }
 
-  return {
+  const transaction: Transaction = {
     id: foundTransaction._id,
     mode: foundTransaction.mode,
     transactionSource: foundTransaction.transactionSource,
@@ -122,7 +123,9 @@ const findOneById = async (id: string): Promise<Transaction | null> => {
     amount: foundTransaction.amount,
     currency: foundTransaction.currency,
     date: foundTransaction.date,
-  } as Transaction;
+  };
+
+  return transaction;
 };
 
 export { findAllMatching, findOneById, add, addAll, update };

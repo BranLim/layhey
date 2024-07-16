@@ -100,14 +100,16 @@ const getTransaction = async (id: string): Promise<TransactionDto | null> => {
     console.log('No transaction found with id ', id);
     return null;
   }
-  return {
+  const transactionDto: TransactionDto = {
     id: transaction.id,
     mode: transaction.mode,
     transactionCategory: transaction.transactionCategory,
+    transactionSource: transaction.transactionSource,
     amount: transaction.amount,
     currency: transaction.currency,
     date: transaction.date,
-  } as TransactionDto;
+  };
+  return transactionDto;
 };
 
 export { addTransaction, updateTransaction, getTransactions, getTransaction };
