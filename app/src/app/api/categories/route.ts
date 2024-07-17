@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getTransactionCategories } from '@/lib/actions/transactionCategories.action';
+import { getTransactionCategories } from '@/lib/services/transactionCategories.service';
 import {
   TransactionCategoriesResponse,
   TransactionCategoryDto,

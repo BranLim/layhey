@@ -6,7 +6,7 @@ import {
 } from '@/types/Transaction';
 import { FlowViewState } from '@/states/features/cashflow/flow.slice';
 import { addTransactions } from '@/states/features/cashflow/api/transactions.api';
-import { isTransactionDateWithin } from '@/utils/date.utils';
+import { isDateWithin } from '@/utils/date.utils';
 import {
   CashFlowState,
   setCashFlow,
@@ -44,7 +44,7 @@ export const addTransaction = createAsyncThunk<
     transactions?.forEach((transaction: TransactionResponse) => {
       const transactionDate = new Date(transaction.date);
       if (
-        !isTransactionDateWithin(
+        !isDateWithin(
           transactionDate,
           new Date(budgetStartPeriod),
           new Date(budgetEndPeriod)
@@ -84,11 +84,7 @@ export const addTransaction = createAsyncThunk<
         );
 
         if (
-          !isTransactionDateWithin(
-            transactionDate,
-            cashFlowStartDate,
-            cashFlowEndDate
-          )
+          !isDateWithin(transactionDate, cashFlowStartDate, cashFlowEndDate)
         ) {
           continue;
         }

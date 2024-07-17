@@ -7,7 +7,7 @@ import {
 import {
   addTransaction,
   getTransactions,
-} from '@/lib/actions/transaction.action';
+} from '@/lib/services/transaction.service';
 import { toTransactionResponse } from '@/lib/mappers/transaction.mapper';
 
 export const dynamic = 'force-dynamic';

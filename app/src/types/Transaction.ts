@@ -61,6 +61,12 @@ export type AddTransactionRequest = {
   advancedSetting?: AdvancedSetting;
 };
 
+export type TransactionQueryParams = {
+  startPeriod: string;
+  endPeriod: string;
+  mode?: string;
+};
+
 export const modeFromValue = (value: string): TransactionMode | never => {
   const mode = (
     Object.keys(TransactionMode) as (keyof typeof TransactionMode)[]

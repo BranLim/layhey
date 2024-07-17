@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import {
   addAccountingPeriod,
   getAccountingPeriods,
-} from '@/lib/actions/accounting.action';
+} from '@/lib/services/accounting.service';
 import { getErrorMessage } from '@/utils/error.utils';
 import { GetUserAccountingPeriodsResponse } from '@/types/AccountingPeriod';
 import { toGetUserAccountingPeriodsResponse } from '@/lib/mappers/accountingPeriod.mapper';

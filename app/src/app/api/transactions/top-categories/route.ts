@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { getTransactions } from '@/lib/actions/transaction.action';
-import { getCategorisedCashFlow } from '@/lib/actions/transactionCategories.action';
+import { getTransactions } from '@/lib/services/transaction.service';
+import { getCategorisedCashFlow } from '@/lib/services/transactionCategories.service';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,10 +17,6 @@ export const GET = async (request: NextRequest): Promise<Response> => {
     parseInt(top),
     transactionMode
   );
-  const transactions = await getTransactions(
-    startPeriod,
-    endPeriod,
-    transactionType
-  );
+  const transactions = await getTransactions(startPeriod, endPeriod);
   return Response.json({});
 };

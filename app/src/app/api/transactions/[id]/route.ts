@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import {
   getTransaction,
   updateTransaction,
-} from '@/lib/actions/transaction.action';
+} from '@/lib/services/transaction.service';
 
 export const dynamic = 'force-dynamic';
 

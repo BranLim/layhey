@@ -9,16 +9,16 @@ import {
   startOfWeek,
 } from 'date-fns';
 
-export const isTransactionDateWithin = (
-  transactionDate: Date,
-  budgetStartPeriod: Date,
-  budgetEndPeriod: Date
+export const isDateWithin = (
+  dateToCheck: Date,
+  startDate: Date,
+  endDate: Date
 ): boolean => {
-  if (transactionDate) {
-    const transactionDateInMillis = transactionDate.getTime();
+  if (dateToCheck) {
+    const dateToCheckInMillis = dateToCheck.getTime();
     return (
-      transactionDateInMillis >= budgetStartPeriod.getTime() &&
-      transactionDateInMillis <= budgetEndPeriod.getTime()
+      dateToCheckInMillis >= startDate.getTime() &&
+      dateToCheckInMillis <= endDate.getTime()
     );
   }
   return false;
@@ -47,10 +47,6 @@ export const toFormattedDate = (date: Date, dateFormat: string): string => {
   } catch (error) {}
 
   return formattedDate;
-};
-
-export const toAccountingMonth = (date: Date) => {
-  return `${date.getUTCFullYear()}-${format(date, 'MM')}`;
 };
 
 export const calculateNumberOfDays = (noOfDaysInMillis: number): number => {
