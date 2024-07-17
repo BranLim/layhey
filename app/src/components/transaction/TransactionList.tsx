@@ -17,6 +17,7 @@ export const TransactionList = (props: Props) => {
             <Th>Type</Th>
             <Th>Category</Th>
             <Th>Amount</Th>
+            <Th></Th>
           </Tr>
         </Thead>
         <Tbody>

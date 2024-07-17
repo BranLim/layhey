@@ -1,6 +1,9 @@
 import { SerializableTransaction, TransactionDto } from '@/types/Transaction';
-import { Td, Tr, Text } from '@chakra-ui/react';
+import { Td, Tr, Text, Button } from '@chakra-ui/react';
 import { toFormattedDate } from '@/utils/date.utils';
+import { useAppDispatch } from '@/states/hooks';
+import { closeModal, openModal } from '@/states/common/modal.slice';
+import NextLink from 'next/link';
 
 type Props = {
   transaction: SerializableTransaction;
@@ -14,6 +17,13 @@ export const TransactionListRow = (props: Props) => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+  const dispatch = useAppDispatch();
+
+  const handleUpdate = (modalId: string) => {
+    dispatch(openModal(modalId));
+    dispatch(closeModal('TransactionDrawer'));
+  };
+
   return (
     <Tr>
       <Td>
@@ -26,6 +36,19 @@ export const TransactionListRow = (props: Props) => {
         <Text align={'right'}>
           {numberFormatter.format(transaction.amount)}
         </Text>
+      </Td>
+      <Td>
+        <Button
+          as={NextLink}
+          colorScheme='blue'
+          size='md'
+          onClick={() => {
+            handleUpdate('UpdateTransactionModal');
+          }}
+          href={`/transactions/update/${transaction.id}`}
+        >
+          Update
+        </Button>
       </Td>
     </Tr>
   );

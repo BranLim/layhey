@@ -28,11 +28,13 @@ export const getTransactionsForPeriod = createAsyncThunk<
   ) => {
     const { startPeriod, endPeriod, transactionType } = request;
 
-    const transactionSearchParams: TransactionQueryParams = {
+    let transactionSearchParams: TransactionQueryParams = {
       startPeriod: toFormattedDate(new Date(startPeriod), 'yyyy-MM-dd'),
       endPeriod: toFormattedDate(new Date(endPeriod), 'yyyy-MM-dd'),
-      mode: transactionType,
     };
+    if (transactionType) {
+      transactionSearchParams['mode'] = transactionType;
+    }
 
     const transactions: TransactionResponse[] = await getTransactions(
       transactionSearchParams
