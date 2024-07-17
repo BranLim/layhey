@@ -27,6 +27,9 @@ import { NumericFormat } from 'react-number-format';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { closeModal } from '@/states/common/modal.slice';
+import { AdvancedSetting } from '@/types/AdvancedSetting';
+import { toFormattedDate } from '@/utils/date.utils';
+import { TransactionCategoryList } from '@/components/common/TransactionCategoryList';
 
 interface Props {
   params: {
@@ -34,15 +37,14 @@ interface Props {
   };
 }
 
-interface Input {
-  id: string;
-  type: string;
-  source: string;
-  category: string;
-  amount: number;
+type FormData = {
+  mode: string;
   date: Date;
+  source: string;
+  category?: string;
+  amount: number;
   currency: string;
-}
+};
 
 const getTransaction = async (id: string): Promise<TransactionDto> => {
   const response = await fetch(
@@ -62,17 +64,18 @@ const UpdateTransaction = ({ params }: Props) => {
     setValue,
     getValues,
     formState: { errors },
-  } = useForm<Input>();
+  } = useForm<FormData>();
   const dispatch = useDispatch();
 
   useEffect(() => {
     (async () => {
       const transaction = await getTransaction(params.id);
-      setValue('category', transaction.mode);
+      setValue('mode', transaction.mode);
       setValue('amount', transaction.amount);
       setValue('date', transaction.date);
       setValue('currency', transaction.currency);
       setValue('source', transaction.transactionSource);
+      setValue('category', transaction.transactionCategory);
     })();
   });
 
@@ -80,12 +83,13 @@ const UpdateTransaction = ({ params }: Props) => {
     dispatch(closeModal('UpdateTransactionModal'));
   };
 
-  const onSubmit: SubmitHandler<Input> = async (data: Input) => {
+  const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
     const newTransaction: TransactionDto = {
       ...getValues(),
-      mode: modeFromValue(data.category),
+      id: params.id,
+      mode: modeFromValue(data.mode),
       transactionSource: transactionSourceFromValue(data.source),
-      transactionCategory: '',
+      transactionCategory: data.category ?? '',
       amount: data.amount,
       date: data.date,
       currency: 'SGD',
@@ -104,8 +108,12 @@ const UpdateTransaction = ({ params }: Props) => {
           <FormControl>
             <RadioGroup defaultValue='Income'>
               <HStack>
-                <Radio value='Income'>Income</Radio>
-                <Radio value='Expense'>Expense</Radio>
+                <Radio value='Income' {...register('mode')} isReadOnly={true}>
+                  Income
+                </Radio>
+                <Radio value='Expense' {...register('mode')} isReadOnly={true}>
+                  Expense
+                </Radio>
               </HStack>
             </RadioGroup>
           </FormControl>
@@ -133,32 +141,29 @@ const UpdateTransaction = ({ params }: Props) => {
           </FormControl>
           <FormControl>
             <FormLabel htmlFor='date'>Date</FormLabel>
-            <Input
-              id='date'
-              type='date'
-              {...register('date', { required: true, valueAsDate: true })}
+            <Controller
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  id='date'
+                  type='date'
+                  value={toFormattedDate(getValues('date'), 'yyyy-MM-dd')}
+                  onChange={(event) =>
+                    field.onChange(new Date(event.target.value))
+                  }
+                />
+              )}
+              name='date'
             />
           </FormControl>
+          <TransactionCategoryList register={register} />
           <FormControl>
-            <FormLabel htmlFor='category'>Category</FormLabel>
+            <FormLabel htmlFor='transactionSource'>Transaction Type</FormLabel>
             <Select
-              id='category'
-              placeholder='Transaction Category'
-              {...register('category', { required: true })}
-            >
-              {Object.values(TransactionMode).map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl>
-            <FormLabel htmlFor='transactionType'>Transaction Type</FormLabel>
-            <Select
-              id='transactionType'
+              id='transactionSource'
               placeholder='Transaction Type'
-              {...register('type', { required: true })}
+              {...register('source', { required: true })}
             >
               {...Object.values(TransactionSource).map((transactionSource) => (
                 <option key={transactionSource} value={transactionSource}>
