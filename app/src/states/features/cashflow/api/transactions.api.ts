@@ -9,9 +9,6 @@ export const getTransactions = async (
   transactionQueryParams: TransactionQueryParams
 ): Promise<TransactionResponse[]> => {
   let apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?${new URLSearchParams(transactionQueryParams).toString()}`;
-  if (transactionQueryParams.mode) {
-    apiPath += `&type=${transactionQueryParams.mode}`;
-  }
   const response = await fetch(apiPath, {
     method: 'GET',
     headers: {
