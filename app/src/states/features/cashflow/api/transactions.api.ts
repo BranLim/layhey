@@ -1,23 +1,16 @@
 import {
   AddTransactionRequest,
+  TransactionQueryParams,
   TransactionResponse,
 } from '@/types/Transaction';
 import { toFormattedDate } from '@/utils/date.utils';
 
 export const getTransactions = async (
-  startPeriod: string,
-  endPeriod: string,
-  transactionType?: string
+  transactionQueryParams: TransactionQueryParams
 ): Promise<TransactionResponse[]> => {
-  const formattedStartPeriod = toFormattedDate(
-    new Date(startPeriod),
-    'yyyy-MM-dd'
-  );
-  const formattedEndPeriod = toFormattedDate(new Date(endPeriod), 'yyyy-MM-dd');
-
-  let apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${formattedStartPeriod}&endPeriod=${formattedEndPeriod}`;
-  if (transactionType) {
-    apiPath += `&type=${transactionType}`;
+  let apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?${new URLSearchParams(transactionQueryParams).toString()}`;
+  if (transactionQueryParams.mode) {
+    apiPath += `&type=${transactionQueryParams.mode}`;
   }
   const response = await fetch(apiPath, {
     method: 'GET',
@@ -27,7 +20,7 @@ export const getTransactions = async (
   });
   if (!response.ok) {
     throw new Error(
-      `Error get transactions for the period: ${startPeriod} - ${endPeriod}`
+      `Error get transactions for the period: ${transactionQueryParams.startPeriod} - ${transactionQueryParams.endPeriod}`
     );
   }
 

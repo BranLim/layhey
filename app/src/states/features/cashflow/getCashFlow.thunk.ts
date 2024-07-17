@@ -3,7 +3,11 @@ import CashFlow from '@/types/CashFlow';
 import { FlowViewState } from '@/states/features/cashflow/flow.slice';
 import { StatementPeriodSlot } from '@/types/AccountingPeriod';
 import { toSerializableStatementPeriods } from '@/lib/mappers/accountingPeriod.mapper';
-import { TransactionMode, TransactionResponse } from '@/types/Transaction';
+import {
+  TransactionMode,
+  TransactionQueryParams,
+  TransactionResponse,
+} from '@/types/Transaction';
 import { getTransactions } from '@/states/features/cashflow/api/transactions.api';
 import {
   CashFlowState,
@@ -12,6 +16,7 @@ import {
 } from '@/states/features/cashflow/cashflow.slice';
 import { getCashFlowStatementPeriods } from '@/lib/helpers/period-calculation.helper';
 import { getErrorMessage } from '@/utils/error.utils';
+import { toFormattedDate } from '@/utils/date.utils';
 
 export const getCashFlows = createAsyncThunk<
   void,
@@ -70,9 +75,12 @@ export const getCashFlows = createAsyncThunk<
       });
     }
 
+    const transactionSearchParams: TransactionQueryParams = {
+      startPeriod: toFormattedDate(new Date(startPeriod), 'yyyy-MM-dd'),
+      endPeriod: toFormattedDate(new Date(endPeriod), 'yyyy-MM-dd'),
+    };
     const transactions: TransactionResponse[] = await getTransactions(
-      startPeriod,
-      endPeriod
+      transactionSearchParams
     );
 
     statementPeriods.forEach((statementPeriod) => {

@@ -6,9 +6,11 @@ import {
 import {
   SerializableTransaction,
   Transaction,
+  TransactionQueryParams,
   TransactionResponse,
 } from '@/types/Transaction';
 import { getTransactions } from '@/states/features/cashflow/api/transactions.api';
+import { toFormattedDate } from '@/utils/date.utils';
 
 export const getTransactionsForPeriod = createAsyncThunk<
   void,
@@ -26,10 +28,14 @@ export const getTransactionsForPeriod = createAsyncThunk<
   ) => {
     const { startPeriod, endPeriod, transactionType } = request;
 
+    const transactionSearchParams: TransactionQueryParams = {
+      startPeriod: toFormattedDate(new Date(startPeriod), 'yyyy-MM-dd'),
+      endPeriod: toFormattedDate(new Date(endPeriod), 'yyyy-MM-dd'),
+      mode: transactionType,
+    };
+
     const transactions: TransactionResponse[] = await getTransactions(
-      startPeriod,
-      endPeriod,
-      transactionType
+      transactionSearchParams
     );
     dispatch(setTransactions(transactions));
   }

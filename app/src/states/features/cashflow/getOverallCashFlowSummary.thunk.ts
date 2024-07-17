@@ -1,7 +1,11 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import CashFlow from '@/types/CashFlow';
 import { FlowViewState } from '@/states/features/cashflow/flow.slice';
-import { TransactionMode, TransactionResponse } from '@/types/Transaction';
+import {
+  TransactionMode,
+  TransactionQueryParams,
+  TransactionResponse,
+} from '@/types/Transaction';
 import { getTransactions } from '@/states/features/cashflow/api/transactions.api';
 import {
   CashFlowState,
@@ -25,9 +29,13 @@ export const getOverallCashFlowSummary = createAsyncThunk<
   ): Promise<void> => {
     const { startPeriod, endPeriod } = request;
 
-    const transactions: TransactionResponse[] = await getTransactions(
+    const transactionSearchParams: TransactionQueryParams = {
       startPeriod,
-      endPeriod
+      endPeriod,
+    };
+
+    const transactions: TransactionResponse[] = await getTransactions(
+      transactionSearchParams
     );
 
     let totalIncome = 0;
