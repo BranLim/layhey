@@ -37,7 +37,7 @@ interface Props {
   };
 }
 
-type FormData = {
+export type FormInput = {
   mode: string;
   date: Date;
   source: string;
@@ -64,7 +64,7 @@ const UpdateTransaction = ({ params }: Props) => {
     setValue,
     getValues,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<FormInput>();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -83,7 +83,7 @@ const UpdateTransaction = ({ params }: Props) => {
     dispatch(closeModal('UpdateTransactionModal'));
   };
 
-  const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
+  const onSubmit: SubmitHandler<FormInput> = async (data: FormInput) => {
     const newTransaction: TransactionDto = {
       ...getValues(),
       id: params.id,
@@ -157,7 +157,7 @@ const UpdateTransaction = ({ params }: Props) => {
               name='date'
             />
           </FormControl>
-          <TransactionCategoryList register={register} />
+          <TransactionCategoryList control={control} />
           <FormControl>
             <FormLabel htmlFor='transactionSource'>Transaction Type</FormLabel>
             <Select

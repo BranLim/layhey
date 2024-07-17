@@ -70,4 +70,8 @@ db.transactionCategories.insertMany([
     name: 'Dividend',
     description: 'Dividend',
   },
+  {
+    name: 'Charity',
+    description: 'Charity',
+  },
 ]);

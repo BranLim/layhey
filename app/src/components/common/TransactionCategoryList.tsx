@@ -11,13 +11,14 @@ import {
   TransactionCategoriesResponse,
   TransactionCategoryDto,
 } from '@/types/Transaction';
-import { UseFormRegister } from 'react-hook-form';
+import { Control, Controller, UseFormRegister } from 'react-hook-form';
+import { FormInput } from '@/app/transactions/update/[id]/page';
 
 type Props = {
-  register: UseFormRegister<any>;
+  control: Control<FormInput>;
 };
 
-export const TransactionCategoryList = ({ register }: Props) => {
+export const TransactionCategoryList = ({ control }: Props) => {
   const [isLoadedCategory, setIsLoadedCategory] = useState(false);
   const [transactionCategories, setTransactionCategories] = useState<
     TransactionCategoryDto[]
@@ -37,11 +38,15 @@ export const TransactionCategoryList = ({ register }: Props) => {
           const transactionCategoriesResponse =
             (await response.json()) as TransactionCategoriesResponse;
           const transactionCategories =
-            transactionCategoriesResponse.categories?.map((category) => ({
-              id: category.id,
-              name: category.name,
-              description: category.description,
-            })) ?? [];
+            transactionCategoriesResponse.categories
+              ?.map((category) => ({
+                id: category.id,
+                name: category.name,
+                description: category.description,
+              }))
+              .sort((category1, category2) => {
+                return category1.name.localeCompare(category2.name);
+              }) ?? [];
           setTransactionCategories(transactionCategories);
         }
       })();
@@ -52,27 +57,29 @@ export const TransactionCategoryList = ({ register }: Props) => {
     <>
       <FormControl>
         <FormLabel htmlFor='transactionCategories'>Category</FormLabel>
-        <RadioGroup id='transactionCategories'>
-          <HStack
-            columnGap={4}
-            rowGap={2}
-            wrap={'wrap'}
-            height='80px'
-            alignItems='start'
-            overflow='auto'
-          >
-            {transactionCategories.length > 0 &&
-              transactionCategories.map((category) => (
-                <Radio
-                  key={category.id}
-                  {...register('category')}
-                  value={category.name}
-                >
-                  {category.name}
-                </Radio>
-              ))}
-          </HStack>
-        </RadioGroup>
+        <Controller
+          control={control}
+          name='category'
+          render={({ field }) => (
+            <RadioGroup {...field}>
+              <HStack
+                columnGap={4}
+                rowGap={2}
+                wrap={'wrap'}
+                height='80px'
+                alignItems='start'
+                overflow='auto'
+              >
+                {transactionCategories.length > 0 &&
+                  transactionCategories.map((category) => (
+                    <Radio key={category.id} value={category.name}>
+                      {category.name}
+                    </Radio>
+                  ))}
+              </HStack>
+            </RadioGroup>
+          )}
+        />
       </FormControl>
     </>
   );

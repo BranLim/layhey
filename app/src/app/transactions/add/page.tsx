@@ -165,7 +165,7 @@ const AddTransaction = () => {
               )}
             />
           </FormControl>
-          <TransactionCategoryList register={register} />
+          <TransactionCategoryList control={control} />
           <FormControl>
             <FormLabel htmlFor='transactionSource'>Source</FormLabel>
             <Select
