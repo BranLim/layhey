@@ -183,6 +183,7 @@ const fetchRelevantCashFlowDetails = async (
         getTransactionsForPeriod({
           startPeriod: node.data.startPeriod,
           endPeriod: node.data.endPeriod,
+          transactionType: node.data.statementType,
         })
       );
       break;

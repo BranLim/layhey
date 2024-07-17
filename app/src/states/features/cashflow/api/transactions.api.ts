@@ -6,7 +6,8 @@ import { toFormattedDate } from '@/utils/date.utils';
 
 export const getTransactions = async (
   startPeriod: string,
-  endPeriod: string
+  endPeriod: string,
+  transactionType?: string
 ): Promise<TransactionResponse[]> => {
   const formattedStartPeriod = toFormattedDate(
     new Date(startPeriod),
@@ -14,7 +15,10 @@ export const getTransactions = async (
   );
   const formattedEndPeriod = toFormattedDate(new Date(endPeriod), 'yyyy-MM-dd');
 
-  const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${formattedStartPeriod}&endPeriod=${formattedEndPeriod}`;
+  let apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?startPeriod=${formattedStartPeriod}&endPeriod=${formattedEndPeriod}`;
+  if (transactionType) {
+    apiPath += `&type=${transactionType}`;
+  }
   const response = await fetch(apiPath, {
     method: 'GET',
     headers: {

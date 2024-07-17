@@ -85,11 +85,13 @@ const updateTransaction = async (
 
 const getTransactions = async (
   startPeriod: string,
-  endPeriod: string
+  endPeriod: string,
+  transactionType: string
 ): Promise<Transaction[]> => {
   const transactions: Transaction[] = await findAllMatching(
     startPeriod,
-    endPeriod
+    endPeriod,
+    transactionType
   );
   return transactions;
 };

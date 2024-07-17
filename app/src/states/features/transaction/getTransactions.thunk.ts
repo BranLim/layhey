@@ -12,16 +12,24 @@ import { getTransactions } from '@/states/features/cashflow/api/transactions.api
 
 export const getTransactionsForPeriod = createAsyncThunk<
   void,
-  { startPeriod: string; endPeriod: string },
+  { startPeriod: string; endPeriod: string; transactionType?: string },
   { state: { transaction: TransactionViewState } }
 >(
   'transaction/getTransactions',
-  async (request: { startPeriod: string; endPeriod: string }, { dispatch }) => {
-    const { startPeriod, endPeriod } = request;
+  async (
+    request: {
+      startPeriod: string;
+      endPeriod: string;
+      transactionType?: string;
+    },
+    { dispatch }
+  ) => {
+    const { startPeriod, endPeriod, transactionType } = request;
 
     const transactions: TransactionResponse[] = await getTransactions(
       startPeriod,
-      endPeriod
+      endPeriod,
+      transactionType
     );
     dispatch(setTransactions(transactions));
   }

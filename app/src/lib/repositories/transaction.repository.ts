@@ -5,6 +5,7 @@ import {
   TransactionModel,
 } from '@/lib/models/transaction.model';
 import { toTransaction } from '@/lib/mappers/transaction.mapper';
+import { FilterQuery } from 'mongoose';
 
 const add = async (transaction: Transaction): Promise<Transaction> => {
   await connectMongo();
@@ -78,16 +79,21 @@ const update = async (
 
 const findAllMatching = async (
   startPeriod: string,
-  endPeriod: string
+  endPeriod: string,
+  transactionType?: string
 ): Promise<Transaction[]> => {
   await connectMongo();
-
-  const foundTransactions = await TransactionModel.find({
+  const filter: FilterQuery<Transaction> = {
     date: {
       $gte: new Date(startPeriod),
       $lte: new Date(endPeriod),
     },
-  });
+  };
+  if (transactionType) {
+    filter['mode'] = transactionType;
+  }
+
+  const foundTransactions = await TransactionModel.find(filter);
 
   if (!foundTransactions) {
     return [] as Transaction[];

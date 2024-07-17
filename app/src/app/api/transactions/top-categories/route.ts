@@ -17,6 +17,10 @@ export const GET = async (request: NextRequest): Promise<Response> => {
     parseInt(top),
     transactionMode
   );
-  const transactions = await getTransactions(startPeriod, endPeriod);
+  const transactions = await getTransactions(
+    startPeriod,
+    endPeriod,
+    transactionType
+  );
   return Response.json({});
 };

@@ -16,7 +16,12 @@ export const GET = async (request: NextRequest): Promise<Response> => {
   const parameters = request.nextUrl.searchParams;
   const startPeriod = parameters.get('startPeriod') ?? '';
   const endPeriod = parameters.get('endPeriod') ?? '';
-  const transactions = await getTransactions(startPeriod, endPeriod);
+  const transactionType = parameters.get('type') ?? '';
+  const transactions = await getTransactions(
+    startPeriod,
+    endPeriod,
+    transactionType
+  );
   const transactionResponse = transactions.map((transaction) => {
     return {
       id: transaction.id,
