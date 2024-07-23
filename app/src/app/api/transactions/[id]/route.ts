@@ -22,6 +22,15 @@ export const PUT = async (
 ): Promise<Response> => {
   const id = params.id;
   const transactionRequest = await request.json();
-  await updateTransaction(id, transactionRequest);
-  return new Response();
+  const updatedTransaction = await updateTransaction(id, transactionRequest);
+  if (updatedTransaction) {
+    return Response.json(updatedTransaction, {
+      status: 200,
+      statusText: 'Updated Transaction',
+    });
+  }
+  return Response.json(
+    {},
+    { status: 500, statusText: `Error updating Transaction (${id})` }
+  );
 };

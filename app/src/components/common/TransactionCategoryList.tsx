@@ -66,7 +66,7 @@ export const TransactionCategoryList = ({ control }: Props) => {
                 columnGap={4}
                 rowGap={2}
                 wrap={'wrap'}
-                height='80px'
+                height='100px'
                 alignItems='start'
                 overflow='auto'
               >

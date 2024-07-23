@@ -94,11 +94,17 @@ const UpdateTransaction = ({ params }: Props) => {
       date: data.date,
       currency: 'SGD',
     };
-    await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newTransaction),
-    });
+    try {
+      const updateResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions/${params.id}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newTransaction),
+        }
+      );
+      dispatch(closeModal('UpdateTransactionModal'));
+    } catch (error) {}
   };
 
   return (
@@ -176,7 +182,7 @@ const UpdateTransaction = ({ params }: Props) => {
           <Flex alignItems='right' mt={4}>
             <Spacer />
             <Button mt={4} mr={2} type='submit' colorScheme='blue'>
-              Add
+              Update
             </Button>
             <Button
               mt={4}
