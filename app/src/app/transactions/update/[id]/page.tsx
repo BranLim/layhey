@@ -30,6 +30,9 @@ import { closeModal } from '@/states/common/modal.slice';
 import { AdvancedSetting } from '@/types/AdvancedSetting';
 import { toFormattedDate } from '@/utils/date.utils';
 import { TransactionCategoryList } from '@/components/common/TransactionCategoryList';
+import { getOverallCashFlowSummary } from '@/states/features/cashflow/getOverallCashFlowSummary.thunk';
+import { useAppDispatch, useAppSelector } from '@/states/hooks';
+import { selectOverallCashFlowPeriod } from '@/states/features/cashflow/cashflow.slice';
 
 interface Props {
   params: {
@@ -65,7 +68,7 @@ const UpdateTransaction = ({ params }: Props) => {
     getValues,
     formState: { errors },
   } = useForm<FormInput>();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     (async () => {
@@ -78,6 +81,8 @@ const UpdateTransaction = ({ params }: Props) => {
       setValue('category', transaction.transactionCategory);
     })();
   });
+
+  const overallCashFlowPeriod = useAppSelector(selectOverallCashFlowPeriod);
 
   const handleCloseModal = () => {
     dispatch(closeModal('UpdateTransactionModal'));
@@ -104,6 +109,15 @@ const UpdateTransaction = ({ params }: Props) => {
         }
       );
       dispatch(closeModal('UpdateTransactionModal'));
+      dispatch(
+        getOverallCashFlowSummary({
+          startPeriod: overallCashFlowPeriod.startPeriod,
+          endPeriod: overallCashFlowPeriod.endPeriod,
+          parentNodeId: '',
+          parentStatementSlotId: '',
+          reset: false,
+        })
+      );
     } catch (error) {}
   };
 

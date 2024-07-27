@@ -1,7 +1,11 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TransactionMode } from '@/types/Transaction';
 import CashFlow from '@/types/CashFlow';
-import { StatementPeriodSlot } from '@/types/AccountingPeriod';
+import {
+  AccountingPeriod,
+  SerializableAccountingPeriod,
+  StatementPeriodSlot,
+} from '@/types/AccountingPeriod';
 import { v4 as uuidv4 } from 'uuid';
 import { addTransaction } from '@/states/features/cashflow/addCashFlow.thunk';
 import { getCashFlows } from '@/states/features/cashflow/getCashFlow.thunk';
@@ -300,12 +304,13 @@ export const {
   setCashFlowSummary,
 } = cashflowSlice.actions;
 export const selectCashFlowStoreStatus = (state: any) => state.cashflow.status;
-export const selectAccountingPeriod = createSelector(
+export const selectOverallCashFlowPeriod = createSelector(
   (state: any) => state.cashflow.overallCashFlowForPeriod,
-  (cashFlowSummary) => ({
-    startPeriod: cashFlowSummary.startPeriod,
-    endPeriod: cashFlowSummary.endPeriod,
-  })
+  (cashFlowSummary) =>
+    ({
+      startPeriod: cashFlowSummary.startPeriod,
+      endPeriod: cashFlowSummary.endPeriod,
+    }) as SerializableAccountingPeriod
 );
 export const selectOverallCashFlowSummary = createSelector(
   (state: any) => state.cashflow.overallCashFlowForPeriod,
