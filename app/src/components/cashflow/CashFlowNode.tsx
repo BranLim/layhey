@@ -4,7 +4,10 @@ import { Handle, NodeProps, Position } from 'reactflow';
 import {
   Box,
   Button,
+  CloseButton,
   Flex,
+  HStack,
+  IconButton,
   SimpleGrid,
   Spacer,
   Text,
@@ -20,6 +23,7 @@ import {
 import { NodeToolbar } from '@reactflow/node-toolbar';
 import { CashFlowToolbar } from '@/components/cashflow/CashFlowToolbar';
 import Flow from '@/types/Flow';
+import { CloseIcon } from '@chakra-ui/icons';
 
 export const CashFlowNode = (props: NodeProps<Flow.CashFlowNodeData>) => {
   const dispatch = useAppDispatch();
@@ -54,8 +58,9 @@ export const CashFlowNode = (props: NodeProps<Flow.CashFlowNodeData>) => {
         )}
         <CashFlowToolbar isVisible={props.data.isToolbarVisible} />
         <VStack width='sm'>
-          <Flex width='2xs'>
-            <Box>
+          <HStack width='sm' alignItems='center'>
+            <Spacer />
+            <VStack rowGap='1'>
               <Text as={'b'} fontSize='lg' align='center'>
                 Start Period
               </Text>
@@ -66,9 +71,9 @@ export const CashFlowNode = (props: NodeProps<Flow.CashFlowNodeData>) => {
                     'dd-MMM-yyyy'
                   )}
               </Text>
-            </Box>
+            </VStack>
             <Spacer />
-            <Box>
+            <VStack rowGap='1'>
               <Text as={'b'} fontSize='lg' align='center'>
                 End Period
               </Text>
@@ -79,8 +84,15 @@ export const CashFlowNode = (props: NodeProps<Flow.CashFlowNodeData>) => {
                     'dd-MMM-yyyy'
                   )}
               </Text>
-            </Box>
-          </Flex>
+            </VStack>
+            <Spacer />
+            <CloseButton
+              aria-label='Hide cashflow node'
+              alignSelf='center'
+              marginRight={2}
+              marginBottom={6}
+            />
+          </HStack>
 
           <SimpleGrid
             width='xs'
