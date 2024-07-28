@@ -17,6 +17,7 @@ import CashFlow from '@/types/CashFlow';
 import { toFormattedDate } from '@/utils/date.utils';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import {
+  handleNodeHide,
   selectNodeStyle,
   updateNodeSize,
 } from '@/states/features/cashflow/flow.slice';
@@ -86,12 +87,18 @@ export const CashFlowNode = (props: NodeProps<Flow.CashFlowNodeData>) => {
               </Text>
             </VStack>
             <Spacer />
-            <CloseButton
-              aria-label='Hide cashflow node'
-              alignSelf='center'
-              marginRight={2}
-              marginBottom={6}
-            />
+            {props.data.rootNode && <Spacer />}
+            {!props.data.rootNode && (
+              <CloseButton
+                aria-label='Hide cashflow node'
+                alignSelf='center'
+                marginRight={2}
+                marginBottom={6}
+                onClick={() => {
+                  dispatch(handleNodeHide(props.id));
+                }}
+              />
+            )}
           </HStack>
 
           <SimpleGrid

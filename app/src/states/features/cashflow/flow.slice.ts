@@ -595,6 +595,23 @@ const flowSlice = createSlice({
 
       state.flowViewStatus = 'node_expansion';
     },
+    handleNodeHide: (
+      state: Draft<FlowViewState>,
+      action: PayloadAction<string>
+    ) => {
+      const nodeId = action.payload;
+      const foundNode = state.nodes.find((node) => node.id === nodeId);
+      if (foundNode) {
+        console.log(`Found Node ${nodeId} to hide`);
+        const nodesToKeep = state.nodes.filter((node) => node.id !== nodeId);
+        const edgesToKeep = state.edges.filter(
+          (edge) => edge.source !== nodeId
+        );
+
+        state.nodes = nodesToKeep;
+        state.edges = edgesToKeep;
+      }
+    },
   },
 });
 
@@ -610,6 +627,7 @@ export const {
   handleNodeMouseLeave,
   handleNodeMouseClick,
   handleNodeMouseDoubleClick,
+  handleNodeHide,
 } = flowSlice.actions;
 export const selectFlowNodes = (state: any) => state.flow.nodes;
 export const selectFlowEdges = (state: any) => state.flow.edges;

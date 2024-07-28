@@ -1,10 +1,15 @@
 import { Handle, NodeProps, Position } from 'reactflow';
-import { useAppSelector } from '@/states/hooks';
-import { selectNodeStyle } from '@/states/features/cashflow/flow.slice';
+import { useAppDispatch, useAppSelector } from '@/states/hooks';
+import {
+  handleNodeHide,
+  selectNodeStyle,
+} from '@/states/features/cashflow/flow.slice';
 import {
   Box,
   Button,
+  CloseButton,
   Flex,
+  HStack,
   SimpleGrid,
   Spacer,
   Text,
@@ -18,6 +23,7 @@ import Flow from '@/types/Flow';
 export const IncomeExpenseNode = (
   props: NodeProps<Flow.IncomeNodeData | Flow.ExpenseNodeData>
 ) => {
+  const dispatch = useAppDispatch();
   const nodeStyle = useAppSelector((state) => selectNodeStyle(state, props.id));
   const numberFormatter = new Intl.NumberFormat('en-SG', {
     style: 'currency',
@@ -43,8 +49,9 @@ export const IncomeExpenseNode = (
         <CashFlowToolbar isVisible={props.data.isToolbarVisible} />
 
         <VStack width='sm'>
-          <Flex width='2xs'>
-            <Box>
+          <HStack width='sm' alignItems='center'>
+            <Spacer />
+            <VStack rowGap='1'>
               <Text as={'b'} fontSize='lg' align='center'>
                 Start Period
               </Text>
@@ -55,9 +62,9 @@ export const IncomeExpenseNode = (
                     'dd-MMM-yyyy'
                   )}
               </Text>
-            </Box>
+            </VStack>
             <Spacer />
-            <Box>
+            <VStack rowGap='1'>
               <Text as={'b'} fontSize='lg' align='center'>
                 End Period
               </Text>
@@ -68,8 +75,18 @@ export const IncomeExpenseNode = (
                     'dd-MMM-yyyy'
                   )}
               </Text>
-            </Box>
-          </Flex>
+            </VStack>
+            <Spacer />
+            <CloseButton
+              aria-label='Hide cashflow node'
+              alignSelf='center'
+              marginRight={2}
+              marginBottom={6}
+              onClick={() => {
+                dispatch(handleNodeHide(props.id));
+              }}
+            />
+          </HStack>
           <SimpleGrid
             width='xs'
             columns={2}
