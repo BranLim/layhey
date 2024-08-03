@@ -265,6 +265,25 @@ const getNodePosition = (
   return { x: nodeXPosition, y: nodeYPosition };
 };
 
+const getChildNodes = (
+  nodes: Node<Flow.FlowNodeData>[],
+  target: Node<Flow.FlowNodeData>
+): Set<string> => {
+  const descendents = new Set<string>();
+  const stack = [target];
+
+  while (stack.length > 0) {
+    const currentNode = stack.pop();
+    nodes.forEach((node) => {
+      if (node.data!.parentRef === currentNode!.data!.id) {
+        descendents.add(node.id);
+        stack.push(node);
+      }
+    });
+  }
+  return descendents;
+};
+
 const flowSlice = createSlice({
   name: 'flow',
   initialState: initialState,
@@ -603,10 +622,15 @@ const flowSlice = createSlice({
       const foundNode = state.nodes.find((node) => node.id === nodeId);
       if (foundNode) {
         console.log(`Found Node ${nodeId} to hide`);
-        const nodesToKeep = state.nodes.filter((node) => node.id !== nodeId);
-        const edgesToKeep = state.edges.filter(
-          (edge) => edge.source !== nodeId
-        );
+        const childNodeIdsToDrop = getChildNodes([...state.nodes], foundNode);
+        const nodesToKeep = state.nodes
+          .filter((node) => !childNodeIdsToDrop.has(node.id))
+          .filter((node) => node.id !== nodeId);
+        console.log(state.edges.length);
+        const edgesToKeep = state.edges
+          .filter((edge) => !childNodeIdsToDrop.has(edge.source))
+          .filter((edge) => edge.source !== nodeId);
+        console.log(edgesToKeep.length);
 
         state.nodes = nodesToKeep;
         state.edges = edgesToKeep;
