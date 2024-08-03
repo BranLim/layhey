@@ -61,6 +61,10 @@ export type AddTransactionRequest = {
   advancedSetting?: AdvancedSetting;
 };
 
+export type UpdateTransactionRequest = {
+  transaction: TransactionRequest;
+};
+
 export type TransactionQueryParams = {
   startPeriod: string;
   endPeriod: string;

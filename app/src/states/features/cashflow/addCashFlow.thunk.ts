@@ -5,7 +5,7 @@ import {
   TransactionResponse,
 } from '@/types/Transaction';
 import { FlowViewState } from '@/states/features/cashflow/flow.slice';
-import { addTransactions } from '@/states/features/cashflow/api/transactions.api';
+import { addTransactionsApi } from '@/states/features/cashflow/api/transactions.api';
 import { isDateWithin } from '@/utils/date.utils';
 import {
   CashFlowState,
@@ -32,7 +32,7 @@ export const addTransaction = createAsyncThunk<
     newTransaction: AddTransactionRequest,
     { dispatch, getState }
   ): Promise<void> => {
-    const transactions = await addTransactions(newTransaction);
+    const transactions = await addTransactionsApi(newTransaction);
 
     let currentState = getState();
 
