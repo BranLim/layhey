@@ -19,7 +19,7 @@ import {
   getCurrentDate,
   toFormattedDate,
 } from '@/utils/date.utils';
-import { AddAccountingPeriodRequest } from '@/types/AccountingPeriod';
+import { AddAccountingPeriodRequest } from '@/types/StatementPeriod';
 import {
   addAccountingPeriod,
   selectAccountingStoreStatus,

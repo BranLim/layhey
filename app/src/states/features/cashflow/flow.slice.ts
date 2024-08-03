@@ -10,9 +10,9 @@ import {
 } from 'reactflow';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  AccountingPeriod,
+  StatementPeriod,
   SerializableAccountingPeriod,
-} from '@/types/AccountingPeriod';
+} from '@/types/StatementPeriod';
 import { Draft } from 'immer';
 import SerializableIncomeSummary = CashFlow.SerializableIncomeSummary;
 import SerializableExpenseSummary = CashFlow.SerializableExpenseSummary;

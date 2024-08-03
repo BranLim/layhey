@@ -1,7 +1,7 @@
 import {
   AddAccountingPeriodRequest,
   UserAccountingPeriod,
-} from '@/types/AccountingPeriod';
+} from '@/types/StatementPeriod';
 import { add, findAll } from '@/lib/repositories/accountingPeriod.repository';
 import { getErrorMessage } from '@/utils/error.utils';
 

@@ -1,4 +1,4 @@
-import { UserAccountingPeriod } from '@/types/AccountingPeriod';
+import { UserAccountingPeriod } from '@/types/StatementPeriod';
 import { connectMongo } from '@/database/mongodb';
 import { AccountingPeriodModel } from '@/lib/models/accountingPeriod.model';
 import { toUserAccountingPeriod } from '@/lib/mappers/accountingPeriod.mapper';

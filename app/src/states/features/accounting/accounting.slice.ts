@@ -4,7 +4,7 @@ import {
   SerializableUserAccountingPeriod,
   UserAccountingPeriod,
   UserAccountingPeriodResponse,
-} from '@/types/AccountingPeriod';
+} from '@/types/StatementPeriod';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getErrorMessage } from '@/utils/error.utils';
 

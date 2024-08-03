@@ -1,6 +1,6 @@
 import { describe, it } from '@jest/globals';
 import { getCashFlowStatementPeriods } from '@/lib/helpers/period-calculation.helper';
-import { AccountingPeriod } from '@/types/AccountingPeriod';
+import { StatementPeriod } from '@/types/StatementPeriod';
 import expect from 'expect';
 
 describe('Statement Period Calculation tests', () => {
@@ -9,23 +9,23 @@ describe('Statement Period Calculation tests', () => {
       const startPeriod = '2024-01-01T00:00:00';
       const endPeriod = '2024-01-07T23:59:59';
 
-      const accountingPeriods: AccountingPeriod[] = getCashFlowStatementPeriods(
+      const statementPeriods: StatementPeriod[] = getCashFlowStatementPeriods(
         startPeriod,
         endPeriod
       );
 
-      expect(accountingPeriods.length).toBe(7);
+      expect(statementPeriods.length).toBe(7);
     });
     it('Should return 7 accounting slots when transaction period is spread across two calendar weeks', () => {
       const startPeriod = '2024-01-03T00:00:00';
       const endPeriod = '2024-01-09T23:59:59';
 
-      const accountingPeriods: AccountingPeriod[] = getCashFlowStatementPeriods(
+      const statementPeriods: StatementPeriod[] = getCashFlowStatementPeriods(
         startPeriod,
         endPeriod
       );
 
-      expect(accountingPeriods.length).toBe(7);
+      expect(statementPeriods.length).toBe(7);
     });
   });
   describe('Start and end period is between 2 to 4 weeks apart', () => {
@@ -33,56 +33,56 @@ describe('Statement Period Calculation tests', () => {
       const startPeriod = '2024-01-03T00:00:00';
       const endPeriod = '2024-01-12T23:59:59';
 
-      const accountingPeriods: AccountingPeriod[] = getCashFlowStatementPeriods(
+      const statementPeriods: StatementPeriod[] = getCashFlowStatementPeriods(
         startPeriod,
         endPeriod
       );
 
-      expect(accountingPeriods.length).toBe(2);
+      expect(statementPeriods.length).toBe(2);
     });
     it('Should return 3 accounting slots when transaction period is spread across 3 calendar weeks', () => {
       const startPeriod = '2024-01-03T00:00:00';
       const endPeriod = '2024-01-16T23:59:59';
 
-      const accountingPeriods: AccountingPeriod[] = getCashFlowStatementPeriods(
+      const statementPeriods: StatementPeriod[] = getCashFlowStatementPeriods(
         startPeriod,
         endPeriod
       );
 
-      expect(accountingPeriods.length).toBe(3);
+      expect(statementPeriods.length).toBe(3);
     });
     it('Should return 4 accounting slots when transaction period is spread across 4 calendar weeks', () => {
       const startPeriod = '2024-01-01T00:00:00';
       const endPeriod = '2024-01-28T23:59:59';
 
-      const accountingPeriods: AccountingPeriod[] = getCashFlowStatementPeriods(
+      const statementPeriods: StatementPeriod[] = getCashFlowStatementPeriods(
         startPeriod,
         endPeriod
       );
 
-      expect(accountingPeriods.length).toBe(4);
+      expect(statementPeriods.length).toBe(4);
     });
     it('Should return 4 accounting slots when transaction period is spread across 4 calendar weeks and startPeriod is middle of week', () => {
       const startPeriod = '2024-01-03T00:00:00';
       const endPeriod = '2024-01-28T23:59:59';
 
-      const accountingPeriods: AccountingPeriod[] = getCashFlowStatementPeriods(
+      const statementPeriods: StatementPeriod[] = getCashFlowStatementPeriods(
         startPeriod,
         endPeriod
       );
 
-      expect(accountingPeriods.length).toBe(4);
+      expect(statementPeriods.length).toBe(4);
     });
     it('Should return 5 accounting slots when transaction period is spread across 5 calendar weeks and startPeriod is middle of week', () => {
       const startPeriod = '2024-01-01T00:00:00';
       const endPeriod = '2024-01-30T23:59:59';
 
-      const accountingPeriods: AccountingPeriod[] = getCashFlowStatementPeriods(
+      const statementPeriods: StatementPeriod[] = getCashFlowStatementPeriods(
         startPeriod,
         endPeriod
       );
 
-      expect(accountingPeriods.length).toBe(5);
+      expect(statementPeriods.length).toBe(5);
     });
   });
 
@@ -91,24 +91,24 @@ describe('Statement Period Calculation tests', () => {
       const startPeriod = '2024-01-01T00:00:00';
       const endPeriod = '2024-12-31T23:59:59';
 
-      const accountingPeriods: AccountingPeriod[] = getCashFlowStatementPeriods(
+      const statementPeriods: StatementPeriod[] = getCashFlowStatementPeriods(
         startPeriod,
         endPeriod
       );
 
-      expect(accountingPeriods.length).toBe(12);
+      expect(statementPeriods.length).toBe(12);
     });
     it('Should return 12 accounting slot when transaction period start 15 January and end 31 December', () => {
       const startPeriod = '2024-01-15T00:00:00';
       const endPeriod = '2024-12-31T23:59:59';
 
-      const accountingPeriods: AccountingPeriod[] = getCashFlowStatementPeriods(
+      const statementPeriods: StatementPeriod[] = getCashFlowStatementPeriods(
         startPeriod,
         endPeriod
       );
 
-      expect(accountingPeriods.length).toBe(12);
-      expect(accountingPeriods[0]).toMatchObject({
+      expect(statementPeriods.length).toBe(12);
+      expect(statementPeriods[0]).toMatchObject({
         startPeriod: new Date(2024, 0, 15, 0, 0, 0, 0),
         endPeriod: new Date(2024, 0, 31, 23, 59, 59, 999),
       });
@@ -119,12 +119,12 @@ describe('Statement Period Calculation tests', () => {
       const startPeriod = '2024-01-01T00:00:00';
       const endPeriod = '2025-01-31T23:59:59';
 
-      const accountingPeriods: AccountingPeriod[] = getCashFlowStatementPeriods(
+      const statementPeriods: StatementPeriod[] = getCashFlowStatementPeriods(
         startPeriod,
         endPeriod
       );
 
-      expect(accountingPeriods.length).toBe(2);
+      expect(statementPeriods.length).toBe(2);
     });
   });
 });

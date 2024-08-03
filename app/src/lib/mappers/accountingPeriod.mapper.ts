@@ -5,7 +5,7 @@ import {
   StatementPeriodSlot,
   UserAccountingPeriod,
   UserAccountingPeriodResponse,
-} from '@/types/AccountingPeriod';
+} from '@/types/StatementPeriod';
 
 const toUserAccountingPeriod = (
   accountingPeriodDocument: AccountingPeriodDocument

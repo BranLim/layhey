@@ -4,7 +4,7 @@ import {
   Accounting_Period_Days_In_Year,
   Accounting_Period_One_Day_In_Milliseconds,
   StatementPeriodSlot,
-} from '@/types/AccountingPeriod';
+} from '@/types/StatementPeriod';
 import {
   differenceInCalendarDays,
   endOfWeek,

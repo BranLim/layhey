@@ -31,7 +31,7 @@ import {
 import {
   SerializableAccountingPeriod,
   UserAccountingPeriod,
-} from '@/types/AccountingPeriod';
+} from '@/types/StatementPeriod';
 import { selectRootNode } from '@/states/features/cashflow/flow.slice';
 import CashFlow from '@/types/CashFlow';
 import { getOverallCashFlowSummary } from '@/states/features/cashflow/getOverallCashFlowSummary.thunk';

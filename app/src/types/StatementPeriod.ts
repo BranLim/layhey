@@ -3,12 +3,12 @@ export const Accounting_Period_Days_In_Week = 7;
 export const Accounting_Period_Days_In_Month = 31;
 export const Accounting_Period_Days_In_Year = 366;
 
-export type AccountingPeriod = {
+export type StatementPeriod = {
   startPeriod: Date;
   endPeriod: Date;
 };
 
-export type StatementPeriodSlot = AccountingPeriod & {
+export type StatementPeriodSlot = StatementPeriod & {
   key: string;
 };
 
@@ -27,8 +27,7 @@ export type AccountingPeriodIdentifier = {
   description: string;
 };
 
-export type UserAccountingPeriod = AccountingPeriod &
-  AccountingPeriodIdentifier;
+export type UserAccountingPeriod = StatementPeriod & AccountingPeriodIdentifier;
 
 export type SerializableUserAccountingPeriod = AccountingPeriodIdentifier &
   SerializableAccountingPeriod;

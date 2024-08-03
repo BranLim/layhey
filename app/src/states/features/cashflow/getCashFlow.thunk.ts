@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import CashFlow from '@/types/CashFlow';
 import { FlowViewState } from '@/states/features/cashflow/flow.slice';
-import { StatementPeriodSlot } from '@/types/AccountingPeriod';
+import { StatementPeriodSlot } from '@/types/StatementPeriod';
 import { toSerializableStatementPeriods } from '@/lib/mappers/accountingPeriod.mapper';
 import {
   TransactionMode,

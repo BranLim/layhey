@@ -1,7 +1,7 @@
 import {
   SerializableAccountingPeriod,
   SerializableStatementPeriodSlot,
-} from '@/types/AccountingPeriod';
+} from '@/types/StatementPeriod';
 import { TransactionMode } from '@/types/Transaction';
 
 namespace CashFlow {

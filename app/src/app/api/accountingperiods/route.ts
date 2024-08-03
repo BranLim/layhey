@@ -4,7 +4,7 @@ import {
   getAccountingPeriods,
 } from '@/lib/services/accounting.service';
 import { getErrorMessage } from '@/utils/error.utils';
-import { GetUserAccountingPeriodsResponse } from '@/types/AccountingPeriod';
+import { GetUserAccountingPeriodsResponse } from '@/types/StatementPeriod';
 import { toGetUserAccountingPeriodsResponse } from '@/lib/mappers/accountingPeriod.mapper';
 
 export const GET = async (request: NextRequest): Promise<Response> => {

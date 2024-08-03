@@ -5,7 +5,7 @@ import { useRef } from 'react';
 import { AppStore, makeStore } from '@/states/store';
 import { Provider } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
-import { SerializableAccountingPeriod } from '@/types/AccountingPeriod';
+import { SerializableAccountingPeriod } from '@/types/StatementPeriod';
 import { setCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slice';
 import { setOverallCashFlowStatementPeriod } from '@/states/features/cashflow/cashflow.slice';
 import { getAccountingPeriods } from '@/states/features/accounting/accounting.slice';

@@ -2,10 +2,10 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TransactionMode } from '@/types/Transaction';
 import CashFlow from '@/types/CashFlow';
 import {
-  AccountingPeriod,
+  StatementPeriod,
   SerializableAccountingPeriod,
   StatementPeriodSlot,
-} from '@/types/AccountingPeriod';
+} from '@/types/StatementPeriod';
 import { v4 as uuidv4 } from 'uuid';
 import { addTransaction } from '@/states/features/cashflow/addCashFlow.thunk';
 import { getCashFlows } from '@/states/features/cashflow/getCashFlow.thunk';
@@ -63,20 +63,20 @@ const initialCashFlowState: CashFlowState = {
 
 const initialiseCashFlowStatementPeriods = (
   state: any,
-  accountingPeriodSlots: StatementPeriodSlot[],
+  statementPeriods: StatementPeriodSlot[],
   statementType: CashFlow.CashFlowStatementType = 'Summary',
   parentSlotRef: string | undefined = undefined
 ): void => {
-  accountingPeriodSlots.forEach((slot) => {
-    if (!state.cashFlows[slot.key]) {
+  statementPeriods.forEach((statementPeriod) => {
+    if (!state.cashFlows[statementPeriod.key]) {
       if (statementType === 'Summary') {
-        state.cashFlows[slot.key] = {
+        state.cashFlows[statementPeriod.key] = {
           id: `${uuidv4()}`,
           parentRef: parentSlotRef,
           statementType,
           accountingPeriod: {
-            startPeriod: slot.startPeriod.toISOString(),
-            endPeriod: slot.endPeriod.toISOString(),
+            startPeriod: statementPeriod.startPeriod.toISOString(),
+            endPeriod: statementPeriod.endPeriod.toISOString(),
           },
           income: {
             type: 'income',
@@ -88,13 +88,13 @@ const initialiseCashFlowStatementPeriods = (
           },
         } as CashFlow.CashFlowStatement;
       } else if (statementType === 'Income') {
-        state.cashFlows[slot.key] = {
+        state.cashFlows[statementPeriod.key] = {
           id: `${uuidv4()}`,
           parentRef: parentSlotRef,
           statementType,
           accountingPeriod: {
-            startPeriod: slot.startPeriod.toISOString(),
-            endPeriod: slot.endPeriod.toISOString(),
+            startPeriod: statementPeriod.startPeriod.toISOString(),
+            endPeriod: statementPeriod.endPeriod.toISOString(),
           },
           income: {
             type: 'income',
@@ -102,13 +102,13 @@ const initialiseCashFlowStatementPeriods = (
           },
         } as CashFlow.IncomeStatement;
       } else if (statementType === 'Expense') {
-        state.cashFlows[slot.key] = {
+        state.cashFlows[statementPeriod.key] = {
           id: `${uuidv4()}`,
           parentRef: parentSlotRef,
           statementType,
           accountingPeriod: {
-            startPeriod: slot.startPeriod.toISOString(),
-            endPeriod: slot.endPeriod.toISOString(),
+            startPeriod: statementPeriod.startPeriod.toISOString(),
+            endPeriod: statementPeriod.endPeriod.toISOString(),
           },
           expense: {
             type: 'expense',
