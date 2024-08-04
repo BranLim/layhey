@@ -22,6 +22,7 @@ import {
   TransactionDto,
   TransactionSource,
   transactionSourceFromValue,
+  UpdateTransactionRequest,
 } from '@/types/Transaction';
 import { NumericFormat } from 'react-number-format';
 import { useEffect } from 'react';
@@ -33,6 +34,7 @@ import { TransactionCategoryList } from '@/components/common/TransactionCategory
 import { getOverallCashFlowSummary } from '@/states/features/cashflow/getOverallCashFlowSummary.thunk';
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import { selectOverallCashFlowPeriod } from '@/states/features/cashflow/cashflow.slice';
+import { updateTransaction } from '@/states/features/cashflow/updateTransaction.thunk';
 
 interface Props {
   params: {
@@ -89,36 +91,21 @@ const UpdateTransaction = ({ params }: Props) => {
   };
 
   const onSubmit: SubmitHandler<FormInput> = async (data: FormInput) => {
-    const newTransaction: TransactionDto = {
-      ...getValues(),
-      id: params.id,
-      mode: modeFromValue(data.mode),
-      transactionSource: transactionSourceFromValue(data.source),
-      transactionCategory: data.category ?? '',
-      amount: data.amount,
-      date: data.date,
-      currency: 'SGD',
+    const updateTransactionRequest: UpdateTransactionRequest = {
+      transaction: {
+        ...getValues(),
+        id: params.id,
+        mode: modeFromValue(data.mode),
+        transactionSource: transactionSourceFromValue(data.source),
+        transactionCategory: data.category ?? '',
+        amount: data.amount,
+        date: new Date(data.date).toISOString(),
+        currency: 'SGD',
+      },
     };
-    try {
-      const updateResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions/${params.id}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newTransaction),
-        }
-      );
-      dispatch(closeModal('UpdateTransactionModal'));
-      dispatch(
-        getOverallCashFlowSummary({
-          startPeriod: overallCashFlowPeriod.startPeriod,
-          endPeriod: overallCashFlowPeriod.endPeriod,
-          parentNodeId: '',
-          parentStatementSlotId: '',
-          reset: false,
-        })
-      );
-    } catch (error) {}
+
+    dispatch(updateTransaction(updateTransactionRequest));
+    dispatch(closeModal('UpdateTransactionModal'));
   };
 
   return (
