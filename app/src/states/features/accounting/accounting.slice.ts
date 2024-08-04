@@ -1,36 +1,11 @@
 import {
-  AddAccountingPeriodRequest,
   GetUserAccountingPeriodsResponse,
   SerializableUserAccountingPeriod,
   UserAccountingPeriod,
-  UserAccountingPeriodResponse,
 } from '@/types/StatementPeriod';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getErrorMessage } from '@/utils/error.utils';
-
-export const addAccountingPeriod = createAsyncThunk(
-  'accounting/addAccountingPeriod',
-  async (
-    newAccountingPeriod: AddAccountingPeriodRequest
-  ): Promise<UserAccountingPeriodResponse> => {
-    const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/accountingperiods`;
-    const response = await fetch(apiPath, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(newAccountingPeriod),
-    });
-
-    if (!response.ok) {
-      throw new Error('Error adding new transaction');
-    }
-    const userAccountingPeriod =
-      (await response.json()) as UserAccountingPeriodResponse;
-    return userAccountingPeriod;
-  }
-);
+import { addAccountingPeriod } from '@/states/features/accounting/addStatementPeriod.thunk';
 
 export const getAccountingPeriods = createAsyncThunk(
   'accounting/getAccountingPeriods',
@@ -69,7 +44,7 @@ type Status =
   | 'load_complete'
   | 'error';
 
-type AccountingState = {
+export type AccountingState = {
   accountingPeriods: SerializableUserAccountingPeriod[];
   isInitialLoadComplete: boolean;
   status: Status;
@@ -92,6 +67,7 @@ const accountingSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(addAccountingPeriod.rejected, (state, action) => {})
       .addCase(addAccountingPeriod.pending, (state, action) => {
         state.status = 'adding';
         if (state.error) {
@@ -100,13 +76,7 @@ const accountingSlice = createSlice({
       })
       .addCase(
         addAccountingPeriod.fulfilled,
-        (state, action: PayloadAction<UserAccountingPeriodResponse>) => {
-          const addedPeriod = action.payload;
-          state.accountingPeriods.push({
-            ...addedPeriod,
-            startPeriod: addedPeriod.startPeriod,
-            endPeriod: addedPeriod.endPeriod,
-          });
+        (state, action: PayloadAction) => {
           state.status = 'add_complete';
         }
       )

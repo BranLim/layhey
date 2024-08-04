@@ -9,7 +9,7 @@ import {
   TransactionQueryParams,
   TransactionResponse,
 } from '@/types/Transaction';
-import { getTransactionsApi } from '@/states/features/cashflow/api/transactions.api';
+import { getTransactionsApi } from '@/api/transactions.api';
 import { toFormattedDate } from '@/utils/date.utils';
 
 export const getTransactionsForPeriod = createAsyncThunk<

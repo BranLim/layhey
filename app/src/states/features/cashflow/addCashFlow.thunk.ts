@@ -5,7 +5,7 @@ import {
   TransactionResponse,
 } from '@/types/Transaction';
 import { FlowViewState } from '@/states/features/cashflow/flow.slice';
-import { addTransactionsApi } from '@/states/features/cashflow/api/transactions.api';
+import { addTransactionsApi } from '@/api/transactions.api';
 import { isDateWithin } from '@/utils/date.utils';
 import {
   CashFlowState,

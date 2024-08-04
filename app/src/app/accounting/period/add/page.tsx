@@ -20,11 +20,9 @@ import {
   toFormattedDate,
 } from '@/utils/date.utils';
 import { AddAccountingPeriodRequest } from '@/types/StatementPeriod';
-import {
-  addAccountingPeriod,
-  selectAccountingStoreStatus,
-} from '@/states/features/accounting/accounting.slice';
+import { selectAccountingStoreStatus } from '@/states/features/accounting/accounting.slice';
 import { useEffect } from 'react';
+import { addAccountingPeriod } from '@/states/features/accounting/addStatementPeriod.thunk';
 
 type FormData = {
   name: string;

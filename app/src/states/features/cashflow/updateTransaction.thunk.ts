@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { FlowViewState } from '@/states/features/cashflow/flow.slice';
 import { CashFlowState } from '@/states/features/cashflow/cashflow.slice';
 import { UpdateTransactionRequest } from '@/types/Transaction';
-import { updateTransactionApi } from '@/states/features/cashflow/api/transactions.api';
+import { updateTransactionApi } from '@/api/transactions.api';
 
 export const updateTransaction = createAsyncThunk<
   void,
