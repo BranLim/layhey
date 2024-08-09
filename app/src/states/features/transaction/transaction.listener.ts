@@ -2,7 +2,10 @@ import { ListenerEffectAPI, PayloadAction } from '@reduxjs/toolkit';
 import { AppDispatch, RootState } from '@/states/store';
 import { UpdateTransactionEvent } from '@/types/Transaction';
 import { closeModal, openModal } from '@/states/common/modal.slice';
-import { getTransactionsForPeriod } from '@/states/features/transaction/getTransactions.thunk';
+import {
+  getTransactionById,
+  getTransactionsForPeriod,
+} from '@/states/features/transaction/getTransactions.thunk';
 
 const handleUpdateTransaction = (
   action: PayloadAction<UpdateTransactionEvent>,
@@ -18,6 +21,7 @@ const handleUpdateTransaction = (
 
   listenerApi.dispatch(openModal(target));
   listenerApi.dispatch(closeModal(source));
+  listenerApi.dispatch(getTransactionById(data.id));
 };
 
 export { handleUpdateTransaction };

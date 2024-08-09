@@ -35,6 +35,7 @@ import { getOverallCashFlowSummary } from '@/states/features/cashflow/getOverall
 import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import { selectOverallCashFlowPeriod } from '@/states/features/cashflow/cashflow.slice';
 import { updateTransaction } from '@/states/features/cashflow/updateTransaction.thunk';
+import { getTransactionByIdApi } from '@/api/transactions.api';
 
 interface Props {
   params: {
@@ -51,16 +52,6 @@ export type FormInput = {
   currency: string;
 };
 
-const getTransaction = async (id: string): Promise<TransactionDto> => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions/${id}`
-  );
-  if (response.ok) {
-    return response.json();
-  }
-  return {} as TransactionDto;
-};
-
 const UpdateTransaction = ({ params }: Props) => {
   const {
     register,
@@ -74,7 +65,10 @@ const UpdateTransaction = ({ params }: Props) => {
 
   useEffect(() => {
     (async () => {
-      const transaction = await getTransaction(params.id);
+      const transaction = await getTransactionByIdApi(params.id);
+      if (!transaction) {
+        return;
+      }
       setValue('mode', transaction.mode);
       setValue('amount', transaction.amount);
       setValue('date', transaction.date);

@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import {
+  setTransaction,
   setTransactions,
   TransactionViewState,
 } from '@/states/features/transaction/transaction.slice';
@@ -9,7 +10,10 @@ import {
   TransactionQueryParams,
   TransactionResponse,
 } from '@/types/Transaction';
-import { getTransactionsApi } from '@/api/transactions.api';
+import {
+  getTransactionByIdApi,
+  getTransactionsApi,
+} from '@/api/transactions.api';
 import { toFormattedDate } from '@/utils/date.utils';
 
 export const getTransactionsForPeriod = createAsyncThunk<
@@ -40,5 +44,33 @@ export const getTransactionsForPeriod = createAsyncThunk<
       transactionSearchParams
     );
     dispatch(setTransactions(transactions));
+  }
+);
+
+export const getTransactionById = createAsyncThunk<
+  void,
+  { id: string },
+  { state: { transaction: TransactionViewState } }
+>(
+  'transaction/getTransactionById',
+  async (
+    request: {
+      id: string;
+    },
+    { dispatch }
+  ) => {
+    const { id } = request;
+
+    const transaction = await getTransactionByIdApi(id);
+    if (transaction) {
+      dispatch(
+        setTransaction({
+          ...transaction,
+          date: transaction.date.toISOString() ?? '',
+          createdOn: transaction.createdOn?.toISOString() ?? '',
+          lastModifiedOn: transaction.lastModifiedOn?.toISOString() ?? '',
+        })
+      );
+    }
   }
 );

@@ -1,12 +1,13 @@
 import {
   AddTransactionRequest,
+  TransactionDto,
   TransactionQueryParams,
   TransactionResponse,
   UpdateTransactionRequest,
 } from '@/types/Transaction';
 import { toFormattedDate } from '@/utils/date.utils';
 
-export const getTransactionsApi = async (
+const getTransactionsApi = async (
   transactionQueryParams: TransactionQueryParams
 ): Promise<TransactionResponse[]> => {
   let apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions?${new URLSearchParams(transactionQueryParams).toString()}`;
@@ -25,9 +26,19 @@ export const getTransactionsApi = async (
   return (await response.json()) as TransactionResponse[];
 };
 
-export const addTransactionsApi = async (
-  newTransaction: AddTransactionRequest
-) => {
+const getTransactionByIdApi = async (
+  id: string
+): Promise<TransactionDto | null> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions/${id}`
+  );
+  if (response.ok) {
+    return (await response.json()) as TransactionDto;
+  }
+  return null;
+};
+
+const addTransactionsApi = async (newTransaction: AddTransactionRequest) => {
   const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`;
   const response = await fetch(apiPath, {
     method: 'POST',
@@ -44,7 +55,7 @@ export const addTransactionsApi = async (
   return (await response.json()) as TransactionResponse[];
 };
 
-export const updateTransactionApi = async (
+const updateTransactionApi = async (
   transactionRequest: UpdateTransactionRequest
 ) => {
   const updateResponse = await fetch(
@@ -60,4 +71,11 @@ export const updateTransactionApi = async (
     throw new Error('Error updating transaction');
   }
   return (await updateResponse.json()) as TransactionResponse;
+};
+
+export {
+  getTransactionsApi,
+  getTransactionByIdApi,
+  addTransactionsApi,
+  updateTransactionApi,
 };

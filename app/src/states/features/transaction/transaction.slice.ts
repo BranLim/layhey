@@ -1,16 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   SerializableTransaction,
+  TransactionDto,
   UpdateTransactionEvent,
 } from '@/types/Transaction';
 import { Draft } from 'immer';
 
 export type TransactionViewState = {
   transactions: SerializableTransaction[];
+  selectedTransaction?: SerializableTransaction;
 };
 
 const initialState: TransactionViewState = {
   transactions: [] as SerializableTransaction[],
+  selectedTransaction: undefined,
 };
 
 const transactionSlice = createSlice({
@@ -34,10 +37,17 @@ const transactionSlice = createSlice({
       state: Draft<TransactionViewState>,
       action: PayloadAction<UpdateTransactionEvent>
     ) => {},
+    setTransaction: (
+      state: Draft<TransactionViewState>,
+      action: PayloadAction<SerializableTransaction>
+    ) => {
+      const transaction = action.payload;
+      state.selectedTransaction = transaction;
+    },
   },
 });
 
-export const { setTransactions } = transactionSlice.actions;
+export const { setTransactions, setTransaction } = transactionSlice.actions;
 export const selectTransactions = (state: any): SerializableTransaction[] =>
   state.transaction.transactions;
 
