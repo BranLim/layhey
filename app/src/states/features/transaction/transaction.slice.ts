@@ -1,19 +1,25 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   SerializableTransaction,
   TransactionDto,
   UpdateTransactionEvent,
 } from '@/types/Transaction';
 import { Draft } from 'immer';
+import { addTransaction } from '@/lib/services/transaction.service';
+import { getTransactionById } from '@/states/features/transaction/getTransactions.thunk';
+
+export type Status = 'pending' | 'inprogress' | 'done' | 'error';
 
 export type TransactionViewState = {
   transactions: SerializableTransaction[];
   selectedTransaction?: SerializableTransaction;
+  status?: Status;
 };
 
 const initialState: TransactionViewState = {
   transactions: [] as SerializableTransaction[],
   selectedTransaction: undefined,
+  status: undefined,
 };
 
 const transactionSlice = createSlice({
@@ -33,10 +39,6 @@ const transactionSlice = createSlice({
       state.transactions.length = 0;
       state.transactions.push(...sortedTransaction);
     },
-    updateTransaction: (
-      state: Draft<TransactionViewState>,
-      action: PayloadAction<UpdateTransactionEvent>
-    ) => {},
     setTransaction: (
       state: Draft<TransactionViewState>,
       action: PayloadAction<SerializableTransaction>
@@ -45,10 +47,29 @@ const transactionSlice = createSlice({
       state.selectedTransaction = transaction;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(getTransactionById.rejected, (state, action) => {
+        state.status = 'error';
+      })
+      .addCase(getTransactionById.pending, (state, action) => {
+        state.status = 'pending';
+      })
+      .addCase(getTransactionById.fulfilled, (state, action) => {
+        state.status = 'done';
+      });
+  },
 });
 
+export const updateTransaction = createAction<UpdateTransactionEvent>(
+  'transaction/updateTransaction'
+);
 export const { setTransactions, setTransaction } = transactionSlice.actions;
 export const selectTransactions = (state: any): SerializableTransaction[] =>
   state.transaction.transactions;
+export const selectTransaction = (state: any): SerializableTransaction =>
+  state.transaction.selectedTransaction;
+export const selectTransactionLoadingStatus = (state: any): Status =>
+  state.transaction.status;
 
 export default transactionSlice.reducer;

@@ -13,6 +13,8 @@ import {
   setOverallCashFlow,
 } from '@/states/features/cashflow/cashflow.slice';
 import { handleNodeMouseDoubleClick } from '@/states/features/cashflow/flow.slice';
+import { updateTransaction } from '@/states/features/transaction/transaction.slice';
+import { handleUpdateTransaction } from '@/states/features/transaction/transaction.listener';
 
 export const listenerMiddleware = createListenerMiddleware();
 export const startAppListening = listenerMiddleware.startListening.withTypes<
@@ -47,4 +49,8 @@ startAppListening({
 startAppListening({
   actionCreator: reset,
   effect: handleCashFlowReset,
+});
+startAppListening({
+  actionCreator: updateTransaction,
+  effect: handleUpdateTransaction,
 });

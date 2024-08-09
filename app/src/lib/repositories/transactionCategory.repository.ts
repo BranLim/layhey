@@ -15,7 +15,7 @@ const add = async (
   const addedTransactionCategory = await newTransactionCategory.save();
 
   return {
-    id: addedTransactionCategory._id,
+    id: addedTransactionCategory._id as string,
     name: addedTransactionCategory.name,
     description: addedTransactionCategory.description,
   };

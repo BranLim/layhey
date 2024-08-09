@@ -4,6 +4,7 @@ import { toFormattedDate } from '@/utils/date.utils';
 import { useAppDispatch } from '@/states/hooks';
 import { closeModal, openModal } from '@/states/common/modal.slice';
 import NextLink from 'next/link';
+import { updateTransaction } from '@/states/features/transaction/transaction.slice';
 
 type Props = {
   transaction: SerializableTransaction;
@@ -19,9 +20,14 @@ export const TransactionListRow = (props: Props) => {
   });
   const dispatch = useAppDispatch();
 
-  const handleUpdate = (modalId: string) => {
-    dispatch(openModal(modalId));
-    dispatch(closeModal('TransactionDrawer'));
+  const handleUpdate = (modalId: string, transactionId: string) => {
+    dispatch(
+      updateTransaction({
+        source: 'TransactionDrawer',
+        target: modalId,
+        data: { id: transactionId },
+      })
+    );
   };
 
   return (
@@ -43,7 +49,7 @@ export const TransactionListRow = (props: Props) => {
           colorScheme='blue'
           size='md'
           onClick={() => {
-            handleUpdate('UpdateTransactionModal');
+            handleUpdate('UpdateTransactionModal', transaction.id);
           }}
           href={`/transactions/update/${transaction.id}`}
         >

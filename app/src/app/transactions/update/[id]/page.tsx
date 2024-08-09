@@ -36,6 +36,10 @@ import { useAppDispatch, useAppSelector } from '@/states/hooks';
 import { selectOverallCashFlowPeriod } from '@/states/features/cashflow/cashflow.slice';
 import { updateTransaction } from '@/states/features/cashflow/updateTransaction.thunk';
 import { getTransactionByIdApi } from '@/api/transactions.api';
+import {
+  selectTransactionLoadingStatus,
+  selectTransaction,
+} from '@/states/features/transaction/transaction.slice';
 
 interface Props {
   params: {
@@ -62,23 +66,23 @@ const UpdateTransaction = ({ params }: Props) => {
     formState: { errors },
   } = useForm<FormInput>();
   const dispatch = useAppDispatch();
+  const transaction = useAppSelector(selectTransaction);
+  const loadingTransactionStatus = useAppSelector(
+    selectTransactionLoadingStatus
+  );
 
   useEffect(() => {
-    (async () => {
-      const transaction = await getTransactionByIdApi(params.id);
-      if (!transaction) {
-        return;
-      }
-      setValue('mode', transaction.mode);
-      setValue('amount', transaction.amount);
-      setValue('date', transaction.date);
-      setValue('currency', transaction.currency);
-      setValue('source', transaction.transactionSource);
-      setValue('category', transaction.transactionCategory);
-    })();
-  });
-
-  const overallCashFlowPeriod = useAppSelector(selectOverallCashFlowPeriod);
+    if (!transaction || loadingTransactionStatus !== 'done') {
+      return;
+    }
+    console.log('Transaction loaded');
+    setValue('mode', transaction.mode);
+    setValue('amount', transaction.amount);
+    setValue('date', new Date(transaction.date));
+    setValue('currency', transaction.currency);
+    setValue('source', transaction.transactionSource);
+    setValue('category', transaction.transactionCategory);
+  }, [loadingTransactionStatus, transaction]);
 
   const handleCloseModal = () => {
     dispatch(closeModal('UpdateTransactionModal'));

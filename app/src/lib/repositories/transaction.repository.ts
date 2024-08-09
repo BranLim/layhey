@@ -122,7 +122,7 @@ const findOneById = async (id: string): Promise<Transaction | null> => {
   }
 
   const transaction: Transaction = {
-    id: foundTransaction._id,
+    id: foundTransaction._id as string,
     mode: foundTransaction.mode,
     transactionSource: foundTransaction.transactionSource,
     transactionCategory: foundTransaction.transactionCategory,

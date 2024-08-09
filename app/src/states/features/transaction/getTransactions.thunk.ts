@@ -63,14 +63,19 @@ export const getTransactionById = createAsyncThunk<
 
     const transaction = await getTransactionByIdApi(id);
     if (transaction) {
-      dispatch(
-        setTransaction({
-          ...transaction,
-          date: transaction.date.toISOString() ?? '',
-          createdOn: transaction.createdOn?.toISOString() ?? '',
-          lastModifiedOn: transaction.lastModifiedOn?.toISOString() ?? '',
-        })
-      );
+      console.log('Found transaction to update');
+      try {
+        dispatch(
+          setTransaction({
+            ...transaction,
+            date: new Date(transaction.date).toISOString() ?? '',
+            createdOn: transaction.createdOn?.toISOString() ?? '',
+            lastModifiedOn: transaction.lastModifiedOn?.toISOString() ?? '',
+          })
+        );
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 );
