@@ -1,5 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SerializableTransaction } from '@/types/Transaction';
+import {
+  SerializableTransaction,
+  UpdateTransactionEvent,
+} from '@/types/Transaction';
 import { Draft } from 'immer';
 
 export type TransactionViewState = {
@@ -27,6 +30,10 @@ const transactionSlice = createSlice({
       state.transactions.length = 0;
       state.transactions.push(...sortedTransaction);
     },
+    updateTransaction: (
+      state: Draft<TransactionViewState>,
+      action: PayloadAction<UpdateTransactionEvent>
+    ) => {},
   },
 });
 

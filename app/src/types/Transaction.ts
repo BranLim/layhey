@@ -71,6 +71,14 @@ export type TransactionQueryParams = {
   mode?: string;
 };
 
+export type UpdateTransactionEvent = {
+  target: string;
+  source: string;
+  data: {
+    id: string;
+  };
+};
+
 export const modeFromValue = (value: string): TransactionMode | never => {
   const mode = (
     Object.keys(TransactionMode) as (keyof typeof TransactionMode)[]
