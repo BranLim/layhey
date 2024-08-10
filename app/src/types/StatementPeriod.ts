@@ -43,5 +43,5 @@ export type AddStatementPeriodResponse = SerializableUserStatementPeriod;
 export type UpdateAccountingPeriodRequest = AddStatementPeriodRequest;
 
 export type GetUserAccountingPeriodsResponse = {
-  accountingPeriods: SerializableUserStatementPeriod[];
+  statementPeriods: SerializableUserStatementPeriod[];
 };

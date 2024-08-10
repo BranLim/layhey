@@ -23,7 +23,7 @@ const toGetUserAccountingPeriodsResponse = (
   accountingPeriods: UserStatementPeriod[]
 ) => {
   return {
-    accountingPeriods: accountingPeriods.map((userAccountPeriod) => {
+    statementPeriods: accountingPeriods.map((userAccountPeriod) => {
       return {
         id: userAccountPeriod.id,
         name: userAccountPeriod.name,

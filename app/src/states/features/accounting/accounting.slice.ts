@@ -79,10 +79,6 @@ const accountingSlice = createSlice({
       .addCase(
         getAccountingPeriods.fulfilled,
         (state: Draft<AccountingState>, action) => {
-          const accountingPeriodResponse = action.payload;
-          state.statementPeriods.push(
-            ...accountingPeriodResponse.accountingPeriods
-          );
           state.isInitialLoadComplete = true;
           state.status = 'load_complete';
         }
