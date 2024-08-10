@@ -1,13 +1,13 @@
 import {
-  AddAccountingPeriodRequest,
-  UserAccountingPeriod,
+  AddStatementPeriodRequest,
+  UserStatementPeriod,
 } from '@/types/StatementPeriod';
 import { add, findAll } from '@/lib/repositories/accountingPeriod.repository';
 import { getErrorMessage } from '@/utils/error.utils';
 
 const addAccountingPeriod = async (
-  addAccountingPeriodRequest: AddAccountingPeriodRequest
-): Promise<UserAccountingPeriod> => {
+  addAccountingPeriodRequest: AddStatementPeriodRequest
+): Promise<UserStatementPeriod> => {
   const { name, description, startPeriod, endPeriod } =
     addAccountingPeriodRequest.data;
   const addedAccountingPeriod = await add({
@@ -22,7 +22,7 @@ const addAccountingPeriod = async (
   };
 };
 
-const getAccountingPeriods = async (): Promise<UserAccountingPeriod[]> => {
+const getAccountingPeriods = async (): Promise<UserStatementPeriod[]> => {
   try {
     const addedAccountingPeriod = await findAll();
     if (addedAccountingPeriod) {

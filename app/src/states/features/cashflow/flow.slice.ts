@@ -11,7 +11,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import {
   StatementPeriod,
-  SerializableAccountingPeriod,
+  SerializableStatementPeriod,
 } from '@/types/StatementPeriod';
 import { Draft } from 'immer';
 import SerializableIncomeSummary = CashFlow.SerializableIncomeSummary;
@@ -53,7 +53,7 @@ export type FlowViewStatus =
   | 'node_expansion_completed';
 
 export type FlowViewState = {
-  currentChosenAccountingPeriod: SerializableAccountingPeriod;
+  currentChosenAccountingPeriod: SerializableStatementPeriod;
   expandedNodes: Array<string>;
   nodes: Node<Flow.FlowNodeData>[];
   edges: Edge[];
@@ -258,7 +258,7 @@ const getNodePosition = (
 
   const nodeXPosition = (targetNode?.position.x ?? 0) + 480;
   const nodeYPosition =
-    (childNodes.length === 0 ? targetNode?.position?.y ?? 0 : 0) +
+    (childNodes.length === 0 ? (targetNode?.position?.y ?? 0) : 0) +
     (lastChild ? lastChild.position.y + (lastChild.height ?? 0) : 0) +
     10;
 
@@ -290,7 +290,7 @@ const flowSlice = createSlice({
   reducers: {
     setCurrentAccountingPeriod: (
       state: Draft<FlowViewState>,
-      action: PayloadAction<SerializableAccountingPeriod>
+      action: PayloadAction<SerializableStatementPeriod>
     ) => {
       const accountingPeriod = action.payload;
       if (accountingPeriod) {
@@ -661,7 +661,7 @@ export const selectNodeStyle = (state: any, nodeId: string) =>
 export const selectPeriodForSelectedNode = createSelector(
   (state: any) => state.flow.selectedNode,
   (selectedNode) => {
-    const accountingPeriod: SerializableAccountingPeriod = {
+    const accountingPeriod: SerializableStatementPeriod = {
       startPeriod: '',
       endPeriod: '',
     };

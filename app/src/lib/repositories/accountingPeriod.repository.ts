@@ -1,11 +1,11 @@
-import { UserAccountingPeriod } from '@/types/StatementPeriod';
+import { UserStatementPeriod } from '@/types/StatementPeriod';
 import { connectMongo } from '@/database/mongodb';
 import { AccountingPeriodModel } from '@/lib/models/accountingPeriod.model';
 import { toUserAccountingPeriod } from '@/lib/mappers/accountingPeriod.mapper';
 
 const add = async (
-  accountingPeriod: UserAccountingPeriod
-): Promise<UserAccountingPeriod> => {
+  accountingPeriod: UserStatementPeriod
+): Promise<UserStatementPeriod> => {
   await connectMongo();
 
   const newAccountingPeriod = new AccountingPeriodModel({
@@ -18,7 +18,7 @@ const add = async (
   return toUserAccountingPeriod(addedAccountingPeriod);
 };
 
-const findAll = async (): Promise<UserAccountingPeriod[]> => {
+const findAll = async (): Promise<UserStatementPeriod[]> => {
   await connectMongo();
 
   const accountingPeriods = await AccountingPeriodModel.find({});

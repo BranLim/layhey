@@ -3,36 +3,24 @@ import {
   GetUserAccountingPeriodsResponse,
   SerializableStatementPeriodSlot,
   StatementPeriodSlot,
-  UserAccountingPeriod,
-  UserAccountingPeriodResponse,
+  UserStatementPeriod,
+  UserStatementPeriodResponse,
 } from '@/types/StatementPeriod';
 
 const toUserAccountingPeriod = (
   accountingPeriodDocument: AccountingPeriodDocument
-): UserAccountingPeriod => {
+): UserStatementPeriod => {
   return {
     id: accountingPeriodDocument._id,
     name: accountingPeriodDocument.name,
     description: accountingPeriodDocument.description,
     startPeriod: accountingPeriodDocument.startPeriod,
     endPeriod: accountingPeriodDocument.endPeriod,
-  } as UserAccountingPeriod;
-};
-
-const toUserAccountingPeriodResponse = (
-  userAccountingPeriod: UserAccountingPeriod
-) => {
-  return {
-    id: userAccountingPeriod.id,
-    name: userAccountingPeriod.name,
-    description: userAccountingPeriod.description,
-    startPeriod: userAccountingPeriod.startPeriod?.toISOString(),
-    endPeriod: userAccountingPeriod.endPeriod?.toISOString(),
-  } as UserAccountingPeriodResponse;
+  } as UserStatementPeriod;
 };
 
 const toGetUserAccountingPeriodsResponse = (
-  accountingPeriods: UserAccountingPeriod[]
+  accountingPeriods: UserStatementPeriod[]
 ) => {
   return {
     accountingPeriods: accountingPeriods.map((userAccountPeriod) => {
@@ -42,7 +30,7 @@ const toGetUserAccountingPeriodsResponse = (
         description: userAccountPeriod.description,
         startPeriod: userAccountPeriod.startPeriod?.toISOString(),
         endPeriod: userAccountPeriod.endPeriod?.toISOString(),
-      } as UserAccountingPeriodResponse;
+      } as UserStatementPeriodResponse;
     }),
   } as GetUserAccountingPeriodsResponse;
 };
@@ -61,7 +49,6 @@ const toSerializableStatementPeriods = (
 
 export {
   toUserAccountingPeriod,
-  toUserAccountingPeriodResponse,
   toGetUserAccountingPeriodsResponse,
   toSerializableStatementPeriods,
 };

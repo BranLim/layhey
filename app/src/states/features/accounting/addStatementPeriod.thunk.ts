@@ -1,22 +1,22 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { AddAccountingPeriodRequest } from '@/types/StatementPeriod';
+import { AddStatementPeriodRequest } from '@/types/StatementPeriod';
 import { addStatementPeriodsApi } from '@/api/statementPeriods.api';
-import { AccountingState } from '@/states/features/accounting/accounting.slice';
+import {
+  AccountingState,
+  addStatementPeriod,
+} from '@/states/features/accounting/accounting.slice';
 
 export const addAccountingPeriod = createAsyncThunk<
   void,
-  AddAccountingPeriodRequest,
+  AddStatementPeriodRequest,
   { state: { accounting: AccountingState } }
 >(
   'accounting/addAccountingPeriod',
-  async (newAccountingPeriod: AddAccountingPeriodRequest, { getState }) => {
-    const addedStatementPeriods =
-      await addStatementPeriodsApi(newAccountingPeriod);
-    const state = getState();
-    state.accounting.accountingPeriods.push({
-      ...addedStatementPeriods,
-      startPeriod: addedStatementPeriods.startPeriod,
-      endPeriod: addedStatementPeriods.endPeriod,
-    });
+  async (newStatementPeriod: AddStatementPeriodRequest, { dispatch }) => {
+    const addedStatementPeriod =
+      await addStatementPeriodsApi(newStatementPeriod);
+    if (addedStatementPeriod) {
+      dispatch(addStatementPeriod(addedStatementPeriod));
+    }
   }
 );

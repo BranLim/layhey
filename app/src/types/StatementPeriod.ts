@@ -12,35 +12,36 @@ export type StatementPeriodSlot = StatementPeriod & {
   key: string;
 };
 
-export type SerializableAccountingPeriod = {
+export type SerializableStatementPeriod = {
   startPeriod: string;
   endPeriod: string;
 };
 
-export type SerializableStatementPeriodSlot = SerializableAccountingPeriod & {
+export type SerializableStatementPeriodSlot = SerializableStatementPeriod & {
   key: string;
 };
 
-export type AccountingPeriodIdentifier = {
+export type StatementPeriodIdentifier = {
   id?: string;
   name: string;
   description: string;
 };
 
-export type UserAccountingPeriod = StatementPeriod & AccountingPeriodIdentifier;
+export type UserStatementPeriod = StatementPeriod & StatementPeriodIdentifier;
 
-export type SerializableUserAccountingPeriod = AccountingPeriodIdentifier &
-  SerializableAccountingPeriod;
+export type SerializableUserStatementPeriod = StatementPeriodIdentifier &
+  SerializableStatementPeriod;
 
-export type UserAccountingPeriodRequest = SerializableUserAccountingPeriod;
+export type UserStatementPeriodResponse = SerializableUserStatementPeriod;
 
-export type UserAccountingPeriodResponse = SerializableUserAccountingPeriod;
-
-export type AddAccountingPeriodRequest = {
-  data: UserAccountingPeriodRequest;
+export type AddStatementPeriodRequest = {
+  data: SerializableUserStatementPeriod;
 };
-export type UpdateAccountingPeriodRequest = AddAccountingPeriodRequest;
+
+export type AddStatementPeriodResponse = SerializableUserStatementPeriod;
+
+export type UpdateAccountingPeriodRequest = AddStatementPeriodRequest;
 
 export type GetUserAccountingPeriodsResponse = {
-  accountingPeriods: UserAccountingPeriodResponse[];
+  accountingPeriods: SerializableUserStatementPeriod[];
 };

@@ -3,7 +3,7 @@ import { TransactionMode } from '@/types/Transaction';
 import CashFlow from '@/types/CashFlow';
 import {
   StatementPeriod,
-  SerializableAccountingPeriod,
+  SerializableStatementPeriod,
   StatementPeriodSlot,
 } from '@/types/StatementPeriod';
 import { v4 as uuidv4 } from 'uuid';
@@ -310,7 +310,7 @@ export const selectOverallCashFlowPeriod = createSelector(
     ({
       startPeriod: cashFlowSummary.startPeriod,
       endPeriod: cashFlowSummary.endPeriod,
-    }) as SerializableAccountingPeriod
+    }) as SerializableStatementPeriod
 );
 export const selectOverallCashFlowSummary = createSelector(
   (state: any) => state.cashflow.overallCashFlowForPeriod,

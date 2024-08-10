@@ -5,12 +5,12 @@ import { useRef } from 'react';
 import { AppStore, makeStore } from '@/states/store';
 import { Provider } from 'react-redux';
 import { ReactFlowProvider } from 'reactflow';
-import { SerializableAccountingPeriod } from '@/types/StatementPeriod';
+import { SerializableStatementPeriod } from '@/types/StatementPeriod';
 import { setCurrentAccountingPeriod } from '@/states/features/cashflow/flow.slice';
 import { setOverallCashFlowStatementPeriod } from '@/states/features/cashflow/cashflow.slice';
-import { getAccountingPeriods } from '@/states/features/accounting/accounting.slice';
 import { getCurrentYear, toFormattedDate } from '@/utils/date.utils';
 import { getOverallCashFlowSummary } from '@/states/features/cashflow/getOverallCashFlowSummary.thunk';
+import { getAccountingPeriods } from '@/states/features/accounting/getStatementPeriods.thunk';
 
 const currentYear = getCurrentYear();
 const accountingPeriodStart = new Date(currentYear, 0, 1);
@@ -22,7 +22,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     const newStore = makeStore();
     storeRef.current = newStore;
 
-    const accountingPeriod: SerializableAccountingPeriod = {
+    const accountingPeriod: SerializableStatementPeriod = {
       startPeriod: accountingPeriodStart.toISOString(),
       endPeriod: accountingPeriodEnd.toISOString(),
     };

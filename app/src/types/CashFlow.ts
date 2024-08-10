@@ -1,5 +1,5 @@
 import {
-  SerializableAccountingPeriod,
+  SerializableStatementPeriod,
   SerializableStatementPeriodSlot,
 } from '@/types/StatementPeriod';
 import { TransactionMode } from '@/types/Transaction';
@@ -21,20 +21,20 @@ namespace CashFlow {
 
   export type CashFlowStatement = Statement & {
     statementType: 'Summary';
-    accountingPeriod: SerializableAccountingPeriod;
+    accountingPeriod: SerializableStatementPeriod;
     income: CashFlow;
     expense: CashFlow;
   };
 
   export type IncomeStatement = Statement & {
     statementType: 'Income';
-    accountingPeriod: SerializableAccountingPeriod;
+    accountingPeriod: SerializableStatementPeriod;
     income: CashFlow;
   };
 
   export type ExpenseStatement = Statement & {
     statementType: 'Expense';
-    accountingPeriod: SerializableAccountingPeriod;
+    accountingPeriod: SerializableStatementPeriod;
     expense: CashFlow;
   };
 

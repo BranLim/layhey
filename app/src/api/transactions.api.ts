@@ -5,7 +5,7 @@ import {
   TransactionResponse,
   UpdateTransactionRequest,
 } from '@/types/Transaction';
-import { toFormattedDate } from '@/utils/date.utils';
+import { mapJsonToTransactionDto } from '@/lib/mappers/transaction.mapper';
 
 const getTransactionsApi = async (
   transactionQueryParams: TransactionQueryParams
@@ -23,7 +23,7 @@ const getTransactionsApi = async (
     );
   }
 
-  return (await response.json()) as TransactionResponse[];
+  return await response.json();
 };
 
 const getTransactionByIdApi = async (
@@ -32,13 +32,15 @@ const getTransactionByIdApi = async (
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions/${id}`
   );
-  if (response.ok) {
-    return (await response.json()) as TransactionDto;
+  if (!response.ok) {
+    return null;
   }
-  return null;
+  return mapJsonToTransactionDto(await response.json());
 };
 
-const addTransactionsApi = async (newTransaction: AddTransactionRequest) => {
+const addTransactionsApi = async (
+  newTransaction: AddTransactionRequest
+): Promise<TransactionResponse[]> => {
   const apiPath = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`;
   const response = await fetch(apiPath, {
     method: 'POST',
@@ -52,12 +54,12 @@ const addTransactionsApi = async (newTransaction: AddTransactionRequest) => {
   if (!response.ok) {
     throw new Error('Error adding new transaction');
   }
-  return (await response.json()) as TransactionResponse[];
+  return await response.json();
 };
 
 const updateTransactionApi = async (
   transactionRequest: UpdateTransactionRequest
-) => {
+): Promise<TransactionResponse> => {
   const updateResponse = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions/${transactionRequest.transaction.id}`,
     {
@@ -70,7 +72,7 @@ const updateTransactionApi = async (
   if (!updateResponse.ok) {
     throw new Error('Error updating transaction');
   }
-  return (await updateResponse.json()) as TransactionResponse;
+  return await updateResponse.json();
 };
 
 export {

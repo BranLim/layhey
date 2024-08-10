@@ -15,6 +15,7 @@ import {
   getTransactionsApi,
 } from '@/api/transactions.api';
 import { toFormattedDate } from '@/utils/date.utils';
+import { getErrorMessage } from '@/utils/error.utils';
 
 export const getTransactionsForPeriod = createAsyncThunk<
   void,
@@ -74,7 +75,8 @@ export const getTransactionById = createAsyncThunk<
           })
         );
       } catch (error) {
-        console.log(error);
+        console.log(getErrorMessage);
+        throw error;
       }
     }
   }

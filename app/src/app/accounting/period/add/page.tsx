@@ -19,7 +19,7 @@ import {
   getCurrentDate,
   toFormattedDate,
 } from '@/utils/date.utils';
-import { AddAccountingPeriodRequest } from '@/types/StatementPeriod';
+import { AddStatementPeriodRequest } from '@/types/StatementPeriod';
 import { selectAccountingStoreStatus } from '@/states/features/accounting/accounting.slice';
 import { useEffect } from 'react';
 import { addAccountingPeriod } from '@/states/features/accounting/addStatementPeriod.thunk';
@@ -62,7 +62,7 @@ const AddAccountingPeriod = () => {
 
   const onSubmit = (data: FormData) => {
     const { name, description, startPeriod, endPeriod } = data;
-    const addAccountingPeriodRequest: AddAccountingPeriodRequest = {
+    const addAccountingPeriodRequest: AddStatementPeriodRequest = {
       data: {
         name: name,
         description: description,

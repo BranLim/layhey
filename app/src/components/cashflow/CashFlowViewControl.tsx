@@ -26,11 +26,11 @@ import { useReactFlow } from 'reactflow';
 import { defaultViewPort } from '@/components/cashflow/CashFlowView';
 import {
   selectPresetAccountingPeriod,
-  selectPresetAccountingPeriods,
+  selectPresetStatementPeriods,
 } from '@/states/features/accounting/accounting.slice';
 import {
-  SerializableAccountingPeriod,
-  UserAccountingPeriod,
+  SerializableStatementPeriod,
+  UserStatementPeriod,
 } from '@/types/StatementPeriod';
 import { selectRootNode } from '@/states/features/cashflow/flow.slice';
 import CashFlow from '@/types/CashFlow';
@@ -55,7 +55,7 @@ const defaultViewOptionValues: Input = {
 export const CashFlowViewControl = () => {
   const dispatch = useAppDispatch();
   const [selectedPeriodPreset, setSelectedPeriodPreset] = useState<string>();
-  const accountingPeriodPresets = useAppSelector(selectPresetAccountingPeriods);
+  const accountingPeriodPresets = useAppSelector(selectPresetStatementPeriods);
   const selectedAccountingPeriodPreset = useAppSelector((state) =>
     selectPresetAccountingPeriod(state, selectedPeriodPreset)
   );
@@ -86,7 +86,7 @@ export const CashFlowViewControl = () => {
 
   const updateCashFlowView = (startPeriod: Date, endPeriod: Date) => {
     const resetCashFlow = true;
-    const accountingPeriod: SerializableAccountingPeriod = {
+    const accountingPeriod: SerializableStatementPeriod = {
       startPeriod: startPeriod.toISOString(),
       endPeriod: endPeriod.toISOString(),
     };
@@ -149,7 +149,7 @@ export const CashFlowViewControl = () => {
                 <Select id='presetAccountingPeriod' onChange={handleChange}>
                   <option>Select Preset</option>
                   {accountingPeriodPresets?.map(
-                    (preset: UserAccountingPeriod) => {
+                    (preset: UserStatementPeriod) => {
                       return (
                         <option key={preset.id} value={preset.id}>
                           {preset.name}
