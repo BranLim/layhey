@@ -101,10 +101,10 @@ export const {
 export const selectAccountingStoreStatus = (state: any) =>
   state.accounting.status;
 export const selectPresetStatementPeriods = (state: any) =>
-  state.accounting.accountingPeriods;
+  state.accounting.statementPeriods;
 export const selectPresetAccountingPeriod = (state: any, id?: string) =>
   id &&
-  state.accounting.accountingPeriods.find(
+  state.accounting.statementPeriods.find(
     (accountingPeriod: UserStatementPeriod) => accountingPeriod.id === id
   );
 

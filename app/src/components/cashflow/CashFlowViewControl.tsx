@@ -76,8 +76,11 @@ export const CashFlowViewControl = () => {
   const reactFlow = useReactFlow();
   useEffect(() => {
     if (selectedPeriodPreset && selectedAccountingPeriodPreset) {
-      setValue('startPeriod', selectedAccountingPeriodPreset.startPeriod);
-      setValue('endPeriod', selectedAccountingPeriodPreset.endPeriod);
+      setValue(
+        'startPeriod',
+        new Date(selectedAccountingPeriodPreset.startPeriod)
+      );
+      setValue('endPeriod', new Date(selectedAccountingPeriodPreset.endPeriod));
     } else {
       setValue('startPeriod', startOfYear);
       setValue('endPeriod', endOfYear);
